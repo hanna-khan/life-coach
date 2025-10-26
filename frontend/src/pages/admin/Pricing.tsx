@@ -1,0 +1,461 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+
+interface PricingPackage {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  features: string[];
+  isPopular: boolean;
+  isActive: boolean;
+}
+
+const AdminPricing: React.FC = () => {
+  const [packages, setPackages] = useState<PricingPackage[]>([
+    {
+      _id: '1',
+      name: 'Initial Consultation',
+      description: 'Perfect for first-time clients to understand their needs',
+      price: 75,
+      duration: 30,
+      features: [
+        '30-minute session',
+        'Goal assessment',
+        'Action plan outline',
+        'Follow-up email'
+      ],
+      isPopular: false,
+      isActive: true
+    },
+    {
+      _id: '2',
+      name: 'Life Coaching Session',
+      description: 'Comprehensive coaching session for personal development',
+      price: 150,
+      duration: 60,
+      features: [
+        '60-minute session',
+        'Personalized coaching',
+        'Progress tracking',
+        'Resource materials',
+        'Email support'
+      ],
+      isPopular: true,
+      isActive: true
+    },
+    {
+      _id: '3',
+      name: 'Career Guidance',
+      description: 'Specialized coaching for career advancement',
+      price: 180,
+      duration: 60,
+      features: [
+        '60-minute session',
+        'Career assessment',
+        'Resume review',
+        'Interview prep',
+        'LinkedIn optimization'
+      ],
+      isPopular: false,
+      isActive: true
+    },
+    {
+      _id: '4',
+      name: 'Goal Setting Session',
+      description: 'Focused session on setting and achieving goals',
+      price: 120,
+      duration: 45,
+      features: [
+        '45-minute session',
+        'SMART goals framework',
+        'Action planning',
+        'Progress milestones',
+        'Accountability check-ins'
+      ],
+      isPopular: false,
+      isActive: true
+    }
+  ]);
+
+  const [showModal, setShowModal] = useState(false);
+  const [editingPackage, setEditingPackage] = useState<PricingPackage | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: 0,
+    duration: 30,
+    features: '',
+    isPopular: false,
+    isActive: true
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (editingPackage) {
+      // Update existing package
+      setPackages(packages.map(pkg => 
+        pkg._id === editingPackage._id 
+          ? { ...pkg, ...formData, features: formData.features.split('\n').filter(f => f.trim()) }
+          : pkg
+      ));
+    } else {
+      // Create new package
+      const newPackage: PricingPackage = {
+        _id: Date.now().toString(),
+        ...formData,
+        features: formData.features.split('\n').filter(f => f.trim())
+      };
+      setPackages([newPackage, ...packages]);
+    }
+
+    setShowModal(false);
+    setEditingPackage(null);
+    setFormData({
+      name: '',
+      description: '',
+      price: 0,
+      duration: 30,
+      features: '',
+      isPopular: false,
+      isActive: true
+    });
+  };
+
+  const handleEdit = (pkg: PricingPackage) => {
+    setEditingPackage(pkg);
+    setFormData({
+      name: pkg.name,
+      description: pkg.description,
+      price: pkg.price,
+      duration: pkg.duration,
+      features: pkg.features.join('\n'),
+      isPopular: pkg.isPopular,
+      isActive: pkg.isActive
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this package?')) {
+      setPackages(packages.filter(pkg => pkg._id !== id));
+    }
+  };
+
+  const toggleActive = (id: string) => {
+    setPackages(packages.map(pkg => 
+      pkg._id === id 
+        ? { ...pkg, isActive: !pkg.isActive }
+        : pkg
+    ));
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Pricing Packages</h1>
+          <p className="text-gray-600 mt-2">Manage your service packages and pricing</p>
+        </div>
+        <motion.button
+          onClick={() => setShowModal(true)}
+          className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <motion.svg 
+            className="w-5 h-5" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+            whileHover={{ rotate: 90 }}
+            transition={{ duration: 0.3 }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </motion.svg>
+          <span>Add New Package</span>
+        </motion.button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Packages</p>
+              <p className="text-2xl font-semibold text-gray-900">{packages.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Active Packages</p>
+              <p className="text-2xl font-semibold text-gray-900">{packages.filter(p => p.isActive).length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-yellow-100 rounded-lg">
+              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Popular Packages</p>
+              <p className="text-2xl font-semibold text-gray-900">{packages.filter(p => p.isPopular).length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Avg. Price</p>
+              <p className="text-2xl font-semibold text-gray-900">${Math.round(packages.reduce((sum, pkg) => sum + pkg.price, 0) / packages.length)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Packages Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {packages.map((pkg) => (
+          <motion.div
+            key={pkg._id}
+            className={`bg-white rounded-lg shadow-lg overflow-hidden ${
+              pkg.isPopular ? 'ring-2 ring-primary-500' : ''
+            } ${!pkg.isActive ? 'opacity-60' : ''}`}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            {pkg.isPopular && (
+              <div className="bg-primary-600 text-white text-center py-2 text-sm font-medium">
+                Most Popular
+              </div>
+            )}
+            
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{pkg.name}</h3>
+                  <p className="text-gray-600 text-sm mt-1">{pkg.description}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => toggleActive(pkg._id)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      pkg.isActive 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {pkg.isActive ? 'Active' : 'Inactive'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="text-3xl font-bold text-gray-900">${pkg.price}</div>
+                <div className="text-gray-600">{pkg.duration} minutes</div>
+              </div>
+
+              <ul className="space-y-2 mb-6">
+                {pkg.features.map((feature, index) => (
+                  <li key={index} className="flex items-center text-sm text-gray-600">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEdit(pkg)}
+                  className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(pkg._id)}
+                  className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors duration-200"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowModal(false);
+            }
+          }}
+        >
+          <motion.div
+            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[95vh] overflow-y-auto"
+            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingPackage ? 'Edit Package' : 'Create New Package'}
+              </h2>
+              <motion.button
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </motion.button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Package Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
+                  <input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+                  <input
+                    type="number"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Features (one per line)</label>
+                <textarea
+                  value={formData.features}
+                  onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  rows={6}
+                  placeholder="30-minute session&#10;Goal assessment&#10;Action plan outline&#10;Follow-up email"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isPopular"
+                    checked={formData.isPopular}
+                    onChange={(e) => setFormData({ ...formData, isPopular: e.target.checked })}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isPopular" className="ml-2 block text-sm text-gray-900">
+                    Popular Package
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                    Active Package
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <motion.button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  type="submit"
+                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {editingPackage ? 'Update Package' : 'Create Package'}
+                </motion.button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminPricing;

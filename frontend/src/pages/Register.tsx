@@ -190,20 +190,27 @@ const Register: React.FC = () => {
             </div>
 
             <div>
-              <button
+              <motion.button
                 type="submit"
                 disabled={isLoading}
                 className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={!isLoading ? { scale: 1.02, y: -2 } : {}}
+                whileTap={!isLoading ? { scale: 0.98 } : {}}
+                transition={{ duration: 0.2 }}
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <motion.div 
+                      className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    />
                     Creating account...
                   </div>
                 ) : (
                   'Create account'
                 )}
-              </button>
+              </motion.button>
             </div>
           </form>
         </div>

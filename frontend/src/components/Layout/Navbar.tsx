@@ -9,15 +9,25 @@ const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
 
+  // Check if running in developer mode
+  const IS_DEVELOPER = (process.env as any).REACT_APP_IS_DEVELOPER === 'true';
+
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     { name: 'Blog', path: '/blog' },
+    { name: 'Resources', path: '/resources' },
     { name: 'Book Call', path: '/book-call' },
     { name: 'Contact', path: '/contact' },
+    {name: 'Admin', path: '/admin'}
   ];
+
+  // Add Admin link in developer mode
+  if (IS_DEVELOPER) {
+    navItems.push({ name: 'Admin', path: '/admin' });
+  }
 
   return (
     <motion.nav 
@@ -33,71 +43,146 @@ const Navbar: React.FC = () => {
             <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">LC</span>
             </div>
-            <span className="text-2xl font-bold text-gradient">Life Coach</span>
+            {/* <span className="text-2xl font-bold text-gradient">Lukewestbrookmanhattan</span> */}
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
+            {navItems.map((item, index) => (
+              <motion.div
                 key={item.name}
-                to={item.path}
-                className={`font-medium transition-colors duration-300 ${
-                  isActive(item.path)
-                    ? 'text-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
-                }`}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                {item.name}
-              </Link>
+                <Link
+                  to={item.path}
+                  className={`navbar-link font-medium transition-all duration-300 relative group ${
+                    isActive(item.path)
+                      ? 'text-primary-600'
+                      : 'text-gray-700 hover:text-primary-600'
+                  }`}
+                >
+                  <span className="relative z-10">{item.name}</span>
+                  <motion.div
+                    className="absolute inset-0 bg-primary-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                </Link>
+              </motion.div>
             ))}
           </div>
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
+          <motion.div 
+            className="hidden md:flex items-center space-x-4"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            {IS_DEVELOPER ? (
               <div className="flex items-center space-x-4">
-                {isAdmin && (
+                <motion.span 
+                  className="text-green-600 font-medium"
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                    opacity: [0.8, 1, 0.8]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  🔧 Developer Mode
+                </motion.span>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Link
                     to="/admin"
-                    className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-300"
+                    className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
                   >
-                    Admin
+                    Admin Panel
                   </Link>
+                </motion.div>
+              </div>
+            ) : isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                {isAdmin && (
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link
+                      to="/admin"
+                      className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                    >
+                      Admin
+                    </Link>
+                  </motion.div>
                 )}
-                <span className="text-gray-700">Welcome, {user?.name}</span>
-                <button
+                <motion.span 
+                  className="text-gray-700"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  Welcome, {user?.name}
+                </motion.span>
+                <motion.button
                   onClick={logout}
                   className="btn-outline text-sm py-2 px-4"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                 >
                   Logout
-                </button>
+                </motion.button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-300"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Login
-                </Link>
-                <Link to="/register" className="btn-primary text-sm py-2 px-4">
-                  Sign Up
-                </Link>
+                  <Link
+                    to="/login"
+                    className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                  >
+                    Login
+                  </Link>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Link to="/register" className="btn-primary text-sm py-2 px-4">
+                    Sign Up
+                  </Link>
+                </motion.div>
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Mobile Menu Button */}
-          <button
+          <motion.button
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.2 }}
           >
-            <svg
+            <motion.svg
               className="w-6 h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              animate={{ rotate: isMenuOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
             >
               {isMenuOpen ? (
                 <path
@@ -114,8 +199,8 @@ const Navbar: React.FC = () => {
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               )}
-            </svg>
-          </button>
+            </motion.svg>
+          </motion.button>
         </div>
 
         {/* Mobile Menu */}
@@ -127,65 +212,134 @@ const Navbar: React.FC = () => {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="flex flex-col space-y-4">
-              {navItems.map((item) => (
-                <Link
+            <motion.div 
+              className="flex flex-col space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              {navItems.map((item, index) => (
+                <motion.div
                   key={item.name}
-                  to={item.path}
-                  className={`font-medium transition-colors duration-300 ${
-                    isActive(item.path)
-                      ? 'text-primary-600'
-                      : 'text-gray-700 hover:text-primary-600'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + index * 0.1 }}
                 >
-                  {item.name}
-                </Link>
+                  <Link
+                    to={item.path}
+                    className={`font-medium transition-all duration-300 px-3 py-2 rounded-lg ${
+                      isActive(item.path)
+                        ? 'text-primary-600 bg-primary-50'
+                        : 'text-gray-700 hover:text-primary-600 hover:bg-primary-50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
               ))}
               
-              <div className="pt-4 border-t border-gray-200">
-                {isAuthenticated ? (
+              <motion.div 
+                className="pt-4 border-t border-gray-200"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                {IS_DEVELOPER ? (
                   <div className="flex flex-col space-y-2">
-                    {isAdmin && (
+                    <motion.span 
+                      className="text-green-600 font-medium"
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                        opacity: [0.8, 1, 0.8]
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      🔧 Developer Mode
+                    </motion.span>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
                       <Link
                         to="/admin"
-                        className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-300"
+                        className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Admin Panel
                       </Link>
+                    </motion.div>
+                  </div>
+                ) : isAuthenticated ? (
+                  <div className="flex flex-col space-y-2">
+                    {isAdmin && (
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Link
+                          to="/admin"
+                          className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      </motion.div>
                     )}
-                    <span className="text-gray-700">Welcome, {user?.name}</span>
-                    <button
+                    <motion.span 
+                      className="text-gray-700 px-3 py-2"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.7 }}
+                    >
+                      Welcome, {user?.name}
+                    </motion.span>
+                    <motion.button
                       onClick={() => {
                         logout();
                         setIsMenuOpen(false);
                       }}
                       className="btn-outline text-sm py-2 px-4 w-full"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       Logout
-                    </button>
+                    </motion.button>
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-2">
-                    <Link
-                      to="/login"
-                      className="text-gray-700 hover:text-primary-600 font-medium transition-colors duration-300"
-                      onClick={() => setIsMenuOpen(false)}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      Login
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="btn-primary text-sm py-2 px-4 text-center"
-                      onClick={() => setIsMenuOpen(false)}
+                      <Link
+                        to="/login"
+                        className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Login
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      Sign Up
-                    </Link>
+                      <Link
+                        to="/register"
+                        className="btn-primary text-sm py-2 px-4 text-center"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Sign Up
+                      </Link>
+                    </motion.div>
                   </div>
                 )}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
         )}
       </div>

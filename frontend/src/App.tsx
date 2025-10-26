@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { StripeProvider } from './contexts/StripeContext.tsx';
+import PageTransition from './components/Animation/PageTransition.tsx';
 
 // Components
 import Navbar from './components/Layout/Navbar.tsx';
@@ -23,80 +24,142 @@ import AdminBookings from './pages/admin/Bookings.tsx';
 import AdminContacts from './pages/admin/Contacts.tsx';
 import BookingSuccess from './pages/BookingSuccess.tsx';
 import BookingCancel from './pages/BookingCancel.tsx';
+import Resources from './pages/Resources.tsx';
 
 // Protected Route Component
 import ProtectedRoute from './components/Auth/ProtectedRoute.tsx';
+import AdminLayout from './components/Admin/AdminLayout.tsx';
+import Pricing from './pages/admin/Pricing.tsx';
 
 function App() {
   return (
     <AuthProvider>
       <StripeProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Navbar />
-            <main>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/book-call" element={<BookCall />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/booking/success" element={<BookingSuccess />} />
-                <Route path="/booking/cancel" element={<BookingCancel />} />
-                
-                {/* Protected Admin Routes */}
-                <Route path="/admin" element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/blogs" element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminBlogs />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/bookings" element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminBookings />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/contacts" element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminContacts />
-                  </ProtectedRoute>
-                } />
-              </Routes>
-            </main>
-            <Footer />
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
+          <Routes>
+            {/* Public Routes with Navbar and Footer */}
+            <Route path="/*" element={
+              <div className="min-h-screen bg-gray-50">
+                <Navbar />
+                <main>
+                  <Routes>
+                    <Route path="/" element={
+                      <PageTransition>
+                        <Home />
+                      </PageTransition>
+                    } />
+                    <Route path="/about" element={
+                      <PageTransition>
+                        <About />
+                      </PageTransition>
+                    } />
+                    <Route path="/blog" element={
+                      <PageTransition>
+                        <Blog />
+                      </PageTransition>
+                    } />
+                    <Route path="/blog/:slug" element={
+                      <PageTransition>
+                        <BlogPost />
+                      </PageTransition>
+                    } />
+                    <Route path="/book-call" element={
+                      <PageTransition>
+                        <BookCall />
+                      </PageTransition>
+                    } />
+                    <Route path="/resources" element={
+                      <PageTransition>
+                        <Resources />
+                      </PageTransition>
+                    } />
+                    <Route path="/contact" element={
+                      <PageTransition>
+                        <Contact />
+                      </PageTransition>
+                    } />
+                    <Route path="/login" element={
+                      <PageTransition>
+                        <Login />
+                      </PageTransition>
+                    } />
+                    <Route path="/register" element={
+                      <PageTransition>
+                        <Register />
+                      </PageTransition>
+                    } />
+                    <Route path="/booking/success" element={
+                      <PageTransition>
+                        <BookingSuccess />
+                      </PageTransition>
+                    } />
+                    <Route path="/booking/cancel" element={
+                      <PageTransition>
+                        <BookingCancel />
+                      </PageTransition>
+                    } />
+                 
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+            } />
+
+            {/* Admin Routes without Navbar and Footer */}
+            <Route path="/admin/*" element={
+              <AdminLayout />
+            }>
+              <Route index element={
+                <PageTransition>
+                  <AdminDashboard />
+                </PageTransition>
+              } />
+              <Route path="blogs" element={
+                <PageTransition>
+                  <AdminBlogs />
+                </PageTransition>
+              } />
+              <Route path="bookings" element={
+                <PageTransition>
+                  <AdminBookings />
+                </PageTransition>
+              } />
+              <Route path="pricing" element={
+                <PageTransition>
+                  <Pricing />
+                </PageTransition>
+              } />
+              <Route path="contacts" element={
+                <PageTransition>
+                  <AdminContacts />
+                </PageTransition>
+              } />
+            </Route>
+          </Routes>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+              success: {
+                duration: 3000,
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#fff',
                 },
-                success: {
-                  duration: 3000,
-                  iconTheme: {
-                    primary: '#10b981',
-                    secondary: '#fff',
-                  },
+              },
+              error: {
+                duration: 5000,
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
                 },
-                error: {
-                  duration: 5000,
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#fff',
-                  },
-                },
-              }}
-            />
-          </div>
+              },
+            }}
+          />
         </Router>
       </StripeProvider>
     </AuthProvider>

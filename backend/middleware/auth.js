@@ -3,6 +3,21 @@ const User = require('../models/User');
 
 const auth = async (req, res, next) => {
   try {
+    // Check if running in developer mode
+    const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
+    
+    if (IS_DEVELOPER) {
+      // Create a mock user for developer mode
+      req.user = {
+        _id: 'dev-user-id',
+        id: 'dev-user-id',
+        name: 'Developer User',
+        email: 'dev@lifecoach.com',
+        role: 'admin'
+      };
+      return next();
+    }
+
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -26,6 +41,14 @@ const auth = async (req, res, next) => {
 
 const adminAuth = async (req, res, next) => {
   try {
+    // Check if running in developer mode
+    const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
+    
+    if (IS_DEVELOPER) {
+      // In developer mode, always allow admin access
+      return next();
+    }
+
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Access denied. Admin role required.' });
     }

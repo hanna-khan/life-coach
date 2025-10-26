@@ -7,39 +7,62 @@ require('dotenv').config();
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Check if running in developer mode
+const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
+
+// Security middleware (skip in developer mode)
+if (!IS_DEVELOPER) {
+  app.use(helmet());
+}
+
+// CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+// Rate limiting (skip in developer mode)
+if (!IS_DEVELOPER) {
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+  });
+  app.use(limiter);
+}
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/life-coach', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+// MongoDB connection (optional in developer mode)
+if (!IS_DEVELOPER) {
+  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/life-coach', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch(err => console.error('MongoDB connection error:', err));
+} else {
+  console.log('🔧 Developer mode: MongoDB connection skipped');
+}
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/blogs', require('./routes/blogs'));
-app.use('/api/bookings', require('./routes/bookings'));
-app.use('/api/contact', require('./routes/contact'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/admin', require('./routes/admin'));
+if (IS_DEVELOPER) {
+  // In developer mode, use mock routes
+  console.log('🔧 Developer mode: Using mock API routes');
+  app.use('/api/blogs', require('./routes/dev'));
+  app.use('/api/bookings', require('./routes/dev'));
+  app.use('/api/contact', require('./routes/dev'));
+  app.use('/api/admin', require('./routes/dev'));
+} else {
+  // Production routes
+  app.use('/api/auth', require('./routes/auth'));
+  app.use('/api/blogs', require('./routes/blogs'));
+  app.use('/api/bookings', require('./routes/bookings'));
+  app.use('/api/contact', require('./routes/contact'));
+  app.use('/api/payments', require('./routes/payments'));
+  app.use('/api/admin', require('./routes/admin'));
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {

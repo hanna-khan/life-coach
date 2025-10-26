@@ -6,37 +6,37 @@ const Blog: React.FC = () => {
   const featuredPosts = [
     {
       id: 1,
-      title: "The Power of Mindful Living",
-      excerpt: "Discover how mindfulness can transform your daily life and bring peace to your mind.",
+      title: "The Patterns That Keep You Stuck",
+      excerpt: "Most men don't realize they're trapped in invisible patterns. Here's how to identify and break them.",
       image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
-      category: "Mindfulness",
-      readTime: "5 min read",
+      category: "Breaking Patterns",
+      readTime: "6 min read",
       publishedAt: "2024-01-15",
-      slug: "power-of-mindful-living"
+      slug: "patterns-that-keep-you-stuck"
     },
     {
       id: 2,
-      title: "Building Confidence in Your Career",
-      excerpt: "Learn practical strategies to boost your confidence and advance in your professional life.",
+      title: "What Authentic Masculinity Actually Means",
+      excerpt: "Forget the toxic stereotypes. Real masculinity is about strength, integrity, and purpose.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop",
-      category: "Career",
-      readTime: "7 min read",
+      category: "Authentic Masculinity",
+      readTime: "8 min read",
       publishedAt: "2024-01-10",
-      slug: "building-confidence-career"
+      slug: "authentic-masculinity-meaning"
     },
     {
       id: 3,
-      title: "The Art of Goal Setting",
-      excerpt: "Master the techniques of setting and achieving meaningful goals in your personal and professional life.",
+      title: "Building a Life on Your Terms",
+      excerpt: "Stop living someone else's definition of success. Here's how to create a life that's authentically yours.",
       image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop",
-      category: "Personal Growth",
-      readTime: "6 min read",
+      category: "Purpose",
+      readTime: "7 min read",
       publishedAt: "2024-01-05",
-      slug: "art-of-goal-setting"
+      slug: "building-life-on-your-terms"
     }
   ];
 
-  const categories = ["All", "Personal Growth", "Career", "Relationships", "Health", "Mindfulness", "Success"];
+  const categories = ["All", "Breaking Patterns", "Authentic Masculinity", "Relationships", "Career", "Purpose", "Leadership"];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -48,10 +48,10 @@ const Blog: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">The Lucas Letter</h1>
+            <h1 className="text-5xl font-bold mb-6">The Westbrook Letter</h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Insights, strategies, and inspiration for your personal growth journey. 
-              Weekly thoughts on life, success, and everything in between.
+              Direct insights on breaking old patterns and building authentic masculinity. 
+              No fluff, no BS - just real talk for men ready to change.
             </p>
           </motion.div>
         </div>
@@ -92,9 +92,9 @@ const Blog: React.FC = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Latest Posts</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Latest Insights</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Fresh insights and practical advice to help you grow and succeed.
+              Direct, actionable content for men ready to break old patterns and build authentic lives.
             </p>
           </motion.div>
 
@@ -165,11 +165,11 @@ const Blog: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold text-white mb-4">
-              Stay Updated
+              Get The Westbrook Letter
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Get the latest insights and tips delivered straight to your inbox. 
-              Join thousands of readers who are transforming their lives.
+              Weekly insights on breaking old patterns and building authentic masculinity. 
+              No fluff, no BS - just real talk for men ready to change.
             </p>
             <div className="max-w-md mx-auto flex gap-4">
               <input

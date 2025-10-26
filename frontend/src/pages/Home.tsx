@@ -13,8 +13,8 @@ const Home: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       ),
-      title: "Personal Growth",
-      description: "Unlock your potential and achieve personal breakthroughs with guided coaching sessions."
+      title: "Break Old Patterns",
+      description: "Identify and overcome limiting beliefs and behaviors that hold you back from living authentically."
     },
     {
       icon: (
@@ -22,8 +22,8 @@ const Home: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
         </svg>
       ),
-      title: "Career Guidance",
-      description: "Navigate your career path with confidence and clarity through expert guidance."
+      title: "Build Your Life",
+      description: "Create a life on your terms with authentic choices, clear boundaries, and purposeful direction."
     },
     {
       icon: (
@@ -31,29 +31,29 @@ const Home: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       ),
-      title: "Relationship Coaching",
-      description: "Build stronger, healthier relationships with yourself and others."
+      title: "Authentic Masculinity",
+      description: "Embrace your authentic self while developing the strength and wisdom to lead with integrity."
     }
   ];
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
-      role: "Marketing Manager",
-      content: "The coaching sessions transformed my perspective on work-life balance. I'm now more confident and focused than ever.",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      name: "Michael Chen",
+      name: "Marcus Thompson",
       role: "Entrepreneur",
-      content: "The guidance I received helped me make crucial decisions for my business. The clarity I gained was invaluable.",
+      content: "Luke helped me break free from the patterns that were holding me back. I'm now running my business with confidence and authenticity.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: "Emily Rodriguez",
-      role: "Teacher",
-      content: "I learned to set boundaries and prioritize my well-being. The coaching process was life-changing.",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+      name: "David Chen",
+      role: "Software Engineer",
+      content: "The coaching sessions transformed how I approach challenges. I've built stronger relationships and found clarity in my career path.",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "James Rodriguez",
+      role: "Sales Director",
+      content: "Luke's approach to authentic masculinity helped me become a better leader and partner. The changes have been profound.",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
     }
   ];
 
@@ -84,12 +84,12 @@ const Home: React.FC = () => {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Transform Your Life with
-                <span className="block text-yellow-300">Expert Coaching</span>
+                Coaching Men to Break Old Patterns
+                <span className="block text-yellow-300">and Build a Life on Their Terms</span>
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Unlock your potential and achieve your goals with personalized life coaching sessions. 
-                Get the guidance and support you need to create lasting positive change.
+                I'm Luke Westbrook-Manhattan, and I help men break free from limiting patterns, 
+                embrace authentic masculinity, and create lives of purpose and fulfillment.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -181,10 +181,10 @@ const Home: React.FC = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">How I Can Help You</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">My Coaching Approach</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              My coaching approach is tailored to your unique needs and goals, providing you with 
-              the tools and insights to create meaningful change in your life.
+              I work with men who are ready to break free from old patterns and build authentic, 
+              purposeful lives. My approach is direct, practical, and focused on real transformation.
             </p>
           </motion.div>
 
@@ -220,9 +220,9 @@ const Home: React.FC = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What My Clients Say</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Men Are Saying</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Don't just take my word for it. Here's what some of my clients have to say about their coaching experience.
+              Real men, real transformations. Here's what clients say about breaking old patterns and building authentic lives.
             </p>
           </motion.div>
 
@@ -271,11 +271,11 @@ const Home: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold text-white mb-6">
-              Ready to Transform Your Life?
+              Ready to Break Your Old Patterns?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Take the first step towards a better you. Book your free consultation today and 
-              discover how coaching can help you achieve your goals.
+              Stop living on autopilot. Book your free consultation and let's discuss how to build 
+              the authentic life you've always wanted.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

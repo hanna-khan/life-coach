@@ -35,20 +35,11 @@ const About: React.FC = () => {
     {
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-        </svg>
-      ),
-      title: "Empathy",
-      description: "I believe in understanding your unique situation and providing compassionate support."
-    },
-    {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      title: "Integrity",
-      description: "Honesty and transparency are at the core of everything I do."
+      title: "Authenticity",
+      description: "I believe in being real, direct, and honest. No fluff, no BS - just authentic guidance that works."
     },
     {
       icon: (
@@ -56,17 +47,26 @@ const About: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       ),
-      title: "Growth",
-      description: "I'm committed to continuous learning and helping you grow beyond your current limitations."
+      title: "Action",
+      description: "Coaching without action is just expensive conversation. I focus on practical steps that create real change."
     },
     {
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       ),
-      title: "Community",
-      description: "Building connections and supporting each other on our journeys to success."
+      title: "Empowerment",
+      description: "My goal is to help you build the strength and wisdom to lead your own life with confidence."
+    },
+    {
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      title: "Clarity",
+      description: "Cut through the noise and confusion. I help you see clearly what needs to change and how to change it."
     }
   ];
 
@@ -89,9 +89,9 @@ const About: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">About Me</h1>
+            <h1 className="text-5xl font-bold mb-6">About Luke</h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              I'm passionate about helping people unlock their potential and create meaningful change in their lives.
+              I help men break old patterns and build lives on their terms. Authentic, direct, empowering.
             </p>
           </motion.div>
         </div>
@@ -110,19 +110,21 @@ const About: React.FC = () => {
               <h2 className="text-4xl font-bold text-gray-900 mb-6">My Story</h2>
               <div className="space-y-4 text-gray-700 leading-relaxed">
                 <p>
-                  My journey into life coaching began over a decade ago when I realized that many people 
-                  around me were struggling with the same challenges I had faced earlier in life. 
-                  Having overcome personal obstacles and transformed my own life, I felt called to help others do the same.
+                  I wasn't always the coach I am today. Like many men, I spent years trapped in patterns 
+                  that kept me from living authentically. I was following someone else's script for success, 
+                  relationships, and masculinity.
                 </p>
                 <p>
-                  After completing my certification in life coaching and gaining extensive experience 
-                  working with diverse clients, I discovered that my true passion lies in empowering 
-                  individuals to break through their limiting beliefs and achieve their most ambitious goals.
+                  The turning point came when I realized I was living a life that looked good on paper 
+                  but felt empty inside. I was successful by society's standards, but I wasn't living 
+                  on my own terms. That's when I began the work of breaking old patterns and building 
+                  something real.
                 </p>
                 <p>
-                  Today, I've had the privilege of working with over 500 clients, helping them navigate 
-                  career transitions, improve relationships, build confidence, and create lives they truly love. 
-                  My approach combines evidence-based techniques with genuine empathy and understanding.
+                  Through years of personal work, study, and practice, I learned how to identify the 
+                  patterns that hold men back and how to build authentic lives of purpose and fulfillment. 
+                  Now I help other men do the same - not through therapy or medical approaches, but 
+                  through direct, practical coaching that gets results.
                 </p>
               </div>
             </motion.div>

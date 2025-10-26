@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
               <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">LC</span>
               </div>
-              <span className="text-2xl font-bold">Life Coach</span>
+              {/* <span className="text-2xl font-bold">Life Coach</span> */}
             </Link>
             <p className="text-gray-300 mb-6">
               Empowering you to live your best life through personalized coaching and guidance.
