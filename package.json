@@ -1,0 +1,20 @@
+{
+  "name": "life-coach-website",
+  "version": "1.0.0",
+  "description": "A MERN stack life coaching website with Tailwind CSS and animations",
+  "main": "server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon backend/server.js",
+    "client": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "keywords": ["life-coaching", "mern", "react", "express", "mongodb"],
+  "author": "Life Coach",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2"
+  }
+}
