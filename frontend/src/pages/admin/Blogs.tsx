@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import RichTextEditor from '../../components/Editor/RichTextEditor.tsx';
 
 interface Blog {
   _id: string;
@@ -63,25 +64,65 @@ const AdminBlogs: React.FC = () => {
     status: 'draft' as 'draft' | 'published',
     isFeatured: false
   });
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const categories = ['Personal Growth', 'Career', 'Relationships', 'Health', 'Mindfulness', 'Success'];
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setImagePreview(base64String);
+        setFormData({ ...formData, featuredImage: base64String });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate image
+    const finalImageUrl = imagePreview || formData.featuredImage;
+    if (!finalImageUrl) {
+      alert('Please upload a featured image');
+      return;
+    }
+    
+    const blogData = {
+      ...formData,
+      featuredImage: finalImageUrl,
+      tags: formData.tags.split(',').map(tag => tag.trim())
+    };
     
     if (editingBlog) {
       // Update existing blog
       setBlogs(blogs.map(blog => 
         blog._id === editingBlog._id 
-          ? { ...blog, ...formData, tags: formData.tags.split(',').map(tag => tag.trim()) }
+          ? { ...blog, ...blogData }
           : blog
       ));
     } else {
       // Create new blog
       const newBlog: Blog = {
         _id: Date.now().toString(),
-        ...formData,
-        tags: formData.tags.split(',').map(tag => tag.trim()),
+        ...blogData,
         publishedAt: new Date().toISOString(),
         readTime: Math.ceil(formData.content.length / 500),
         views: 0,
@@ -102,6 +143,8 @@ const AdminBlogs: React.FC = () => {
       status: 'draft',
       isFeatured: false
     });
+    setImagePreview('');
+    setImageFile(null);
   };
 
   const handleEdit = (blog: Blog) => {
@@ -116,6 +159,8 @@ const AdminBlogs: React.FC = () => {
       status: blog.status,
       isFeatured: blog.isFeatured
     });
+    setImagePreview(blog.featuredImage);
+    setImageFile(null);
     setShowModal(true);
   };
 
@@ -301,40 +346,94 @@ const AdminBlogs: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowModal(false);
-            }
-          }}
-        >
+      {/* Sidebar */}
+      <AnimatePresence>
+        {showModal && (
           <motion.div
-            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[95vh] overflow-y-auto"
-            initial={{ scale: 0.8, opacity: 0, y: 50 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            className="fixed top-0 right-0 h-screen w-full md:w-[600px] lg:w-[700px] bg-white shadow-2xl z-[100] overflow-y-auto"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingBlog ? 'Edit Blog' : 'Create New Blog'}
-              </h2>
-              <motion.button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </motion.button>
-            </div>
+            {/* Sticky Header */}
+            <div className="sticky bg-white border-b border-gray-200 px-6 py-4 z-10">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {editingBlog ? 'Edit Blog' : 'Create New Blog'}
+                  </h2>
+                  <motion.button
+                    onClick={() => setShowModal(false)}
+                    className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </motion.button>
+                </div>
+              </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Featured Image Upload - Above Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                
+                {/* File Upload */}
+                <div>
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg className="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      required={!imagePreview}
+                    />
+                  </label>
+                </div>
+
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Preview</label>
+                    <div className="relative w-full h-48 border border-gray-300 rounded-lg overflow-hidden bg-gray-100">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x400?text=Image+Not+Found';
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImagePreview('');
+                          setImageFile(null);
+                          setFormData({ ...formData, featuredImage: '' });
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                 <input
@@ -359,12 +458,11 @@ const AdminBlogs: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                <textarea
+                <RichTextEditor
                   value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  rows={8}
-                  required
+                  onChange={(value) => setFormData({ ...formData, content: value })}
+                  placeholder="Write your blog content here..."
+                  height="400px"
                 />
               </div>
 
@@ -395,41 +493,15 @@ const AdminBlogs: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image URL</label>
-                <input
-                  type="url"
-                  value={formData.featuredImage}
-                  onChange={(e) => setFormData({ ...formData, featuredImage: e.target.value })}
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isFeatured"
-                    checked={formData.isFeatured}
-                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-900">
-                    Featured Post
-                  </label>
-                </div>
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </select>
               </div>
 
               <div className="flex justify-end space-x-3">
@@ -452,9 +524,10 @@ const AdminBlogs: React.FC = () => {
                 </motion.button>
               </div>
             </form>
+            </div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
