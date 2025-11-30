@@ -73,19 +73,21 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+// Auth route - always available (needed for login/register)
+app.use('/api/auth', require('./routes/auth'));
+
 // Pricing route - always available (needs database)
 app.use('/api/pricing', require('./routes/pricing'));
 
 if (IS_DEVELOPER) {
-  // In developer mode, use mock routes
-  console.log('🔧 Developer mode: Using mock API routes');
+  // In developer mode, use mock routes for some endpoints
+  console.log('🔧 Developer mode: Using mock API routes for some endpoints');
   app.use('/api/blogs', require('./routes/dev'));
   app.use('/api/bookings', require('./routes/dev'));
   app.use('/api/contact', require('./routes/dev'));
   app.use('/api/admin', require('./routes/dev'));
 } else {
   // Production routes
-  app.use('/api/auth', require('./routes/auth'));
   app.use('/api/blogs', require('./routes/blogs'));
   app.use('/api/bookings', require('./routes/bookings'));
   app.use('/api/contact', require('./routes/contact'));

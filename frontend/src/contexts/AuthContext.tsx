@@ -73,7 +73,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token) {
         try {
           const response = await axios.get('/api/auth/me');
-          setUser(response.data.user);
+          if (response.data.success && response.data.user) {
+            console.log('Auth check user data:', response.data.user); // Debug log
+            setUser(response.data.user);
+          } else {
+            console.error('Invalid response from /api/auth/me:', response.data);
+            localStorage.removeItem('token');
+            setToken(null);
+          }
         } catch (error) {
           console.error('Auth check failed:', error);
           localStorage.removeItem('token');
@@ -103,6 +110,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const response = await axios.post('/api/auth/login', { email, password });
       const { token: newToken, user: userData } = response.data;
+      
+      console.log('Login response user data:', userData); // Debug log
       
       setToken(newToken);
       setUser(userData);

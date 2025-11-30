@@ -125,12 +125,12 @@ const Navbar: React.FC = () => {
                   </motion.div>
                 )}
                 <motion.span 
-                  className="text-gray-700"
+                  className="text-gray-700 font-medium"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
                 >
-                  Welcome, {user?.name}
+                  Welcome, <span className="text-primary-600 font-semibold">{user?.name || 'User'}</span>
                 </motion.span>
                 <motion.button
                   onClick={logout}
@@ -296,7 +296,7 @@ const Navbar: React.FC = () => {
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.7 }}
                     >
-                      Welcome, {user?.name}
+                      Welcome, {user?.name || 'User'}
                     </motion.span>
                     <motion.button
                       onClick={() => {
