@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 interface PricingPackage {
   _id: string;
@@ -10,75 +11,14 @@ interface PricingPackage {
   features: string[];
   isPopular: boolean;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const AdminPricing: React.FC = () => {
-  const [packages, setPackages] = useState<PricingPackage[]>([
-    {
-      _id: '1',
-      name: 'Initial Consultation',
-      description: 'Perfect for first-time clients to understand their needs',
-      price: 75,
-      duration: 30,
-      features: [
-        '30-minute session',
-        'Goal assessment',
-        'Action plan outline',
-        'Follow-up email'
-      ],
-      isPopular: false,
-      isActive: true
-    },
-    {
-      _id: '2',
-      name: 'Life Coaching Session',
-      description: 'Comprehensive coaching session for personal development',
-      price: 150,
-      duration: 60,
-      features: [
-        '60-minute session',
-        'Personalized coaching',
-        'Progress tracking',
-        'Resource materials',
-        'Email support'
-      ],
-      isPopular: true,
-      isActive: true
-    },
-    {
-      _id: '3',
-      name: 'Career Guidance',
-      description: 'Specialized coaching for career advancement',
-      price: 180,
-      duration: 60,
-      features: [
-        '60-minute session',
-        'Career assessment',
-        'Resume review',
-        'Interview prep',
-        'LinkedIn optimization'
-      ],
-      isPopular: false,
-      isActive: true
-    },
-    {
-      _id: '4',
-      name: 'Goal Setting Session',
-      description: 'Focused session on setting and achieving goals',
-      price: 120,
-      duration: 45,
-      features: [
-        '45-minute session',
-        'SMART goals framework',
-        'Action planning',
-        'Progress milestones',
-        'Accountability check-ins'
-      ],
-      isPopular: false,
-      isActive: true
-    }
-  ]);
-
+  const [packages, setPackages] = useState<PricingPackage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingPackage, setEditingPackage] = useState<PricingPackage | null>(null);
   const [formData, setFormData] = useState({
@@ -91,27 +31,8 @@ const AdminPricing: React.FC = () => {
     isActive: true
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (editingPackage) {
-      // Update existing package
-      setPackages(packages.map(pkg => 
-        pkg._id === editingPackage._id 
-          ? { ...pkg, ...formData, features: formData.features.split('\n').filter(f => f.trim()) }
-          : pkg
-      ));
-    } else {
-      // Create new package
-      const newPackage: PricingPackage = {
-        _id: Date.now().toString(),
-        ...formData,
-        features: formData.features.split('\n').filter(f => f.trim())
-      };
-      setPackages([newPackage, ...packages]);
-    }
-
-    setShowModal(false);
+  // Reset form to empty state
+  const resetForm = () => {
     setEditingPackage(null);
     setFormData({
       name: '',
@@ -122,6 +43,69 @@ const AdminPricing: React.FC = () => {
       isPopular: false,
       isActive: true
     });
+  };
+
+  // Handle sidebar close
+  const handleSidebarClose = () => {
+    setShowModal(false);
+    resetForm();
+  };
+
+  // Fetch packages from API
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/pricing/admin/all');
+        if (response.data.success) {
+          setPackages(response.data.packages);
+        }
+      } catch (error) {
+        console.error('Error fetching packages:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      setSubmitting(true);
+      
+      const packageData = {
+        ...formData,
+        features: formData.features.split('\n').filter(f => f.trim())
+      };
+
+      if (editingPackage) {
+        // Update existing package
+        const response = await axios.put(`/api/pricing/${editingPackage._id}`, packageData);
+        if (response.data.success) {
+          setPackages(packages.map(pkg => 
+            pkg._id === editingPackage._id 
+              ? response.data.package
+              : pkg
+          ));
+        }
+      } else {
+        // Create new package
+        const response = await axios.post('/api/pricing', packageData);
+        if (response.data.success) {
+          setPackages([response.data.package, ...packages]);
+        }
+      }
+
+      setShowModal(false);
+      resetForm();
+    } catch (error: any) {
+      console.error('Error saving package:', error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleEdit = (pkg: PricingPackage) => {
@@ -138,18 +122,33 @@ const AdminPricing: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this package?')) {
-      setPackages(packages.filter(pkg => pkg._id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await axios.delete(`/api/pricing/${id}`);
+      if (response.data.success) {
+        setPackages(packages.filter(pkg => pkg._id !== id));
+      }
+    } catch (error: any) {
+      console.error('Error deleting package:', error);
     }
   };
 
-  const toggleActive = (id: string) => {
-    setPackages(packages.map(pkg => 
-      pkg._id === id 
-        ? { ...pkg, isActive: !pkg.isActive }
-        : pkg
-    ));
+  const toggleActive = async (id: string) => {
+    const pkg = packages.find(p => p._id === id);
+    if (!pkg) return;
+
+    try {
+      const response = await axios.put(`/api/pricing/${id}`, { isActive: !pkg.isActive });
+      if (response.data.success) {
+        setPackages(packages.map(p => 
+          p._id === id 
+            ? { ...p, isActive: !p.isActive }
+            : p
+        ));
+      }
+    } catch (error: any) {
+      console.error('Error updating package status:', error);
+    }
   };
 
   return (
@@ -161,7 +160,10 @@ const AdminPricing: React.FC = () => {
           <p className="text-gray-600 mt-2">Manage your service packages and pricing</p>
         </div>
         <motion.button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            resetForm();
+            setShowModal(true);
+          }}
           className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -240,8 +242,18 @@ const AdminPricing: React.FC = () => {
       </div>
 
       {/* Packages Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {packages.map((pkg) => (
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading packages...</p>
+        </div>
+      ) : packages.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">No packages found</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {packages.map((pkg) => (
           <motion.div
             key={pkg._id}
             className={`bg-white rounded-lg shadow-lg overflow-hidden ${
@@ -307,42 +319,41 @@ const AdminPricing: React.FC = () => {
                 </button>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
-      {/* Modal */}
-      {showModal && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowModal(false);
-            }
-          }}
-        >
+      {/* Sidebar */}
+      <AnimatePresence>
+        {showModal && (
           <motion.div
-            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[95vh] overflow-y-auto"
-            initial={{ scale: 0.8, opacity: 0, y: 50 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            className="fixed top-0 right-0 h-screen w-full md:w-[600px] lg:w-[700px] bg-white shadow-2xl z-[100] overflow-y-auto"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingPackage ? 'Edit Package' : 'Create New Package'}
-              </h2>
-              <motion.button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </motion.button>
+            {/* Sticky Header */}
+            <div className="sticky bg-white border-b border-gray-200 px-6 py-4 z-10">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {editingPackage ? 'Edit Package' : 'Create New Package'}
+                </h2>
+                <motion.button
+                  onClick={handleSidebarClose}
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </motion.button>
+              </div>
             </div>
+
+            <div className="p-6">
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -434,7 +445,7 @@ const AdminPricing: React.FC = () => {
               <div className="flex justify-end space-x-3">
                 <motion.button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleSidebarClose}
                   className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200"
                   whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.98 }}
@@ -443,17 +454,22 @@ const AdminPricing: React.FC = () => {
                 </motion.button>
                 <motion.button
                   type="submit"
-                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={submitting}
+                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  whileHover={{ scale: submitting ? 1 : 1.02, y: submitting ? 0 : -1 }}
+                  whileTap={{ scale: submitting ? 1 : 0.98 }}
                 >
-                  {editingPackage ? 'Update Package' : 'Create Package'}
+                  {submitting && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  )}
+                  <span>{editingPackage ? 'Update Package' : 'Create Package'}</span>
                 </motion.button>
               </div>
             </form>
+            </div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

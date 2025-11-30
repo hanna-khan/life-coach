@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Booking {
   _id: string;
@@ -77,6 +77,31 @@ const AdminBookings: React.FC = () => {
 
   const timeSlots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
 
+  // Reset form to empty state
+  const resetForm = () => {
+    setEditingBooking(null);
+    setFormData({
+      clientName: '',
+      clientEmail: '',
+      clientPhone: '',
+      serviceType: 'Life Coaching Session',
+      preferredDate: '',
+      preferredTime: '09:00',
+      duration: 60,
+      price: 150,
+      status: 'pending',
+      paymentStatus: 'pending',
+      message: '',
+      meetingLink: ''
+    });
+  };
+
+  // Handle sidebar close
+  const handleSidebarClose = () => {
+    setShowModal(false);
+    resetForm();
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -97,21 +122,7 @@ const AdminBookings: React.FC = () => {
     }
 
     setShowModal(false);
-    setEditingBooking(null);
-    setFormData({
-      clientName: '',
-      clientEmail: '',
-      clientPhone: '',
-      serviceType: 'Life Coaching Session',
-      preferredDate: '',
-      preferredTime: '09:00',
-      duration: 60,
-      price: 150,
-      status: 'pending',
-      paymentStatus: 'pending',
-      message: '',
-      meetingLink: ''
-    });
+    resetForm();
   };
 
   const handleEdit = (booking: Booking) => {
@@ -167,7 +178,10 @@ const AdminBookings: React.FC = () => {
           <p className="text-gray-600 mt-2">Manage client bookings and appointments</p>
         </div>
         <motion.button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            resetForm();
+            setShowModal(true);
+          }}
           className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -316,38 +330,36 @@ const AdminBookings: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowModal(false);
-            }
-          }}
-        >
+      {/* Sidebar */}
+      <AnimatePresence>
+        {showModal && (
           <motion.div
-            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[95vh] overflow-y-auto"
-            initial={{ scale: 0.8, opacity: 0, y: 50 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            className="fixed top-0 right-0 h-screen w-full md:w-[600px] lg:w-[700px] bg-white shadow-2xl z-[100] overflow-y-auto"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingBooking ? 'Edit Booking' : 'Create New Booking'}
-              </h2>
-              <motion.button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </motion.button>
+            {/* Sticky Header */}
+            <div className="sticky bg-white border-b border-gray-200 px-6 py-4 z-10">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {editingBooking ? 'Edit Booking' : 'Create New Booking'}
+                </h2>
+                <motion.button
+                  onClick={handleSidebarClose}
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </motion.button>
+              </div>
             </div>
+
+            <div className="p-6">
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -503,7 +515,7 @@ const AdminBookings: React.FC = () => {
               <div className="flex justify-end space-x-3">
                 <motion.button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleSidebarClose}
                   className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200"
                   whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.98 }}
@@ -520,9 +532,10 @@ const AdminBookings: React.FC = () => {
                 </motion.button>
               </div>
             </form>
+            </div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

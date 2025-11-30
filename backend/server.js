@@ -56,6 +56,7 @@ app.get('/', (req, res) => {
       bookings: '/api/bookings',
       contact: '/api/contact',
       payments: '/api/payments',
+      pricing: '/api/pricing',
       admin: '/api/admin'
     },
     developerMode: IS_DEVELOPER
@@ -72,6 +73,9 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+// Pricing route - always available (needs database)
+app.use('/api/pricing', require('./routes/pricing'));
+
 if (IS_DEVELOPER) {
   // In developer mode, use mock routes
   console.log('🔧 Developer mode: Using mock API routes');
