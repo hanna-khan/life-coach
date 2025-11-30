@@ -54,6 +54,29 @@ const AdminBlogs: React.FC = () => {
 
   const categories = ['Personal Growth', 'Career', 'Relationships', 'Health', 'Mindfulness', 'Success'];
 
+  // Reset form to empty state
+  const resetForm = () => {
+    setEditingBlog(null);
+    setFormData({
+      title: '',
+      excerpt: '',
+      content: '',
+      category: 'Personal Growth',
+      tags: '',
+      featuredImage: '',
+      status: 'draft',
+      isFeatured: false
+    });
+    setImagePreview('');
+    setImageFile(null);
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setShowModal(false);
+    resetForm();
+  };
+
   // Fetch blogs from API
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -140,19 +163,7 @@ const AdminBlogs: React.FC = () => {
       }
 
       setShowModal(false);
-      setEditingBlog(null);
-      setFormData({
-        title: '',
-        excerpt: '',
-        content: '',
-        category: 'Personal Growth',
-        tags: '',
-        featuredImage: '',
-        status: 'draft',
-        isFeatured: false
-      });
-      setImagePreview('');
-      setImageFile(null);
+      resetForm();
     } catch (error: any) {
       console.error('Error saving blog:', error);
       const errorMessage = error.response?.data?.message || 
@@ -240,7 +251,10 @@ const AdminBlogs: React.FC = () => {
           <p className="text-gray-600 mt-2">Manage your blog posts and content</p>
         </div>
         <motion.button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            resetForm();
+            setShowModal(true);
+          }}
           className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
@@ -443,7 +457,7 @@ const AdminBlogs: React.FC = () => {
                     {editingBlog ? 'Edit Blog' : 'Create New Blog'}
                   </h2>
                   <motion.button
-                    onClick={() => setShowModal(false)}
+                    onClick={handleModalClose}
                     className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -587,7 +601,7 @@ const AdminBlogs: React.FC = () => {
               <div className="flex justify-end space-x-3">
                 <motion.button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleModalClose}
                   className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200"
                   whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.98 }}
