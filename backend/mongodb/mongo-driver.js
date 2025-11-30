@@ -1,39 +1,81 @@
-import { MongoClient } from 'mongodb';
+const { MongoClient } = require('mongodb');
 
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient('mongodb://localhost');
-const db = client.db('luke_database');
-const usersCollection = db.collection('users');
-const blogsCollection = db.collection('blogs');
-const bookingsCollection = db.collection('bookings');
-const contactsCollection = db.collection('contacts');
+let client = null;
+let db = null;
 
-// usersCollection.insertOne({ name: 'Hania Imran', email: 'haniaimran@gmail.com' });
-// usersCollection.insertMany([
-//     { name: 'Effham Ather', email: 'effhamatharva@gmail.com' },
-//     { name: 'Anam Sheikh', email: 'anamsheikh@gmail.com' },
-//     { name: 'Ayesha Sheikh', email: 'ayeshaseheikh@gmail.com' },
-//     { name: 'Ayesha Sheikh', email: 'ayeshaseheikh@gmail.com' },
-// ]);
-
-const users = await usersCollection.find().toArray();
-console.log(users);
-
-
-
-blogsCollection.insertOne({ title: 'Blog Post 1', content: 'This is a blog post' });
-bookingsCollection.insertOne({ clientName: 'Effham Ather', clientEmail: 'effhamatharva@gmail.com', clientPhone: '1234567890' });
-contactsCollection.insertOne({ name: 'Effham Ather', email: 'effhamatharva@gmail.com', subject: 'Subject', message: 'Message' });
-
-export async function connectToDatabase() {
+/**
+ * Connect to MongoDB database
+ * @returns {Promise<MongoClient>} MongoDB client instance
+ */
+async function connectToDatabase() {
     try {
+        // If already connected, return existing client
+        if (client) {
+            try {
+                await client.db('admin').command({ ping: 1 });
+                return client;
+            } catch (e) {
+                // Connection lost, will reconnect below
+                client = null;
+                db = null;
+            }
+        }
+
+        const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+        const dbName = process.env.MONGODB_DB_NAME || 'life-coach';
+
+        // MongoDB driver v7+ doesn't need useNewUrlParser and useUnifiedTopology
+        client = new MongoClient(uri);
+
         await client.connect();
-        console.log('Connected to MongoDB');
+        db = client.db(dbName);
+        
+        console.log('✅ Connected to MongoDB successfully');
+        console.log(`📦 Database: ${dbName}`);
+        
         return client;
     } catch (error) {
-        console.error('Error connecting to MongoDB:', error);
+        console.error('❌ Error connecting to MongoDB:', error);
         throw new Error('Failed to connect to MongoDB');
     }
 }
 
-export default connectToDatabase;
+/**
+ * Get database instance
+ * @returns {Db} MongoDB database instance
+ */
+function getDatabase() {
+    if (!db) {
+        throw new Error('Database not connected. Call connectToDatabase() first.');
+    }
+    return db;
+}
+
+/**
+ * Get collection
+ * @param {string} collectionName - Name of the collection
+ * @returns {Collection} MongoDB collection instance
+ */
+function getCollection(collectionName) {
+    const database = getDatabase();
+    return database.collection(collectionName);
+}
+
+/**
+ * Close MongoDB connection
+ */
+async function closeConnection() {
+    if (client) {
+        await client.close();
+        console.log('MongoDB connection closed');
+        client = null;
+        db = null;
+    }
+}
+
+module.exports = {
+    connectToDatabase,
+    getDatabase,
+    getCollection,
+    closeConnection
+};

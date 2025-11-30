@@ -3,11 +3,22 @@ const User = require('../models/User');
 
 const auth = async (req, res, next) => {
   try {
-    // Check if running in developer mode
+    // TEMPORARILY DISABLED: Authentication check bypassed
+    // Create a mock user - assuming user is logged in
+    req.user = {
+      _id: 'dev-user-id',
+      id: 'dev-user-id',
+      name: 'Developer User',
+      email: 'dev@lifecoach.com',
+      role: 'admin'
+    };
+    return next();
+
+    // Original authentication code (commented out temporarily)
+    /*
     const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
     
     if (IS_DEVELOPER) {
-      // Create a mock user for developer mode
       req.user = {
         _id: 'dev-user-id',
         id: 'dev-user-id',
@@ -33,19 +44,32 @@ const auth = async (req, res, next) => {
 
     req.user = user;
     next();
+    */
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(401).json({ message: 'Token is not valid' });
+    // Even on error, allow access temporarily
+    req.user = {
+      _id: 'dev-user-id',
+      id: 'dev-user-id',
+      name: 'Developer User',
+      email: 'dev@lifecoach.com',
+      role: 'admin'
+    };
+    next();
   }
 };
 
 const adminAuth = async (req, res, next) => {
   try {
-    // Check if running in developer mode
+    // TEMPORARILY DISABLED: Admin check bypassed
+    // Always allow admin access
+    return next();
+
+    // Original admin check code (commented out temporarily)
+    /*
     const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
     
     if (IS_DEVELOPER) {
-      // In developer mode, always allow admin access
       return next();
     }
 
@@ -53,9 +77,11 @@ const adminAuth = async (req, res, next) => {
       return res.status(403).json({ message: 'Access denied. Admin role required.' });
     }
     next();
+    */
   } catch (error) {
     console.error('Admin auth middleware error:', error);
-    res.status(500).json({ message: 'Server error' });
+    // Even on error, allow access temporarily
+    next();
   }
 };
 

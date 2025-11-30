@@ -34,17 +34,42 @@ if (!IS_DEVELOPER) {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB connection (optional in developer mode)
-if (!IS_DEVELOPER) {
-  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/life-coach', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch(err => console.error('MongoDB connection error:', err));
-} else {
-  console.log('🔧 Developer mode: MongoDB connection skipped');
-}
+// MongoDB connection - always connect for database operations
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/life-coach')
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err);
+  if (IS_DEVELOPER) {
+    console.log('⚠️  Developer mode: Continuing without MongoDB (some features may not work)');
+  }
+});
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Life Coach API Server',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      auth: '/api/auth',
+      blogs: '/api/blogs',
+      bookings: '/api/bookings',
+      contact: '/api/contact',
+      payments: '/api/payments',
+      admin: '/api/admin'
+    },
+    developerMode: IS_DEVELOPER
+  });
+});
+
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
 
 // Routes
 if (IS_DEVELOPER) {

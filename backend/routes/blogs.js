@@ -103,15 +103,40 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
+// Helper function to strip HTML and get text length
+const getTextLength = (html) => {
+  if (!html) return 0;
+  // Remove HTML tags and decode entities
+  const text = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+  return text.length;
+};
+
 // @route   POST /api/blogs
 // @desc    Create new blog
 // @access  Private (Admin)
 router.post('/', auth, adminAuth, [
   body('title').trim().isLength({ min: 5 }).withMessage('Title must be at least 5 characters'),
   body('excerpt').trim().isLength({ min: 10 }).withMessage('Excerpt must be at least 10 characters'),
-  body('content').trim().isLength({ min: 50 }).withMessage('Content must be at least 50 characters'),
+  body('content').custom((value) => {
+    const textLength = getTextLength(value);
+    if (textLength < 50) {
+      throw new Error('Content must be at least 50 characters (excluding HTML tags)');
+    }
+    return true;
+  }),
   body('category').isIn(['Personal Growth', 'Career', 'Relationships', 'Health', 'Mindfulness', 'Success']).withMessage('Invalid category'),
-  body('featuredImage').isURL().withMessage('Please provide a valid image URL')
+  body('featuredImage').custom((value) => {
+    // Accept either URL or base64 data URL
+    if (!value) {
+      throw new Error('Please provide a featured image');
+    }
+    const isUrl = /^https?:\/\/.+/.test(value);
+    const isBase64 = /^data:image\/[a-z]+;base64,.+/.test(value);
+    if (!isUrl && !isBase64) {
+      throw new Error('Please provide a valid image URL or base64 data');
+    }
+    return true;
+  })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -119,10 +144,70 @@ router.post('/', auth, adminAuth, [
       return res.status(400).json({ errors: errors.array() });
     }
 
+    // Handle author field - ensure we have a valid ObjectId
+    const mongoose = require('mongoose');
+    let authorId = req.user.id;
+    
+    // Check if mongoose is connected
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error('MongoDB is not connected. Please check your database connection.');
+    }
+    
+    // If using mock user ID, try to find or create a default admin user
+    if (authorId === 'dev-user-id' || !mongoose.Types.ObjectId.isValid(authorId)) {
+      const User = require('../models/User');
+      try {
+        // Try to find an admin user first
+        let adminUser = await User.findOne({ role: 'admin' }).limit(1);
+        
+        if (!adminUser) {
+          // Create a default admin user if none exists
+          console.log('Creating default admin user...');
+          adminUser = await User.create({
+            name: 'Admin User',
+            email: 'admin@lifecoach.com',
+            password: 'temp123456', // Temporary password - should be changed
+            role: 'admin'
+          });
+          console.log('Default admin user created:', adminUser._id);
+        } else {
+          console.log('Using existing admin user:', adminUser._id);
+        }
+        authorId = adminUser._id;
+      } catch (userError) {
+        console.error('Error finding/creating admin user:', userError);
+        console.error('User error details:', userError.message);
+        console.error('User error stack:', userError.stack);
+        // If we can't create/find user, we can't proceed
+        throw new Error(`Failed to set blog author: ${userError.message}`);
+      }
+    }
+
+    // Generate slug from title if not provided
+    const generateSlug = (title) => {
+      if (!title) return '';
+      return title
+        .toLowerCase()
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+    };
+
     const blogData = {
       ...req.body,
-      author: req.user.id
+      author: authorId,
+      // Ensure slug is generated from title
+      slug: req.body.slug || generateSlug(req.body.title)
     };
+
+    console.log('Creating blog with data:', {
+      title: blogData.title,
+      slug: blogData.slug,
+      author: authorId,
+      category: blogData.category,
+      status: blogData.status
+    });
 
     const blog = await Blog.create(blogData);
     await blog.populate('author', 'name');
@@ -132,8 +217,22 @@ router.post('/', auth, adminAuth, [
       blog
     });
   } catch (error) {
-    console.error('Create blog error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Create blog error:', error);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Send detailed error in development
+    const errorResponse = {
+      message: 'Server error',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? {
+        name: error.name,
+        stack: error.stack
+      } : undefined
+    };
+    
+    res.status(500).json(errorResponse);
   }
 });
 
@@ -143,9 +242,24 @@ router.post('/', auth, adminAuth, [
 router.put('/:id', auth, adminAuth, [
   body('title').optional().trim().isLength({ min: 5 }).withMessage('Title must be at least 5 characters'),
   body('excerpt').optional().trim().isLength({ min: 10 }).withMessage('Excerpt must be at least 10 characters'),
-  body('content').optional().trim().isLength({ min: 50 }).withMessage('Content must be at least 50 characters'),
+  body('content').optional().custom((value) => {
+    if (!value) return true; // Optional field, skip if not provided
+    const textLength = getTextLength(value);
+    if (textLength < 50) {
+      throw new Error('Content must be at least 50 characters (excluding HTML tags)');
+    }
+    return true;
+  }),
   body('category').optional().isIn(['Personal Growth', 'Career', 'Relationships', 'Health', 'Mindfulness', 'Success']).withMessage('Invalid category'),
-  body('featuredImage').optional().isURL().withMessage('Please provide a valid image URL')
+  body('featuredImage').optional().custom((value) => {
+    if (!value) return true;
+    const isUrl = /^https?:\/\/.+/.test(value);
+    const isBase64 = /^data:image\/[a-z]+;base64,.+/.test(value);
+    if (!isUrl && !isBase64) {
+      throw new Error('Please provide a valid image URL or base64 data');
+    }
+    return true;
+  })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

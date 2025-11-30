@@ -44,17 +44,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Set up axios defaults
   useEffect(() => {
-    if (IS_DEVELOPER) {
-      // In developer mode, set base URL to backend
-      axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    }
+    // Always set base URL to backend API
+    axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
       delete axios.defaults.headers.common['Authorization'];
     }
-  }, [token, IS_DEVELOPER]);
+  }, [token]);
 
   // Check if user is authenticated on mount
   useEffect(() => {

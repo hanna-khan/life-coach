@@ -9,7 +9,7 @@ const blogSchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    required: true,
+    required: false, // Auto-generated from title, not required in input
     unique: true,
     lowercase: true
   },
@@ -70,13 +70,16 @@ const blogSchema = new mongoose.Schema({
 
 // Generate slug from title
 blogSchema.pre('save', function(next) {
-  if (this.isModified('title')) {
-    this.slug = this.title
-      .toLowerCase()
-      .replace(/[^a-z0-9 -]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim('-');
+  // Generate slug if title is modified or slug doesn't exist
+  if (this.isModified('title') || !this.slug) {
+    if (this.title) {
+      this.slug = this.title
+        .toLowerCase()
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+    }
   }
   next();
 });

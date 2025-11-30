@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 import RichTextEditor from '../../components/Editor/RichTextEditor.tsx';
 
 interface Blog {
@@ -12,45 +14,23 @@ interface Blog {
   featuredImage: string;
   status: 'draft' | 'published';
   isFeatured: boolean;
-  publishedAt: string;
+  publishedAt?: string | null;
   readTime: number;
   views: number;
   likes: number;
+  author?: {
+    _id: string;
+    name: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const AdminBlogs: React.FC = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([
-    {
-      _id: '1',
-      title: 'The Power of Mindful Living',
-      excerpt: 'Discover how mindfulness can transform your daily life and bring peace to your mind.',
-      content: 'Mindfulness is more than just a buzzword...',
-      category: 'Mindfulness',
-      tags: ['mindfulness', 'meditation', 'peace'],
-      featuredImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
-      status: 'published',
-      isFeatured: true,
-      publishedAt: '2024-01-15',
-      readTime: 5,
-      views: 150,
-      likes: 25
-    },
-    {
-      _id: '2',
-      title: 'Building Confidence in Your Career',
-      excerpt: 'Learn practical strategies to boost your confidence and advance in your professional life.',
-      content: 'Confidence is not something you\'re born with...',
-      category: 'Career',
-      tags: ['career', 'confidence', 'success'],
-      featuredImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-      status: 'draft',
-      isFeatured: false,
-      publishedAt: '2024-01-10',
-      readTime: 7,
-      views: 200,
-      likes: 30
-    }
-  ]);
+  // Temporarily assuming user is logged in - authentication checks removed
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
@@ -68,6 +48,26 @@ const AdminBlogs: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const categories = ['Personal Growth', 'Career', 'Relationships', 'Health', 'Mindfulness', 'Success'];
+
+  // Fetch blogs from API
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/blogs/admin/all');
+        if (response.data.success) {
+          setBlogs(response.data.blogs);
+        }
+      } catch (error: any) {
+        console.error('Error fetching blogs:', error);
+        toast.error(error.response?.data?.message || 'Failed to fetch blogs');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,56 +95,68 @@ const AdminBlogs: React.FC = () => {
   };
 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate image
     const finalImageUrl = imagePreview || formData.featuredImage;
     if (!finalImageUrl) {
-      alert('Please upload a featured image');
+      toast.error('Please upload a featured image');
       return;
     }
     
     const blogData = {
       ...formData,
       featuredImage: finalImageUrl,
-      tags: formData.tags.split(',').map(tag => tag.trim())
+      tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
     };
     
-    if (editingBlog) {
-      // Update existing blog
-      setBlogs(blogs.map(blog => 
-        blog._id === editingBlog._id 
-          ? { ...blog, ...blogData }
-          : blog
-      ));
-    } else {
-      // Create new blog
-      const newBlog: Blog = {
-        _id: Date.now().toString(),
-        ...blogData,
-        publishedAt: new Date().toISOString(),
-        readTime: Math.ceil(formData.content.length / 500),
-        views: 0,
-        likes: 0
-      };
-      setBlogs([newBlog, ...blogs]);
-    }
+    try {
+      setSubmitting(true);
+      
+      if (editingBlog) {
+        // Update existing blog
+        const response = await axios.put(`/api/blogs/${editingBlog._id}`, blogData);
+        if (response.data.success) {
+          setBlogs(blogs.map(blog => 
+            blog._id === editingBlog._id 
+              ? response.data.blog
+              : blog
+          ));
+          toast.success('Blog updated successfully!');
+        }
+      } else {
+        // Create new blog
+        const response = await axios.post('/api/blogs', blogData);
+        if (response.data.success) {
+          setBlogs([response.data.blog, ...blogs]);
+          toast.success('Blog created successfully!');
+        }
+      }
 
-    setShowModal(false);
-    setEditingBlog(null);
-    setFormData({
-      title: '',
-      excerpt: '',
-      content: '',
-      category: 'Personal Growth',
-      tags: '',
-      featuredImage: '',
-      status: 'draft',
-      isFeatured: false
-    });
-    setImagePreview('');
-    setImageFile(null);
+      setShowModal(false);
+      setEditingBlog(null);
+      setFormData({
+        title: '',
+        excerpt: '',
+        content: '',
+        category: 'Personal Growth',
+        tags: '',
+        featuredImage: '',
+        status: 'draft',
+        isFeatured: false
+      });
+      setImagePreview('');
+      setImageFile(null);
+    } catch (error: any) {
+      console.error('Error saving blog:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.errors?.[0]?.msg || 
+                          'Failed to save blog';
+      toast.error(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleEdit = (blog: Blog) => {
@@ -164,18 +176,43 @@ const AdminBlogs: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this blog?')) {
-      setBlogs(blogs.filter(blog => blog._id !== id));
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this blog?')) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(`/api/blogs/${id}`);
+      if (response.data.success) {
+        setBlogs(blogs.filter(blog => blog._id !== id));
+        toast.success('Blog deleted successfully!');
+      }
+    } catch (error: any) {
+      console.error('Error deleting blog:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete blog');
     }
   };
 
-  const toggleStatus = (id: string) => {
-    setBlogs(blogs.map(blog => 
-      blog._id === id 
-        ? { ...blog, status: blog.status === 'published' ? 'draft' : 'published' }
-        : blog
-    ));
+  const toggleStatus = async (id: string) => {
+    const blog = blogs.find(b => b._id === id);
+    if (!blog) return;
+
+    const newStatus = blog.status === 'published' ? 'draft' : 'published';
+    
+    try {
+      const response = await axios.put(`/api/blogs/${id}`, { status: newStatus });
+      if (response.data.success) {
+        setBlogs(blogs.map(b => 
+          b._id === id 
+            ? { ...b, status: newStatus }
+            : b
+        ));
+        toast.success(`Blog ${newStatus === 'published' ? 'published' : 'moved to draft'}!`);
+      }
+    } catch (error: any) {
+      console.error('Error updating blog status:', error);
+      toast.error(error.response?.data?.message || 'Failed to update blog status');
+    }
   };
 
   return (
@@ -284,7 +321,29 @@ const AdminBlogs: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {blogs.map((blog) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
+                      <p className="text-gray-500">Loading blogs...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : blogs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                      </svg>
+                      <p className="text-gray-500 text-lg mb-2">No blogs found</p>
+                      <p className="text-gray-400 text-sm">Create your first blog post to get started</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                blogs.map((blog) => (
                 <tr key={blog._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -321,7 +380,11 @@ const AdminBlogs: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{blog.views}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(blog.publishedAt).toLocaleDateString()}
+                    {blog.publishedAt 
+                      ? new Date(blog.publishedAt).toLocaleDateString()
+                      : blog.createdAt 
+                        ? new Date(blog.createdAt).toLocaleDateString()
+                        : 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
@@ -340,7 +403,8 @@ const AdminBlogs: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>
@@ -516,11 +580,15 @@ const AdminBlogs: React.FC = () => {
                 </motion.button>
                 <motion.button
                   type="submit"
-                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={submitting}
+                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  whileHover={{ scale: submitting ? 1 : 1.02, y: submitting ? 0 : -1 }}
+                  whileTap={{ scale: submitting ? 1 : 0.98 }}
                 >
-                  {editingBlog ? 'Update Blog' : 'Create Blog'}
+                  {submitting && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  )}
+                  <span>{editingBlog ? 'Update Blog' : 'Create Blog'}</span>
                 </motion.button>
               </div>
             </form>
