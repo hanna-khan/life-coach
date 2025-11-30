@@ -34,6 +34,11 @@ const AdminBlogs: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; blogId: string | null; blogTitle: string }>({
+    show: false,
+    blogId: null,
+    blogTitle: ''
+  });
   const [formData, setFormData] = useState({
     title: '',
     excerpt: '',
@@ -176,21 +181,32 @@ const AdminBlogs: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this blog?')) {
-      return;
-    }
+  const handleDeleteClick = (id: string, title: string) => {
+    setDeleteConfirm({
+      show: true,
+      blogId: id,
+      blogTitle: title
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm.blogId) return;
 
     try {
-      const response = await axios.delete(`/api/blogs/${id}`);
+      const response = await axios.delete(`/api/blogs/${deleteConfirm.blogId}`);
       if (response.data.success) {
-        setBlogs(blogs.filter(blog => blog._id !== id));
+        setBlogs(blogs.filter(blog => blog._id !== deleteConfirm.blogId));
         toast.success('Blog deleted successfully!');
+        setDeleteConfirm({ show: false, blogId: null, blogTitle: '' });
       }
     } catch (error: any) {
       console.error('Error deleting blog:', error);
       toast.error(error.response?.data?.message || 'Failed to delete blog');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirm({ show: false, blogId: null, blogTitle: '' });
   };
 
   const toggleStatus = async (id: string) => {
@@ -395,7 +411,7 @@ const AdminBlogs: React.FC = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(blog._id)}
+                        onClick={() => handleDeleteClick(blog._id, blog.title)}
                         className="text-red-600 hover:text-red-900"
                       >
                         Delete
@@ -593,6 +609,67 @@ const AdminBlogs: React.FC = () => {
               </div>
             </form>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirm.show && (
+          <motion.div
+            className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-[100]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleDeleteCancel}
+          >
+            <motion.div
+              className="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 p-6"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center mb-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">Delete Blog</h3>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-sm text-gray-500 mb-2">
+                  Are you sure you want to delete this blog? This action cannot be undone.
+                </p>
+                <p className="text-sm font-medium text-gray-900">
+                  "{deleteConfirm.blogTitle}"
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <motion.button
+                  onClick={handleDeleteCancel}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  onClick={handleDeleteConfirm}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Delete
+                </motion.button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
