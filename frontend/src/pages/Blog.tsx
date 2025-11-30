@@ -1,42 +1,70 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+
+interface BlogPost {
+  _id: string;
+  title: string;
+  excerpt: string;
+  featuredImage: string;
+  category: string;
+  readTime: number;
+  publishedAt: string;
+  slug: string;
+  views: number;
+}
 
 const Blog: React.FC = () => {
-  // This would normally fetch from API
-  const featuredPosts = [
-    {
-      id: 1,
-      title: "The Patterns That Keep You Stuck",
-      excerpt: "Most men don't realize they're trapped in invisible patterns. Here's how to identify and break them.",
-      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
-      category: "Breaking Patterns",
-      readTime: "6 min read",
-      publishedAt: "2024-01-15",
-      slug: "patterns-that-keep-you-stuck"
-    },
-    {
-      id: 2,
-      title: "What Authentic Masculinity Actually Means",
-      excerpt: "Forget the toxic stereotypes. Real masculinity is about strength, integrity, and purpose.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop",
-      category: "Authentic Masculinity",
-      readTime: "8 min read",
-      publishedAt: "2024-01-10",
-      slug: "authentic-masculinity-meaning"
-    },
-    {
-      id: 3,
-      title: "Building a Life on Your Terms",
-      excerpt: "Stop living someone else's definition of success. Here's how to create a life that's authentically yours.",
-      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop",
-      category: "Purpose",
-      readTime: "7 min read",
-      publishedAt: "2024-01-05",
-      slug: "building-life-on-your-terms"
-    }
-  ];
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  const categories = ["All", "Breaking Patterns", "Authentic Masculinity", "Relationships", "Career", "Purpose", "Leadership"];
+  const categories = ["All", "Personal Growth", "Career", "Relationships", "Health", "Mindfulness", "Success"];
+
+  // Fetch blogs from API
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setLoading(true);
+        const categoryParam = selectedCategory === 'All' ? '' : selectedCategory;
+        const response = await axios.get('/api/blogs', {
+          params: {
+            page,
+            limit: 6,
+            category: categoryParam
+          }
+        });
+        
+        if (response.data.success) {
+          if (page === 1) {
+            setBlogs(response.data.blogs);
+          } else {
+            setBlogs(prev => [...prev, ...response.data.blogs]);
+          }
+          setHasMore(response.data.pagination.current < response.data.pagination.pages);
+        }
+      } catch (error) {
+        console.error('Error fetching blogs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, [selectedCategory, page]);
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setPage(1);
+    setBlogs([]);
+  };
+
+  const handleLoadMore = () => {
+    setPage(prev => prev + 1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,8 +97,9 @@ const Blog: React.FC = () => {
             {categories.map((category) => (
               <button
                 key={category}
+                onClick={() => handleCategoryChange(category)}
                 className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                  category === "All"
+                  selectedCategory === category
                     ? "bg-primary-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
                 }`}
@@ -98,60 +127,85 @@ const Blog: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredPosts.map((post, index) => (
-              <motion.article
-                key={post.id}
-                className="card overflow-hidden"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.02 }}
-              >
-                <div className="relative">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {post.category}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {post.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{post.readTime}</span>
-                    <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
-                  </div>
-                  <button className="mt-4 text-primary-600 font-medium hover:text-primary-700 transition-colors duration-300">
-                    Read More →
-                  </button>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+          {loading && blogs.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading blogs...</p>
+            </div>
+          ) : blogs.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No blogs found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {blogs.map((post, index) => (
+                <Link
+                  key={post._id}
+                  to={`/blog/${post.slug}`}
+                  className="block"
+                >
+                  <motion.article
+                    className="card overflow-hidden cursor-pointer h-full flex flex-col"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="relative">
+                      <img
+                        src={post.featuredImage}
+                        alt={post.title}
+                        className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/600x400?text=Blog+Image';
+                        }}
+                      />
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                          {post.category}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4 line-clamp-3 flex-1">
+                        {post.excerpt}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <span>{post.readTime} min read</span>
+                        <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}</span>
+                      </div>
+                      <span className="mt-4 text-primary-600 font-medium hover:text-primary-700 transition-colors duration-300 inline-block">
+                        Read More →
+                      </span>
+                    </div>
+                  </motion.article>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Load More Button */}
-          <motion.div
-            className="text-center mt-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            viewport={{ once: true }}
-          >
-            <button className="btn-outline">
-              Load More Posts
-            </button>
-          </motion.div>
+          {hasMore && !loading && blogs.length > 0 && (
+            <motion.div
+              className="text-center mt-12"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <button
+                onClick={handleLoadMore}
+                className="btn-outline"
+                disabled={loading}
+              >
+                {loading ? 'Loading...' : 'Load More Posts'}
+              </button>
+            </motion.div>
+          )}
         </div>
       </section>
 
