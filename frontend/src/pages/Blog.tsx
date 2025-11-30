@@ -174,10 +174,9 @@ const Blog: React.FC = () => {
                       <p className="text-gray-600 mb-4 line-clamp-3 flex-1">
                         {post.excerpt}
                       </p>
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <span>{post.readTime} min read</span>
-                        <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}</span>
-                      </div>
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}</span>
+                    </div>
                       <span className="mt-4 text-primary-600 font-medium hover:text-primary-700 transition-colors duration-300 inline-block">
                         Read More →
                       </span>

@@ -92,13 +92,13 @@ const BlogPost: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600">
+      <div className="relative">
         {/* Background Image with Overlay */}
         <div className="relative h-[500px] md:h-[600px] w-full overflow-hidden">
           <img
             src={blog.featuredImage}
             alt={blog.title}
-            className="w-full h-full object-cover opacity-20"
+            className="w-full h-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1200x600?text=Blog+Image';
             }}
