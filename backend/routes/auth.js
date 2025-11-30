@@ -127,6 +127,13 @@ router.post('/login', [
     // Generate token
     const token = generateToken(user._id);
 
+    console.log('POST /api/auth/login - User logged in:', {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }); // Debug log
+
     res.json({
       success: true,
       token,
@@ -187,6 +194,13 @@ router.get('/me', auth, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    console.log('GET /api/auth/me - User found:', {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }); // Debug log
 
     res.json({
       success: true,

@@ -112,6 +112,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { token: newToken, user: userData } = response.data;
       
       console.log('Login response user data:', userData); // Debug log
+      console.log('User role:', userData?.role); // Debug log
+      console.log('Is admin?', userData?.role === 'admin'); // Debug log
       
       setToken(newToken);
       setUser(userData);
@@ -163,6 +165,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     toast.success('Logged out successfully');
   };
 
+  const isAdminValue = user?.role === 'admin';
+  
+  // Debug log
+  if (user) {
+    console.log('AuthContext - User:', user);
+    console.log('AuthContext - User role:', user.role);
+    console.log('AuthContext - Is Admin:', isAdminValue);
+  }
+
   const value: AuthContextType = {
     user,
     token,
@@ -171,7 +182,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     loading,
     isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin'
+    isAdmin: isAdminValue
   };
 
   return (

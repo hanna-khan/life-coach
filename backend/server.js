@@ -76,6 +76,9 @@ app.get('/health', (req, res) => {
 // Auth route - always available (needed for login/register)
 app.use('/api/auth', require('./routes/auth'));
 
+// Admin Auth route - always available (needed for admin login)
+app.use('/api/admin-auth', require('./routes/adminAuth'));
+
 // Pricing route - always available (needs database)
 app.use('/api/pricing', require('./routes/pricing'));
 

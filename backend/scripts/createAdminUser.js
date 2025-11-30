@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const path = require('path');
 require('dotenv').config();
 
-// Import User model with correct path
-const User = require(path.join(__dirname, '../models/User'));
+// Import AdminUser model
+const AdminUser = require(path.join(__dirname, '../models/AdminUser'));
 
 const createAdminUser = async () => {
   try {
@@ -11,13 +11,13 @@ const createAdminUser = async () => {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/life-coach');
     console.log('✅ Connected to MongoDB');
 
-    // Get admin credentials from environment variables (secure way)
+    // Get admin credentials from environment variables
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@lifecoach.com';
     const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123456';
     const adminName = process.env.ADMIN_NAME || 'Admin User';
 
     // Check if admin user already exists
-    const existingAdmin = await User.findOne({ email: adminEmail });
+    const existingAdmin = await AdminUser.findOne({ email: adminEmail });
     if (existingAdmin) {
       console.log('⚠️  Admin user already exists!');
       console.log(`📧 Email: ${adminEmail}`);
@@ -26,12 +26,12 @@ const createAdminUser = async () => {
       process.exit(0);
     }
 
-    // Create admin user (password will be hashed automatically by User model)
-    const adminUser = new User({
+    // Create admin user (password will be hashed automatically)
+    const adminUser = new AdminUser({
       name: adminName,
       email: adminEmail,
       password: adminPassword, // Will be hashed by pre-save hook
-      role: 'admin'
+      isActive: true
     });
 
     await adminUser.save();
@@ -40,13 +40,13 @@ const createAdminUser = async () => {
     console.log(`📧 Email: ${adminEmail}`);
     console.log(`🔑 Password: ${adminPassword}`);
     console.log(`👤 Name: ${adminName}`);
-    console.log('👑 Role: admin');
+    console.log('👑 Role: Admin');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('\n⚠️  SECURITY REMINDER:');
-    console.log('1. Change the default password after first login');
-    console.log('2. Keep ADMIN_PASSWORD in .env file secure');
-    console.log('3. Never commit .env file to version control');
-    console.log('4. Use strong password (min 8 chars, mix of letters, numbers, symbols)\n');
+    console.log('1. Use these credentials to login at /admin-login');
+    console.log('2. Change the password after first login');
+    console.log('3. Keep ADMIN_PASSWORD in .env file secure');
+    console.log('4. Never commit .env file to version control\n');
 
   } catch (error) {
     console.error('❌ Error creating admin user:', error.message);
@@ -61,3 +61,4 @@ const createAdminUser = async () => {
 };
 
 createAdminUser();
+

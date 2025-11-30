@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext.tsx';
+import { useAdminAuth } from '../../contexts/AdminAuthContext.tsx';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const { isAuthenticated, loading } = useAdminAuth();
   const location = useLocation();
 
   // Check if running in developer mode
@@ -27,12 +27,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  if (requireAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
+  // For admin routes, redirect to admin login
+  if (requireAdmin && !isAuthenticated) {
+    return <Navigate to="/admin-login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
