@@ -82,16 +82,17 @@ app.use('/api/admin-auth', require('./routes/adminAuth'));
 // Pricing route - always available (needs database)
 app.use('/api/pricing', require('./routes/pricing'));
 
+// Blogs route - always available (needs database for admin endpoints)
+app.use('/api/blogs', require('./routes/blogs'));
+
 if (IS_DEVELOPER) {
   // In developer mode, use mock routes for some endpoints
   console.log('🔧 Developer mode: Using mock API routes for some endpoints');
-  app.use('/api/blogs', require('./routes/dev'));
   app.use('/api/bookings', require('./routes/dev'));
   app.use('/api/contact', require('./routes/dev'));
   app.use('/api/admin', require('./routes/dev'));
 } else {
   // Production routes
-  app.use('/api/blogs', require('./routes/blogs'));
   app.use('/api/bookings', require('./routes/bookings'));
   app.use('/api/contact', require('./routes/contact'));
   app.use('/api/payments', require('./routes/payments'));
