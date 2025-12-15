@@ -6,62 +6,74 @@ import { useAuth } from '../contexts/AuthContext.tsx';
 const Home: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
-  const features = [
+  const whoIHelp = [
+    "Feel stuck in old habits, addictions, or emotional patterns",
+    "Struggle with overthinking, people-pleasing, or lack of direction",
+    "Want to rebuild confidence and identity",
+    "Are ready to stop numbing, start feeling, and step into leadership of their own life"
+  ];
+
+  const whyThisWorks = [
     {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      ),
-      title: "Break Old Patterns",
-      description: "Identify and overcome limiting beliefs and behaviors that hold you back from living authentically."
+      title: "Trauma-informed understanding",
+      description: "Deep understanding of how past experiences shape current patterns"
     },
     {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
-        </svg>
-      ),
-      title: "Build Your Life",
-      description: "Create a life on your terms with authentic choices, clear boundaries, and purposeful direction."
+      title: "ADHD-specific strategies",
+      description: "Practical tools designed for how your brain actually works"
     },
     {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-        </svg>
-      ),
-      title: "Authentic Masculinity",
-      description: "Embrace your authentic self while developing the strength and wisdom to lead with integrity."
+      title: "Identity work",
+      description: "Helping you discover and build who you really are"
+    },
+    {
+      title: "Accountability",
+      description: "Real support that keeps you moving forward"
+    },
+    {
+      title: "Clear, actionable structure",
+      description: "No fluff. Just practical clarity and real momentum"
     }
+  ];
+
+  const whatYouGet = [
+    "A clear direction when life feels overwhelming",
+    "Emotional tools to stop spiraling or shutting down",
+    "Accountability that keeps you moving",
+    "A coach who actually gets it — without judgment"
   ];
 
   const testimonials = [
     {
-      name: "Marcus Thompson",
-      role: "Entrepreneur",
-      content: "Luke helped me break free from the patterns that were holding me back. I'm now running my business with confidence and authenticity.",
+      name: "Michael Chen",
+      role: "Software Engineer, 34",
+      content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: "David Chen",
-      role: "Software Engineer",
-      content: "The coaching sessions transformed how I approach challenges. I've built stronger relationships and found clarity in my career path.",
+      name: "David Martinez",
+      role: "Marketing Director, 41",
+      content: "After years of numbing with work and alcohol, I felt completely disconnected from myself. Luke's approach helped me feel again—not just the hard stuff, but actually experiencing joy and purpose. The identity work was game-changing.",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: "James Rodriguez",
-      role: "Sales Director",
-      content: "Luke's approach to authentic masculinity helped me become a better leader and partner. The changes have been profound.",
+      name: "James Thompson",
+      role: "Entrepreneur, 38",
+      content: "I've tried therapy, self-help books, everything. What Luke does differently is he's been through it. He doesn't just understand—he gets it. The accountability and structure kept me moving when I wanted to quit.",
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "Ryan Foster",
+      role: "Sales Manager, 29",
+      content: "ADHD made everything feel overwhelming. Luke's strategies actually work with how my brain functions instead of against it. I finally have clarity on what to do next instead of spinning in circles.",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "Alex Rodriguez",
+      role: "Teacher, 36",
+      content: "I was overthinking every decision, paralyzed by fear of making the wrong choice. Luke helped me break that cycle and start taking action. Now I'm making moves I've been putting off for years. The momentum is real.",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
     }
-  ];
-
-  const stats = [
-    { number: "500+", label: "Clients Helped" },
-    { number: "95%", label: "Success Rate" },
-    { number: "10+", label: "Years Experience" },
-    { number: "24/7", label: "Support Available" }
   ];
 
   return (
@@ -84,19 +96,18 @@ const Home: React.FC = () => {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Coaching Men to Break Old Patterns
-                <span className="block text-yellow-300">and Build a Life on Their Terms</span>
+                Break Old Patterns.
+                <span className="block text-yellow-300">Build a Life on Your Terms.</span>
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                I'm Luke Westbrook-Manhattan, and I help men break free from limiting patterns, 
-                embrace authentic masculinity, and create lives of purpose and fulfillment.
+                Coaching for men who are done repeating the same cycles and ready to take ownership, gain clarity, and move forward with confidence.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/book-call"
                   className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center"
                 >
-                  Book Your Free Consultation
+                  Book Your Free Discovery Call Now
                 </Link>
                 <Link
                   to="/about"
@@ -128,8 +139,8 @@ const Home: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Certified Coach</p>
-                      <p className="text-sm text-gray-600">10+ Years Experience</p>
+                      <p className="font-semibold text-gray-900">3 Years Sober</p>
+                      <p className="text-sm text-gray-600">Lived Experience</p>
                     </div>
                   </div>
                 </div>
@@ -150,28 +161,47 @@ const Home: React.FC = () => {
         </motion.div>
       </section>
 
-      {/* Stats Section */}
+      {/* Who I Help Section */}
       <section className="section-padding bg-white">
         <div className="container-max">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                className="text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <div className="text-4xl font-bold text-primary-600 mb-2">{stat.number}</div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
-              </motion.div>
-            ))}
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Who I Help</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Men who:
+            </p>
+          </motion.div>
+
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {whoIHelp.map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="flex items-start space-x-4"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-lg text-gray-700">{item}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Why This Works Section */}
       <section className="section-padding bg-gray-50">
         <div className="container-max">
           <motion.div
@@ -181,37 +211,87 @@ const Home: React.FC = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">My Coaching Approach</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              I work with men who are ready to break free from old patterns and build authentic, 
-              purposeful lives. My approach is direct, practical, and focused on real transformation.
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why This Works</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
+              I coach you from lived experience — not theory.
+            </p>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              I've been through addiction, detachment, trauma responses, and rebuilding my life from the ground up. I understand the internal battles men face because I've lived them.
+            </p>
+            <p className="text-lg font-semibold text-gray-900 mt-6 mb-8">
+              My coaching blends:
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {whyThisWorks.map((item, index) => (
               <motion.div
-                key={feature.title}
-                className="card p-8 text-center"
+                key={item.title}
+                className="card p-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 mx-auto mb-6">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
+                <p className="text-gray-600">{item.description}</p>
               </motion.div>
             ))}
+          </div>
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-lg font-semibold text-gray-900">
+              No fluff. No vague empowerment talk. Just practical clarity and real momentum.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* What You Get Section */}
+      <section className="section-padding bg-white">
+        <div className="container-max">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">What You Get</h2>
+          </motion.div>
+
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {whatYouGet.map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="flex items-start space-x-4"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-lg text-gray-700">{item}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="section-padding bg-white">
+      <section className="section-padding bg-gray-50">
         <div className="container-max">
           <motion.div
             className="text-center mb-16"
@@ -222,21 +302,21 @@ const Home: React.FC = () => {
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">What Men Are Saying</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Real men, real transformations. Here's what clients say about breaking old patterns and building authentic lives.
+              Real transformations from men who've worked with me.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={testimonial.name}
-                className="card p-8"
+                className="card p-6"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="flex items-center mb-6">
+                <div className="flex items-center mb-4">
                   <img
                     src={testimonial.image}
                     alt={testimonial.name}
@@ -247,7 +327,7 @@ const Home: React.FC = () => {
                     <p className="text-sm text-gray-600">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-gray-700 italic">"{testimonial.content}"</p>
+                <p className="text-gray-700 leading-relaxed">"{testimonial.content}"</p>
                 <div className="flex text-yellow-400 mt-4">
                   {[...Array(5)].map((_, i) => (
                     <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
@@ -258,6 +338,64 @@ const Home: React.FC = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* Share Your Experience Section */}
+          <motion.div
+            className="max-w-2xl mx-auto card p-8 bg-white"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Share Your Experience</h3>
+            <p className="text-gray-600 mb-6 text-center">
+              Have you worked with me? I'd love to hear about your journey. Your story can help other men take that first step.
+            </p>
+            <form className="space-y-4">
+              <div>
+                <label htmlFor="testimonial-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Name
+                </label>
+                <input
+                  type="text"
+                  id="testimonial-name"
+                  name="name"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label htmlFor="testimonial-role" className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Role / Location (optional)
+                </label>
+                <input
+                  type="text"
+                  id="testimonial-role"
+                  name="role"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent"
+                  placeholder="e.g., Software Engineer, Denver"
+                />
+              </div>
+              <div>
+                <label htmlFor="testimonial-message" className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Experience
+                </label>
+                <textarea
+                  id="testimonial-message"
+                  name="message"
+                  rows={5}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent resize-none"
+                  placeholder="Share your story and transformation..."
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-primary-600 text-white hover:bg-primary-700 font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
+                Submit Your Experience
+              </button>
+            </form>
+          </motion.div>
         </div>
       </section>
 
@@ -271,18 +409,17 @@ const Home: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold text-white mb-6">
-              Ready to Break Your Old Patterns?
+              Ready to stop thinking about change and actually make it happen?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Stop living on autopilot. Book your free consultation and let's discuss how to build 
-              the authentic life you've always wanted.
+              Book your free discovery call now.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/book-call"
                 className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
-                Book Free Consultation
+                Book Your Free Discovery Call Now
               </Link>
               <Link
                 to="/contact"

@@ -27,6 +27,8 @@ import AdminContacts from './pages/admin/Contacts.tsx';
 import BookingSuccess from './pages/BookingSuccess.tsx';
 import BookingCancel from './pages/BookingCancel.tsx';
 import Resources from './pages/Resources.tsx';
+import Privacy from './pages/Privacy.tsx';
+import FAQ from './pages/FAQ.tsx';
 
 // Protected Route Component
 import ProtectedRoute from './components/Auth/ProtectedRoute.tsx';
@@ -79,6 +81,16 @@ function App() {
                       <Route path="/contact" element={
                         <PageTransition>
                           <Contact />
+                        </PageTransition>
+                      } />
+                      <Route path="/privacy" element={
+                        <PageTransition>
+                          <Privacy />
+                        </PageTransition>
+                      } />
+                      <Route path="/faq" element={
+                        <PageTransition>
+                          <FAQ />
                         </PageTransition>
                       } />
                       <Route path="/login" element={
