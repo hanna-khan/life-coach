@@ -19,8 +19,6 @@ const Footer: React.FC = () => {
     ],
     'Legal': [
       { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Service', href: '/terms' },
-      { name: 'Cookie Policy', href: '/cookies' },
     ],
   };
 
@@ -116,12 +114,6 @@ const Footer: React.FC = () => {
               className="text-gray-400 hover:text-white text-sm transition-colors duration-300"
             >
               Privacy Policy
-            </Link>
-            <Link
-              to="/terms"
-              className="text-gray-400 hover:text-white text-sm transition-colors duration-300"
-            >
-              Terms of Service
             </Link>
           </div>
         </motion.div>
