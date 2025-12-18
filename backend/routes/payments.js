@@ -1,7 +1,15 @@
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Booking = require('../models/Booking');
 const { auth, adminAuth } = require('../middleware/auth');
+
+// Initialize Stripe only if valid secret key is provided
+let stripe;
+if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')) {
+  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+} else {
+  console.warn('⚠️  Stripe secret key not configured or invalid. Payment features will not work.');
+  console.warn('   Expected format: sk_test_... or sk_live_...');
+}
 
 const router = express.Router();
 
@@ -12,10 +20,42 @@ router.post('/create-session', async (req, res) => {
   try {
     const { bookingId } = req.body;
 
+    if (!bookingId) {
+      return res.status(400).json({ message: 'Booking ID is required' });
+    }
+
+    // Check if Stripe is configured
+    if (!stripe) {
+      console.error('Stripe is not initialized. Check STRIPE_SECRET_KEY in .env file.');
+      return res.status(500).json({ 
+        message: 'Payment service not configured',
+        error: 'Stripe secret key is missing or invalid. Should start with sk_test_ or sk_live_'
+      });
+    }
+
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
+
+    if (!booking.duration) {
+      return res.status(400).json({ message: 'Booking duration is missing' });
+    }
+
+    if (!booking.price || booking.price <= 0) {
+      return res.status(400).json({ message: 'Invalid booking price' });
+    }
+
+    // Format date for display
+    const bookingDate = booking.preferredDate instanceof Date 
+      ? booking.preferredDate 
+      : new Date(booking.preferredDate);
+    const formattedDate = bookingDate.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -25,9 +65,9 @@ router.post('/create-session', async (req, res) => {
             currency: 'usd',
             product_data: {
               name: `${booking.serviceType} - ${booking.duration} minutes`,
-              description: `Life coaching session scheduled for ${booking.preferredDate.toDateString()} at ${booking.preferredTime}`,
+              description: `Life coaching session scheduled for ${formattedDate} at ${booking.preferredTime}`,
             },
-            unit_amount: booking.price * 100, // Convert to cents
+            unit_amount: Math.round(booking.price * 100), // Convert to cents
           },
           quantity: 1,
         },
@@ -38,6 +78,7 @@ router.post('/create-session', async (req, res) => {
       metadata: {
         bookingId: booking._id.toString(),
       },
+      customer_email: booking.clientEmail,
     });
 
     // Update booking with session ID
@@ -51,7 +92,11 @@ router.post('/create-session', async (req, res) => {
     });
   } catch (error) {
     console.error('Create payment session error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

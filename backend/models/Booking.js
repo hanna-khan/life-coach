@@ -17,8 +17,8 @@ const bookingSchema = new mongoose.Schema({
   },
   serviceType: {
     type: String,
-    required: [true, 'Please select a service type'],
-    enum: ['Initial Consultation', 'Life Coaching Session', 'Career Guidance', 'Relationship Coaching', 'Goal Setting Session']
+    required: [true, 'Please select a service type']
+    // Removed enum to allow dynamic package names from Pricing model
   },
   preferredDate: {
     type: Date,
@@ -31,8 +31,9 @@ const bookingSchema = new mongoose.Schema({
   },
   duration: {
     type: Number,
-    default: 60,
-    enum: [30, 60, 90]
+    required: [true, 'Duration is required'],
+    min: [15, 'Duration must be at least 15 minutes'],
+    max: [180, 'Duration cannot exceed 180 minutes']
   },
   message: {
     type: String,

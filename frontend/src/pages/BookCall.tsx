@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 interface PricingPackage {
   _id: string;
@@ -14,8 +16,10 @@ interface PricingPackage {
 }
 
 const BookCall: React.FC = () => {
+  const navigate = useNavigate();
   const [packages, setPackages] = useState<PricingPackage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const [selectedPackage, setSelectedPackage] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -46,13 +50,80 @@ const BookCall: React.FC = () => {
   }, []);
 
   const timeSlots = [
-    '9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
+    { display: '9:00 AM', value: '09:00' },
+    { display: '10:00 AM', value: '10:00' },
+    { display: '11:00 AM', value: '11:00' },
+    { display: '1:00 PM', value: '14:00' },
+    { display: '2:00 PM', value: '15:00' },
+    { display: '3:00 PM', value: '16:00' },
+    { display: '4:00 PM', value: '17:00' },
+    { display: '5:00 PM', value: '17:00' }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle booking submission
-    console.log('Booking submitted:', { selectedPackage, selectedDate, selectedTime, formData });
+    
+    if (!selectedPackage) {
+      toast.error('Please select a session package');
+      return;
+    }
+
+    if (!selectedDate || !selectedTime) {
+      toast.error('Please select date and time');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      
+      // Get selected package details
+      const selectedPkg = packages.find(pkg => pkg._id === selectedPackage);
+      if (!selectedPkg) {
+        toast.error('Selected package not found');
+        return;
+      }
+
+      // Convert time format (e.g., "9:00 AM" to "09:00")
+      const timeValue = timeSlots.find(slot => slot.display === selectedTime)?.value || selectedTime;
+
+      // Create booking first
+      const bookingData = {
+        clientName: `${formData.firstName} ${formData.lastName}`,
+        clientEmail: formData.email,
+        clientPhone: formData.phone,
+        packageId: selectedPackage, // Send package ID
+        preferredDate: selectedDate,
+        preferredTime: timeValue,
+        message: formData.message || ''
+      };
+
+      // Create booking in database
+      const bookingResponse = await axios.post('/api/bookings', bookingData);
+      
+      if (!bookingResponse.data.success) {
+        throw new Error('Failed to create booking');
+      }
+
+      const booking = bookingResponse.data.booking;
+      toast.success('Booking created! Redirecting to payment...');
+
+      // Create Stripe checkout session
+      const paymentResponse = await axios.post('/api/payments/create-session', {
+        bookingId: booking._id
+      });
+
+      if (paymentResponse.data.success && paymentResponse.data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = paymentResponse.data.url;
+      } else {
+        throw new Error('Failed to create payment session');
+      }
+    } catch (error: any) {
+      console.error('Booking error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create booking';
+      toast.error(errorMessage);
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -192,8 +263,8 @@ const BookCall: React.FC = () => {
                         required
                       >
                         <option value="">Select a time</option>
-                        {timeSlots.map(time => (
-                          <option key={time} value={time}>{time}</option>
+                        {timeSlots.map(slot => (
+                          <option key={slot.value} value={slot.display}>{slot.display}</option>
                         ))}
                       </select>
                     </div>
@@ -260,14 +331,25 @@ const BookCall: React.FC = () => {
                   <div className="text-center">
                     <motion.button
                       type="submit"
-                      className="btn-primary text-lg px-8 py-4"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      disabled={submitting}
+                      className="btn-primary text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: submitting ? 1 : 1.05 }}
+                      whileTap={{ scale: submitting ? 1 : 0.95 }}
                     >
-                      Book Your Session
+                      {submitting ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing...
+                        </span>
+                      ) : (
+                        'Proceed to Payment'
+                      )}
                     </motion.button>
                     <p className="text-sm text-gray-600 mt-4">
-                      You'll receive a confirmation email with session details and video call link.
+                      Secure payment via Stripe. You'll receive a confirmation email with session details.
                     </p>
                   </div>
                 </form>
