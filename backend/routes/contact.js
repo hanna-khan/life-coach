@@ -6,17 +6,46 @@ const nodemailer = require('nodemailer');
 
 const router = express.Router();
 
-// Create email transporter
+// Create email transporter using SMTP
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  // Check if email is configured
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('⚠️  Email not configured. Set EMAIL_USER and EMAIL_PASS in .env file');
+    return null;
+  }
+
+  if (!process.env.EMAIL_HOST) {
+    console.warn('⚠️  EMAIL_HOST not configured. Please set SMTP host in .env file');
+    return null;
+  }
+
+  // SMTP configuration
+  const transporterConfig = {
     host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: false,
+    port: parseInt(process.env.EMAIL_PORT) || 587,
+    secure: process.env.EMAIL_SECURE === 'true' || process.env.EMAIL_PORT === '465', // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     }
-  });
+  };
+
+  // Add TLS options if needed
+  if (process.env.EMAIL_REJECT_UNAUTHORIZED === 'false') {
+    transporterConfig.tls = {
+      rejectUnauthorized: false
+    };
+  }
+
+  // Add debug option for troubleshooting
+  if (process.env.NODE_ENV === 'development') {
+    transporterConfig.debug = true;
+    transporterConfig.logger = true;
+  }
+
+  console.log(`📧 SMTP Configuration: ${process.env.EMAIL_HOST}:${process.env.EMAIL_PORT}`);
+  
+  return nodemailer.createTransport(transporterConfig);
 };
 
 // @route   POST /api/contact
@@ -43,44 +72,71 @@ router.post('/', [
     try {
       const transporter = createTransporter();
       
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Send to admin
-        subject: `New Contact Form: ${subject}`,
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Subject:</strong> ${subject}</p>
-          <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, '<br>')}</p>
-          <hr>
-          <p><em>This message was sent from your life coaching website contact form.</em></p>
-        `
-      };
+      if (!transporter) {
+        console.warn('⚠️  Email not configured. Contact form submission saved but email not sent.');
+        console.warn('   Please configure EMAIL_USER and EMAIL_PASS in .env file');
+      } else {
+        // Admin notification email
+        // Use ADMIN_EMAIL if set, otherwise use EMAIL_USER
+        const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+        
+        console.log(`📧 Sending contact form email to: ${adminEmail}`);
+        console.log(`   From: ${process.env.EMAIL_USER}`);
+        console.log(`   User email (Reply-To): ${email}`);
+        
+        const mailOptions = {
+          from: `"Life Coach Website" <${process.env.EMAIL_USER}>`,
+          to: adminEmail, // Send to admin
+          replyTo: email, // User's email for easy reply
+          subject: `New Contact Form: ${subject}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #1e40af;">New Contact Form Submission</h2>
+              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+                <p><strong>Subject:</strong> ${subject}</p>
+                <p><strong>Message:</strong></p>
+                <p style="white-space: pre-wrap; background-color: white; padding: 15px; border-radius: 4px;">${message.replace(/\n/g, '<br>')}</p>
+              </div>
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+              <p style="color: #6b7280; font-size: 12px;">
+                <em>This message was sent from your life coaching website contact form.</em><br>
+                <em>Reply directly to this email to respond to ${name}.</em>
+              </p>
+            </div>
+          `
+        };
 
-      await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Contact form email sent to admin: ${adminEmail}`);
 
-      // Send confirmation email to user
-      const confirmationMailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Thank you for contacting us!',
-        html: `
-          <h2>Thank you for reaching out!</h2>
-          <p>Hi ${name},</p>
-          <p>Thank you for contacting us. We have received your message and will get back to you within 24 hours.</p>
-          <p><strong>Your message:</strong></p>
-          <p>${message.replace(/\n/g, '<br>')}</p>
-          <hr>
-          <p>Best regards,<br>Life Coach Team</p>
-        `
-      };
+        // Send confirmation email to user
+        const confirmationMailOptions = {
+          from: `"Life Coach" <${process.env.EMAIL_USER}>`,
+          to: email,
+          subject: 'Thank you for contacting us!',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #1e40af;">Thank you for reaching out!</h2>
+              <p>Hi ${name},</p>
+              <p>Thank you for contacting us. We have received your message and will get back to you within 24 hours.</p>
+              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Your message:</strong></p>
+                <p style="white-space: pre-wrap; background-color: white; padding: 15px; border-radius: 4px;">${message.replace(/\n/g, '<br>')}</p>
+              </div>
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+              <p>Best regards,<br><strong>Life Coach Team</strong></p>
+            </div>
+          `
+        };
 
-      await transporter.sendMail(confirmationMailOptions);
+        await transporter.sendMail(confirmationMailOptions);
+        console.log(`✅ Confirmation email sent to user: ${email}`);
+      }
     } catch (emailError) {
-      console.error('Email sending error:', emailError);
-      // Don't fail the request if email fails
+      console.error('❌ Email sending error:', emailError);
+      // Don't fail the request if email fails - message is still saved to database
     }
 
     res.status(201).json({

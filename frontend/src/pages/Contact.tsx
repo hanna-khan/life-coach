@@ -1,9 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 import { formFieldAnimation, buttonHover } from '../utils/animations.ts';
 
 const Contact: React.FC = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Combine first and last name
+    const name = `${formData.firstName} ${formData.lastName}`.trim();
+    
+    if (!name || name.length < 2) {
+      toast.error('Please enter your full name');
+      return;
+    }
+
+    if (!formData.email || !formData.subject || !formData.message) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      
+      const response = await axios.post('/api/contact', {
+        name: name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message || 'Message sent successfully! We will get back to you soon.');
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      }
+    } catch (error: any) {
+      console.error('Contact form error:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.errors?.[0]?.msg || 
+                          'Failed to send message. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -39,6 +98,7 @@ const Contact: React.FC = () => {
                 variants={formFieldAnimation}
                 initial="initial"
                 animate="animate"
+                onSubmit={handleSubmit}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <motion.div
@@ -52,8 +112,11 @@ const Contact: React.FC = () => {
                       type="text"
                       id="firstName"
                       name="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                       className="input-field"
                       placeholder="Your first name"
+                      required
                       whileFocus={{ scale: 1.02 }}
                       transition={{ duration: 0.2 }}
                     />
@@ -69,8 +132,11 @@ const Contact: React.FC = () => {
                       type="text"
                       id="lastName"
                       name="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                       className="input-field"
                       placeholder="Your last name"
+                      required
                       whileFocus={{ scale: 1.02 }}
                       transition={{ duration: 0.2 }}
                     />
@@ -88,8 +154,11 @@ const Contact: React.FC = () => {
                     type="email"
                     id="email"
                     name="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="input-field"
                     placeholder="your.email@example.com"
+                    required
                     whileFocus={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                   />
@@ -106,8 +175,12 @@ const Contact: React.FC = () => {
                     type="text"
                     id="subject"
                     name="subject"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     className="input-field"
                     placeholder="What's this about?"
+                    required
+                    minLength={5}
                     whileFocus={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                   />
@@ -124,8 +197,12 @@ const Contact: React.FC = () => {
                     id="message"
                     name="message"
                     rows={6}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="input-field resize-none"
                     placeholder="Tell me more about what you'd like to discuss..."
+                    required
+                    minLength={10}
                     whileFocus={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                   />
@@ -133,12 +210,23 @@ const Contact: React.FC = () => {
 
                 <motion.button
                   type="submit"
-                  className="w-full btn-primary"
+                  disabled={submitting}
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   variants={buttonHover}
-                  whileHover="hover"
-                  whileTap="tap"
+                  whileHover={submitting ? {} : "hover"}
+                  whileTap={submitting ? {} : "tap"}
                 >
-                  Send Message
+                  {submitting ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    'Send Message'
+                  )}
                 </motion.button>
               </motion.form>
             </motion.div>

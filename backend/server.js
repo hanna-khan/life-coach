@@ -140,14 +140,15 @@ app.use('/api/bookings', require('./routes/bookings'));
 // Testimonials route - always available (needs database)
 app.use('/api/testimonials', require('./routes/testimonials'));
 
+// Contact route - always available (needs database and email)
+app.use('/api/contact', require('./routes/contact'));
+
 if (IS_DEVELOPER) {
   // In developer mode, use mock routes for some endpoints
   console.log('🔧 Developer mode: Using mock API routes for some endpoints');
-  app.use('/api/contact', require('./routes/dev'));
   app.use('/api/admin', require('./routes/dev'));
 } else {
   // Production routes
-  app.use('/api/contact', require('./routes/contact'));
   app.use('/api/admin', require('./routes/admin'));
 }
 
