@@ -137,6 +137,9 @@ app.use('/api/payments', require('./routes/payments'));
 // Bookings route - always available (needs database for Stripe integration)
 app.use('/api/bookings', require('./routes/bookings'));
 
+// Testimonials route - always available (needs database)
+app.use('/api/testimonials', require('./routes/testimonials'));
+
 if (IS_DEVELOPER) {
   // In developer mode, use mock routes for some endpoints
   console.log('🔧 Developer mode: Using mock API routes for some endpoints');

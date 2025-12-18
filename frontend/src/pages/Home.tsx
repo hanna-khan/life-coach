@@ -1,45 +1,129 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext.tsx';
 
 const Home: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+  const [testimonialForm, setTestimonialForm] = useState({
+    name: '',
+    role: '',
+    content: ''
+  });
+  const [submittingTestimonial, setSubmittingTestimonial] = useState(false);
 
-  const testimonials = [
-    {
-      name: "Michael Chen",
-      role: "Software Engineer, 34",
-      content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      name: "David Martinez",
-      role: "Marketing Director, 41",
-      content: "After years of numbing with work and alcohol, I felt completely disconnected from myself. Luke's approach helped me feel again—not just the hard stuff, but actually experiencing joy and purpose. The identity work was game-changing.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      name: "James Thompson",
-      role: "Entrepreneur, 38",
-      content: "I've tried therapy, self-help books, everything. What Luke does differently is he's been through it. He doesn't just understand—he gets it. The accountability and structure kept me moving when I wanted to quit.",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      name: "Ryan Foster",
-      role: "Sales Manager, 29",
-      content: "ADHD made everything feel overwhelming. Luke's strategies actually work with how my brain functions instead of against it. I finally have clarity on what to do next instead of spinning in circles.",
-      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      name: "Alex Rodriguez",
-      role: "Teacher, 36",
-      content: "I was overthinking every decision, paralyzed by fear of making the wrong choice. Luke helped me break that cycle and start taking action. Now I'm making moves I've been putting off for years. The momentum is real.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+  // Fetch testimonials from API
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    try {
+      setLoadingTestimonials(true);
+      const response = await axios.get('/api/testimonials');
+      
+      if (response.data.success) {
+        // Add default images to testimonials
+        const testimonialsWithImages = response.data.testimonials.map((testimonial: any, index: number) => ({
+          ...testimonial,
+          image: `https://images.unsplash.com/photo-${1507003211169 + index}?w=150&h=150&fit=crop&crop=face`
+        }));
+        
+        // If no testimonials from API, use default ones
+        if (testimonialsWithImages.length === 0) {
+          setTestimonials([
+            {
+              name: "Michael Chen",
+              role: "Software Engineer, 34",
+              content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
+              image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+            },
+            {
+              name: "David Martinez",
+              role: "Marketing Director, 41",
+              content: "After years of numbing with work and alcohol, I felt completely disconnected from myself. Luke's approach helped me feel again—not just the hard stuff, but actually experiencing joy and purpose. The identity work was game-changing.",
+              image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+            },
+            {
+              name: "James Thompson",
+              role: "Entrepreneur, 38",
+              content: "I've tried therapy, self-help books, everything. What Luke does differently is he's been through it. He doesn't just understand—he gets it. The accountability and structure kept me moving when I wanted to quit.",
+              image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
+            },
+            {
+              name: "Ryan Foster",
+              role: "Sales Manager, 29",
+              content: "ADHD made everything feel overwhelming. Luke's strategies actually work with how my brain functions instead of against it. I finally have clarity on what to do next instead of spinning in circles.",
+              image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face"
+            },
+            {
+              name: "Alex Rodriguez",
+              role: "Teacher, 36",
+              content: "I was overthinking every decision, paralyzed by fear of making the wrong choice. Luke helped me break that cycle and start taking action. Now I'm making moves I've been putting off for years. The momentum is real.",
+              image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+            }
+          ]);
+        } else {
+          setTestimonials(testimonialsWithImages);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+      // Use default testimonials on error
+      setTestimonials([
+        {
+          name: "Michael Chen",
+          role: "Software Engineer, 34",
+          content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
+          image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+        }
+      ]);
+    } finally {
+      setLoadingTestimonials(false);
     }
-  ];
+  };
+
+  const handleTestimonialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!testimonialForm.name.trim() || !testimonialForm.content.trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (testimonialForm.content.length < 20) {
+      toast.error('Please share at least 20 characters about your experience');
+      return;
+    }
+
+    try {
+      setSubmittingTestimonial(true);
+      const response = await axios.post('/api/testimonials', {
+        name: testimonialForm.name,
+        role: testimonialForm.role,
+        content: testimonialForm.content
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message || 'Thank you for sharing your experience!');
+        setTestimonialForm({ name: '', role: '', content: '' });
+        // Refresh testimonials after submission
+        await fetchTestimonials();
+      }
+    } catch (error: any) {
+      console.error('Error submitting testimonial:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Failed to submit testimonial';
+      toast.error(errorMessage);
+    } finally {
+      setSubmittingTestimonial(false);
+    }
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -456,17 +540,20 @@ const Home: React.FC = () => {
 
               {/* Form Section */}
               <div className="p-6 lg:p-10 bg-gray-50">
-                <form className="space-y-5">
+                <form onSubmit={handleTestimonialSubmit} className="space-y-5">
                   <div>
                     <label htmlFor="testimonial-name" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Your Name
+                      Your Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       id="testimonial-name"
                       name="name"
+                      value={testimonialForm.name}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
                       className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300 shadow-sm hover:shadow-md"
                       placeholder="Your name"
+                      required
                     />
                   </div>
                   <div>
@@ -477,27 +564,48 @@ const Home: React.FC = () => {
                       type="text"
                       id="testimonial-role"
                       name="role"
+                      value={testimonialForm.role}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
                       className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300 shadow-sm hover:shadow-md"
                       placeholder="e.g., Software Engineer, Denver"
                     />
                   </div>
                   <div>
                     <label htmlFor="testimonial-message" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Your Experience
+                      Your Experience <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       id="testimonial-message"
-                      name="message"
+                      name="content"
                       rows={5}
+                      value={testimonialForm.content}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })}
                       className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 resize-none transition-all duration-300 shadow-sm hover:shadow-md"
                       placeholder="Share your story and transformation..."
+                      required
+                      minLength={20}
+                      maxLength={1000}
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {testimonialForm.content.length}/1000 characters (minimum 20)
+                    </p>
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                    disabled={submittingTestimonial}
+                    className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
-                    Submit Your Experience
+                    {submittingTestimonial ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Submitting...
+                      </span>
+                    ) : (
+                      'Submit Your Experience'
+                    )}
                   </button>
                 </form>
               </div>
