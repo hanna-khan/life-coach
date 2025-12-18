@@ -111,39 +111,40 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="hero-bg min-h-screen flex items-center relative overflow-hidden">
+      <section className="hero-bg h-screen w-full flex items-center justify-center relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }} />
         </div>
 
-        <div className="container-max relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="container-max relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 xl:gap-12 items-center h-full">
             {/* Left Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
+              className="flex flex-col justify-center"
             >
-              <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 lg:mb-5 leading-tight">
                 Break Old Patterns.
                 <span className="block text-yellow-300">Build a Life on Your Terms.</span>
               </h1>
-              <p className="text-xl text-blue-100 mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-4 sm:mb-5 lg:mb-6 leading-relaxed">
                 Coaching for men who are done repeating the same cycles and ready to take ownership, gain clarity, and move forward with confidence.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
                   to="/book-call"
-                  className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center"
+                  className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
                 >
                   Book Your Free Discovery Call Now
                 </Link>
                 <Link
                   to="/about"
-                  className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center"
+                  className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
                 >
                   Learn More
                 </Link>
@@ -155,27 +156,15 @@ const Home: React.FC = () => {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative flex items-center justify-center h-full"
             >
-              <div className="relative">
+              <div className="relative w-full max-w-md xl:max-w-xl">
                 <img
                   src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=700&fit=crop"
                   alt="Life Coach"
-                  className="rounded-2xl shadow-2xl"
+                  className="rounded-2xl shadow-2xl w-full h-auto object-cover"
                 />
-                <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">3 Years Sober</p>
-                      <p className="text-sm text-gray-600">Lived Experience</p>
-                    </div>
-                  </div>
-                </div>
+               
               </div>
             </motion.div>
           </div>
@@ -183,12 +172,12 @@ const Home: React.FC = () => {
 
         {/* Scroll Indicator */}
         <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
+          className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-20"
+          animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
+          <div className="w-5 h-8 sm:w-6 sm:h-10 border-2 border-white rounded-full flex justify-center">
+            <div className="w-1 h-2 sm:h-3 bg-white rounded-full mt-1.5 sm:mt-2"></div>
           </div>
         </motion.div>
       </section>
@@ -443,67 +432,76 @@ const Home: React.FC = () => {
 
           {/* Share Your Experience Section */}
           <motion.div
-            className="max-w-2xl mx-auto card p-8 lg:p-10 bg-gradient-to-br from-white to-gray-50 shadow-xl border-2 border-primary-100"
+            className="max-w-3xl mx-auto mt-16 lg:mt-20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+              {/* Header Section */}
+              <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6 lg:px-10 lg:py-8">
+                <div className="flex items-center justify-center space-x-4 mb-3">
+                  <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl lg:text-3xl font-bold text-white">Share Your Experience</h3>
+                </div>
+                <p className="text-white/90 text-center text-sm lg:text-base">
+                  Have you worked with me? I'd love to hear about your journey. Your story can help other men take that first step.
+                </p>
               </div>
-              <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">Share Your Experience</h3>
-              <p className="text-gray-600">
-                Have you worked with me? I'd love to hear about your journey. Your story can help other men take that first step.
-              </p>
+
+              {/* Form Section */}
+              <div className="p-6 lg:p-10 bg-gray-50">
+                <form className="space-y-5">
+                  <div>
+                    <label htmlFor="testimonial-name" className="block text-sm font-semibold text-gray-700 mb-2">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      id="testimonial-name"
+                      name="name"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="testimonial-role" className="block text-sm font-semibold text-gray-700 mb-2">
+                      Your Role / Location (optional)
+                    </label>
+                    <input
+                      type="text"
+                      id="testimonial-role"
+                      name="role"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                      placeholder="e.g., Software Engineer, Denver"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="testimonial-message" className="block text-sm font-semibold text-gray-700 mb-2">
+                      Your Experience
+                    </label>
+                    <textarea
+                      id="testimonial-message"
+                      name="message"
+                      rows={5}
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 resize-none transition-all duration-300 shadow-sm hover:shadow-md"
+                      placeholder="Share your story and transformation..."
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                  >
+                    Submit Your Experience
+                  </button>
+                </form>
+              </div>
             </div>
-            <form className="space-y-5">
-              <div>
-                <label htmlFor="testimonial-name" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Your Name
-                </label>
-                <input
-                  type="text"
-                  id="testimonial-name"
-                  name="name"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300"
-                  placeholder="Your name"
-                />
-              </div>
-              <div>
-                <label htmlFor="testimonial-role" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Your Role / Location (optional)
-                </label>
-                <input
-                  type="text"
-                  id="testimonial-role"
-                  name="role"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300"
-                  placeholder="e.g., Software Engineer, Denver"
-                />
-              </div>
-              <div>
-                <label htmlFor="testimonial-message" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Your Experience
-                </label>
-                <textarea
-                  id="testimonial-message"
-                  name="message"
-                  rows={5}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 resize-none transition-all duration-300"
-                  placeholder="Share your story and transformation..."
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-semibold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Submit Your Experience
-              </button>
-            </form>
           </motion.div>
         </div>
       </section>

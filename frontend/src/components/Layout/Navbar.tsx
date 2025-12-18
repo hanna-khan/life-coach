@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
       transition={{ duration: 0.5 }}
     >
       <div className="container-max">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center py-4 mx-2">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
