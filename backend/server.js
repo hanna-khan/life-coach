@@ -16,9 +16,30 @@ if (!IS_DEVELOPER) {
 }
 
 // CORS configuration
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3001'
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || IS_DEVELOPER) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Authorization']
 }));
 
 // Rate limiting (skip in developer mode)
@@ -35,14 +56,39 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB connection - always connect for database operations
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/life-coach')
-.then(() => console.log('✅ MongoDB connected successfully'))
-.catch(err => {
-  console.error('❌ MongoDB connection error:', err);
-  if (IS_DEVELOPER) {
-    console.log('⚠️  Developer mode: Continuing without MongoDB (some features may not work)');
+const connectDB = async () => {
+  try {
+    const mongoURI = process.env.MONGODB_URI;
+    
+    if (!mongoURI) {
+      console.error('❌ MONGODB_URI is not defined in .env file');
+      if (!IS_DEVELOPER) {
+        process.exit(1);
+      }
+      return;
+    }
+
+    console.log('🔄 Connecting to MongoDB...');
+    await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+    });
+    
+    console.log('✅ MongoDB connected successfully');
+    console.log(`📊 Database: ${mongoose.connection.name}`);
+    console.log(`🌐 Host: ${mongoose.connection.host}`);
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+    if (IS_DEVELOPER) {
+      console.log('⚠️  Developer mode: Continuing without MongoDB (some features may not work)');
+    } else {
+      console.error('💥 Fatal: Database connection failed. Exiting...');
+      process.exit(1);
+    }
   }
-});
+};
+
+connectDB();
 
 // Root route
 app.get('/', (req, res) => {
