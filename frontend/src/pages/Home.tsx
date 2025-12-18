@@ -9,7 +9,41 @@ const Home: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  // Static testimonials (always shown)
+  const staticTestimonials = [
+    {
+      name: "Michael Chen",
+      role: "Software Engineer, 34",
+      content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "David Martinez",
+      role: "Marketing Director, 41",
+      content: "After years of numbing with work and alcohol, I felt completely disconnected from myself. Luke's approach helped me feel again—not just the hard stuff, but actually experiencing joy and purpose. The identity work was game-changing.",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "James Thompson",
+      role: "Entrepreneur, 38",
+      content: "I've tried therapy, self-help books, everything. What Luke does differently is he's been through it. He doesn't just understand—he gets it. The accountability and structure kept me moving when I wanted to quit.",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "Ryan Foster",
+      role: "Sales Manager, 29",
+      content: "ADHD made everything feel overwhelming. Luke's strategies actually work with how my brain functions instead of against it. I finally have clarity on what to do next instead of spinning in circles.",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "Alex Rodriguez",
+      role: "Teacher, 36",
+      content: "I was overthinking every decision, paralyzed by fear of making the wrong choice. Luke helped me break that cycle and start taking action. Now I'm making moves I've been putting off for years. The momentum is real.",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+    }
+  ];
+
+  const [testimonials, setTestimonials] = useState<any[]>(staticTestimonials);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
   const [testimonialForm, setTestimonialForm] = useState({
     name: '',
@@ -17,8 +51,34 @@ const Home: React.FC = () => {
     content: ''
   });
   const [submittingTestimonial, setSubmittingTestimonial] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
-  // Fetch testimonials from API
+  // Helper function to get initials from name
+  const getInitials = (name: string): string => {
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) {
+      return parts[0].charAt(0).toUpperCase();
+    }
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+
+  // Helper function to get background color based on name
+  const getAvatarColor = (name: string): string => {
+    const colors = [
+      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500',
+      'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500'
+    ];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
+  // Handle image load error
+  const handleImageError = (name: string) => {
+    setImageErrors(prev => new Set(prev).add(name));
+  };
+
+  // Fetch testimonials from API and combine with static ones
   useEffect(() => {
     fetchTestimonials();
   }, []);
@@ -28,62 +88,44 @@ const Home: React.FC = () => {
       setLoadingTestimonials(true);
       const response = await axios.get('/api/testimonials');
       
-      if (response.data.success) {
-        // Add default images to testimonials
-        const testimonialsWithImages = response.data.testimonials.map((testimonial: any, index: number) => ({
-          ...testimonial,
-          image: `https://images.unsplash.com/photo-${1507003211169 + index}?w=150&h=150&fit=crop&crop=face`
-        }));
+      console.log('API Response:', response.data);
+      
+      // Always start with static testimonials
+      let allTestimonials = [...staticTestimonials];
+      
+      // Add dynamic testimonials from database if available
+      if (response.data && response.data.success) {
+        const apiTestimonials = response.data.testimonials || [];
+        console.log('API Testimonials received:', apiTestimonials.length);
         
-        // If no testimonials from API, use default ones
-        if (testimonialsWithImages.length === 0) {
-          setTestimonials([
-            {
-              name: "Michael Chen",
-              role: "Software Engineer, 34",
-              content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
-              image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-            },
-            {
-              name: "David Martinez",
-              role: "Marketing Director, 41",
-              content: "After years of numbing with work and alcohol, I felt completely disconnected from myself. Luke's approach helped me feel again—not just the hard stuff, but actually experiencing joy and purpose. The identity work was game-changing.",
-              image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-            },
-            {
-              name: "James Thompson",
-              role: "Entrepreneur, 38",
-              content: "I've tried therapy, self-help books, everything. What Luke does differently is he's been through it. He doesn't just understand—he gets it. The accountability and structure kept me moving when I wanted to quit.",
-              image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
-            },
-            {
-              name: "Ryan Foster",
-              role: "Sales Manager, 29",
-              content: "ADHD made everything feel overwhelming. Luke's strategies actually work with how my brain functions instead of against it. I finally have clarity on what to do next instead of spinning in circles.",
-              image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face"
-            },
-            {
-              name: "Alex Rodriguez",
-              role: "Teacher, 36",
-              content: "I was overthinking every decision, paralyzed by fear of making the wrong choice. Luke helped me break that cycle and start taking action. Now I'm making moves I've been putting off for years. The momentum is real.",
-              image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-            }
-          ]);
+        if (apiTestimonials.length > 0) {
+          // Add dynamic testimonials (image is optional - will show initials if missing)
+          const dynamicTestimonials = apiTestimonials.map((testimonial: any, index: number) => {
+            const testimonialData = {
+              ...testimonial,
+              // Only set image if it exists, otherwise initials will be shown
+              image: testimonial.image || null
+            };
+            console.log('Adding dynamic testimonial:', testimonialData.name, 'Image:', testimonialData.image ? 'Yes' : 'No (will show initials)');
+            return testimonialData;
+          });
+          
+          // Combine static + dynamic testimonials (static first, then dynamic)
+          allTestimonials = [...staticTestimonials, ...dynamicTestimonials];
+          console.log('Combined testimonials:', allTestimonials.length);
         } else {
-          setTestimonials(testimonialsWithImages);
+          console.log('No approved testimonials in database. Showing static testimonials only.');
         }
       }
-    } catch (error) {
+      
+      console.log('Final testimonials to display:', allTestimonials.length, '(Static:', staticTestimonials.length, '+ Dynamic:', response.data?.testimonials?.length || 0, ')');
+      setTestimonials(allTestimonials);
+    } catch (error: any) {
       console.error('Error fetching testimonials:', error);
-      // Use default testimonials on error
-      setTestimonials([
-        {
-          name: "Michael Chen",
-          role: "Software Engineer, 34",
-          content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
-          image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-        }
-      ]);
+      console.error('Error details:', error.response?.data || error.message);
+      // On error, use static testimonials only
+      console.log('Using static testimonials only due to error');
+      setTestimonials(staticTestimonials);
     } finally {
       setLoadingTestimonials(false);
     }
@@ -269,10 +311,10 @@ const Home: React.FC = () => {
       {/* Who I Help Section */}
       <section className="section-padding bg-white">
         <div className="container-max">
-          <motion.div
+              <motion.div
             className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
@@ -290,8 +332,8 @@ const Home: React.FC = () => {
                   className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-colors duration-300"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
                   whileHover={{ x: 5 }}
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md">
@@ -300,8 +342,8 @@ const Home: React.FC = () => {
                     </svg>
                   </div>
                   <p className="text-lg text-gray-700 font-medium">{item}</p>
-                </motion.div>
-              ))}
+              </motion.div>
+            ))}
             </div>
           </div>
         </div>
@@ -432,37 +474,44 @@ const Home: React.FC = () => {
                     {testimonials
                       .slice(slideIndex * itemsPerView, slideIndex * itemsPerView + itemsPerView)
                       .map((testimonial, index) => (
-                        <motion.div
-                          key={testimonial.name}
+              <motion.div
+                key={testimonial.name}
                           className="card p-6 lg:p-8 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: index * 0.1 }}
-                          viewport={{ once: true }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
                           whileHover={{ y: -5 }}
-                        >
+              >
                           <div className="flex items-center mb-4">
-                            <img
-                              src={testimonial.image}
-                              alt={testimonial.name}
-                              className="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-primary-100"
-                            />
-                            <div>
+                  {testimonial.image && !imageErrors.has(testimonial.name) ? (
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      onError={() => handleImageError(testimonial.name)}
+                      className="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-primary-100"
+                    />
+                  ) : (
+                    <div className={`w-14 h-14 rounded-full mr-4 ring-2 ring-primary-100 flex items-center justify-center text-white font-semibold text-lg ${getAvatarColor(testimonial.name)}`}>
+                      {getInitials(testimonial.name)}
+                    </div>
+                  )}
+                  <div>
                               <h4 className="font-semibold text-gray-900 text-lg">{testimonial.name}</h4>
-                              <p className="text-sm text-gray-600">{testimonial.role}</p>
-                            </div>
-                          </div>
+                    <p className="text-sm text-gray-600">{testimonial.role || ''}</p>
+                  </div>
+                </div>
                           <p className="text-gray-700 leading-relaxed mb-4">"{testimonial.content}"</p>
                           <div className="flex text-yellow-400">
-                            {[...Array(5)].map((_, i) => (
-                              <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                              </svg>
-                            ))}
-                          </div>
-                        </motion.div>
-                      ))}
-                  </div>
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
                 ))}
               </motion.div>
             </div>

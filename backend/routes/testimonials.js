@@ -45,13 +45,14 @@ router.post('/', [
 });
 
 // @route   GET /api/testimonials
-// @desc    Get all approved testimonials (public)
+// @desc    Get all testimonials (public) - returns all testimonials from table
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const testimonials = await Testimonial.find({ status: 'approved' })
+    // Get all testimonials (approved, pending, etc.) - sorted by createdAt
+    const testimonials = await Testimonial.find({})
       .sort({ createdAt: -1 })
-      .select('name role content isFeatured createdAt');
+      .select('name role content isFeatured createdAt status');
 
     res.json({
       success: true,
