@@ -90,21 +90,82 @@ router.post('/', [
           replyTo: email, // User's email for easy reply
           subject: `New Contact Form: ${subject}`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #1e40af;">New Contact Form Submission</h2>
-              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-                <p><strong>Subject:</strong> ${subject}</p>
-                <p><strong>Message:</strong></p>
-                <p style="white-space: pre-wrap; background-color: white; padding: 15px; border-radius: 4px;">${message.replace(/\n/g, '<br>')}</p>
-              </div>
-              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-              <p style="color: #6b7280; font-size: 12px;">
-                <em>This message was sent from your life coaching website contact form.</em><br>
-                <em>Reply directly to this email to respond to ${name}.</em>
-              </p>
-            </div>
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6; padding: 20px;">
+                <tr>
+                  <td align="center" style="padding: 20px 0;">
+                    <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                      <!-- Header -->
+                      <tr>
+                        <td style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; text-align: center;">
+                          <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">New Contact Form Submission</h1>
+                          <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 14px;">You have received a new message from your website</p>
+                        </td>
+                      </tr>
+                      
+                      <!-- Content -->
+                      <tr>
+                        <td style="padding: 30px;">
+                          <div style="background-color: #f9fafb; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                              <tr>
+                                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
+                                  <strong style="color: #374151; font-size: 14px; display: inline-block; width: 120px;">Name:</strong>
+                                  <span style="color: #111827; font-size: 14px; font-weight: 600;">${name}</span>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
+                                  <strong style="color: #374151; font-size: 14px; display: inline-block; width: 120px;">Email:</strong>
+                                  <a href="mailto:${email}" style="color: #3b82f6; text-decoration: none; font-size: 14px; font-weight: 600;">${email}</a>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
+                                  <strong style="color: #374151; font-size: 14px; display: inline-block; width: 120px;">Subject:</strong>
+                                  <span style="color: #111827; font-size: 14px;">${subject}</span>
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                          
+                          <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 15px 0; color: #111827; font-size: 16px; font-weight: 600;">Message:</h3>
+                            <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message.replace(/\n/g, '<br>')}</p>
+                          </div>
+                          
+                          <!-- Action Button -->
+                          <table role="presentation" style="width: 100%; border-collapse: collapse; margin-top: 25px;">
+                            <tr>
+                              <td align="center">
+                                <a href="mailto:${email}?subject=Re: ${subject}" style="display: inline-block; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">Reply to ${name}</a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      
+                      <!-- Footer -->
+                      <tr>
+                        <td style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                          <p style="margin: 0; color: #6b7280; font-size: 12px; line-height: 1.5;">
+                            <em>This message was sent from your life coaching website contact form.</em><br>
+                            <em>Reply directly to this email to respond to ${name}.</em>
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
           `
         };
 
@@ -117,17 +178,71 @@ router.post('/', [
           to: email,
           subject: 'Thank you for contacting us!',
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #1e40af;">Thank you for reaching out!</h2>
-              <p>Hi ${name},</p>
-              <p>Thank you for contacting us. We have received your message and will get back to you within 24 hours.</p>
-              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p><strong>Your message:</strong></p>
-                <p style="white-space: pre-wrap; background-color: white; padding: 15px; border-radius: 4px;">${message.replace(/\n/g, '<br>')}</p>
-              </div>
-              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-              <p>Best regards,<br><strong>Life Coach Team</strong></p>
-            </div>
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6; padding: 20px;">
+                <tr>
+                  <td align="center" style="padding: 20px 0;">
+                    <table role="presentation" style="width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                      <!-- Header -->
+                      <tr>
+                        <td style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; text-align: center;">
+                          <div style="width: 60px; height: 60px; background-color: rgba(255, 255, 255, 0.2); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                          </div>
+                          <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Thank You for Reaching Out!</h1>
+                          <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 14px;">We've received your message</p>
+                        </td>
+                      </tr>
+                      
+                      <!-- Content -->
+                      <tr>
+                        <td style="padding: 30px;">
+                          <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                            Hi <strong style="color: #111827;">${name}</strong>,
+                          </p>
+                          <p style="margin: 0 0 25px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                            Thank you for contacting us! We have received your message and will get back to you within <strong style="color: #1e40af;">24 hours</strong>.
+                          </p>
+                          
+                          <div style="background-color: #f9fafb; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                            <h3 style="margin: 0 0 15px 0; color: #111827; font-size: 16px; font-weight: 600;">Your Message:</h3>
+                            <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message.replace(/\n/g, '<br>')}</p>
+                          </div>
+                          
+                          <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                            <p style="margin: 0; color: #1e40af; font-size: 14px; line-height: 1.6;">
+                              <strong>📧 What's Next?</strong><br>
+                              Our team will review your message and respond as soon as possible. If you have any urgent questions, feel free to reach out directly.
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                      
+                      <!-- Footer -->
+                      <tr>
+                        <td style="background-color: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                          <p style="margin: 0 0 10px 0; color: #111827; font-size: 16px; font-weight: 600;">Best regards,</p>
+                          <p style="margin: 0; color: #1e40af; font-size: 16px; font-weight: 700;">Life Coach Team</p>
+                          <p style="margin: 15px 0 0 0; color: #6b7280; font-size: 12px;">
+                            This is an automated confirmation email. Please do not reply to this message.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
           `
         };
 
