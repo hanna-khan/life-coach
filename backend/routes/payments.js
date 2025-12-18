@@ -13,6 +13,97 @@ if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('s
 
 const router = express.Router();
 
+// IMPORTANT: GET routes should be defined before POST routes to avoid conflicts
+// @route   GET /api/payments/session/:sessionId
+// @desc    Get session details and verify payment
+// @access  Public
+router.get('/session/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    console.log(`🔍 Payment verification request for session: ${sessionId}`);
+    
+    if (!sessionId || sessionId.trim() === '') {
+      console.error('❌ Session ID is missing or empty');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Session ID is required'
+      });
+    }
+
+    if (!stripe) {
+      console.error('❌ Stripe is not initialized');
+      return res.status(500).json({ 
+        success: false,
+        message: 'Payment service not configured',
+        error: 'Stripe is not initialized'
+      });
+    }
+
+    console.log(`🔍 Retrieving Stripe session: ${sessionId}`);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log(`✅ Session retrieved. Payment status: ${session.payment_status}`);
+    
+    let booking = null;
+    
+    // Try to find booking by metadata first
+    if (session.metadata && session.metadata.bookingId) {
+      booking = await Booking.findById(session.metadata.bookingId);
+    }
+    
+    // Fallback: find by session ID
+    if (!booking) {
+      booking = await Booking.findOne({ stripeSessionId: session.id });
+    }
+    
+    // Check payment status
+    const isPaid = session.payment_status === 'paid';
+    
+    if (isPaid) {
+      // Ensure booking is updated to paid status
+      if (booking) {
+        if (booking.paymentStatus !== 'paid') {
+          booking.paymentStatus = 'paid';
+          booking.status = 'confirmed';
+          await booking.save();
+          console.log(`✅ Updated booking ${booking._id} to paid status`);
+        }
+        
+        res.json({
+          success: true,
+          paid: true,
+          booking: booking.toObject ? booking.toObject() : booking
+        });
+      } else {
+        // Payment is paid but booking not found - this shouldn't happen but handle it
+        console.warn(`⚠️  Payment paid but booking not found for session ${session.id}`);
+        res.json({
+          success: true,
+          paid: true,
+          booking: null,
+          message: 'Payment successful but booking not found. Please contact support.'
+        });
+      }
+    } else {
+      // Payment not completed
+      res.json({
+        success: true,
+        paid: false,
+        paymentStatus: session.payment_status,
+        booking: booking ? (booking.toObject ? booking.toObject() : booking) : null,
+        message: `Payment status: ${session.payment_status}`
+      });
+    }
+  } catch (error) {
+    console.error('❌ Get session error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 // @route   POST /api/payments/create-session
 // @desc    Create Stripe checkout session
 // @access  Public
@@ -134,17 +225,38 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 // Helper function to handle successful payment
 async function handleSuccessfulPayment(session) {
   try {
-    const booking = await Booking.findOne({ stripeSessionId: session.id });
+    let booking = null;
+    
+    // First try to find by bookingId from metadata (more reliable)
+    if (session.metadata && session.metadata.bookingId) {
+      booking = await Booking.findById(session.metadata.bookingId);
+    }
+    
+    // Fallback: find by session ID
+    if (!booking) {
+      booking = await Booking.findOne({ stripeSessionId: session.id });
+    }
+    
     if (booking) {
-      booking.paymentStatus = 'paid';
-      booking.status = 'confirmed';
-      await booking.save();
-      
-      // Here you could send confirmation emails, create calendar events, etc.
-      console.log(`Payment successful for booking ${booking._id}`);
+      // Only update if payment is actually completed
+      if (session.payment_status === 'paid') {
+        booking.paymentStatus = 'paid';
+        booking.status = 'confirmed';
+        await booking.save();
+        
+        console.log(`✅ Payment successful for booking ${booking._id}`);
+        console.log(`   Client: ${booking.clientName} (${booking.clientEmail})`);
+        console.log(`   Amount: $${booking.price}`);
+        
+        // Here you could send confirmation emails, create calendar events, etc.
+      } else {
+        console.log(`⚠️  Payment session completed but status is: ${session.payment_status}`);
+      }
+    } else {
+      console.error(`❌ Booking not found for session ${session.id}`);
     }
   } catch (error) {
-    console.error('Error handling successful payment:', error);
+    console.error('❌ Error handling successful payment:', error);
   }
 }
 
@@ -158,32 +270,6 @@ async function handleFailedPayment(paymentIntent) {
     console.error('Error handling failed payment:', error);
   }
 }
-
-// @route   GET /api/payments/session/:sessionId
-// @desc    Get session details
-// @access  Public
-router.get('/session/:sessionId', async (req, res) => {
-  try {
-    const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
-    
-    if (session.payment_status === 'paid') {
-      const booking = await Booking.findOne({ stripeSessionId: session.id });
-      res.json({
-        success: true,
-        paid: true,
-        booking
-      });
-    } else {
-      res.json({
-        success: true,
-        paid: false
-      });
-    }
-  } catch (error) {
-    console.error('Get session error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 // @route   GET /api/payments/stats
 // @desc    Get payment statistics (admin only)

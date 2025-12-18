@@ -145,6 +145,48 @@ router.get('/:id', auth, adminAuth, async (req, res) => {
   }
 });
 
+// @route   PUT /api/bookings/:id
+// @desc    Update booking details
+// @access  Private (Admin)
+router.put('/:id', auth, adminAuth, [
+  body('clientName').optional().trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
+  body('clientEmail').optional().isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('clientPhone').optional().trim().isLength({ min: 10 }).withMessage('Please provide a valid phone number'),
+  body('preferredDate').optional().isISO8601().withMessage('Please provide a valid date'),
+  body('preferredTime').optional().isIn(['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00']).withMessage('Please select a valid time'),
+  body('duration').optional().isNumeric().withMessage('Duration must be a number'),
+  body('price').optional().isNumeric().withMessage('Price must be a number'),
+  body('status').optional().isIn(['pending', 'confirmed', 'completed', 'cancelled']).withMessage('Invalid status'),
+  body('paymentStatus').optional().isIn(['pending', 'paid', 'refunded']).withMessage('Invalid payment status'),
+  body('meetingLink').optional().isURL().withMessage('Please provide a valid meeting link'),
+  body('message').optional().trim().isLength({ max: 500 }).withMessage('Message cannot be more than 500 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json({
+      success: true,
+      booking
+    });
+  } catch (error) {
+    console.error('Update booking error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // @route   PUT /api/bookings/:id/status
 // @desc    Update booking status
 // @access  Private (Admin)
@@ -179,6 +221,27 @@ router.put('/:id/status', auth, adminAuth, [
     });
   } catch (error) {
     console.error('Update booking status error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/bookings/:id
+// @desc    Delete booking
+// @access  Private (Admin)
+router.delete('/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndDelete(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Booking deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete booking error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

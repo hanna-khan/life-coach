@@ -4,6 +4,12 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+// Ensure axios baseURL is set
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+if (!axios.defaults.baseURL) {
+  axios.defaults.baseURL = API_BASE_URL;
+}
+
 const BookingSuccess: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -21,19 +27,75 @@ const BookingSuccess: React.FC = () => {
       }
 
       try {
-        const response = await axios.get(`/api/payments/session/${sessionId}`);
+        // Ensure sessionId is properly encoded (Stripe session IDs are safe but encode anyway)
+        const encodedSessionId = encodeURIComponent(sessionId);
         
-        if (response.data.success && response.data.paid && response.data.booking) {
-          setBooking(response.data.booking);
-          toast.success('Payment successful! Booking confirmed.');
+        console.log('Verifying payment with session ID:', sessionId);
+        console.log('API Base URL:', API_BASE_URL);
+        console.log('Axios baseURL:', axios.defaults.baseURL);
+        
+        // Use full URL to ensure it goes to the backend (not frontend)
+        const fullUrl = `${API_BASE_URL}/api/payments/session/${encodedSessionId}`;
+        console.log('Full request URL:', fullUrl);
+        
+        const response = await axios.get(fullUrl);
+        
+        console.log('Payment verification response:', response.data);
+        
+        // Check if response is successful
+        if (!response.data || !response.data.success) {
+          const errorMsg = response.data?.message || 'Payment verification failed';
+          console.error('Verification failed:', errorMsg);
+          toast.error(errorMsg);
+          setTimeout(() => navigate('/book-call'), 2000);
+          return;
+        }
+        
+        // Check if payment is paid
+        if (response.data.paid === true) {
+          // Payment is successful
+          if (response.data.booking) {
+            setBooking(response.data.booking);
+            toast.success('Payment successful! Booking confirmed.');
+          } else {
+            // Payment successful but booking not found - retry once
+            console.log('Payment successful but booking not found, retrying...');
+            setTimeout(async () => {
+              try {
+                const retryResponse = await axios.get(`/api/payments/session/${sessionId}`);
+                if (retryResponse.data?.success && retryResponse.data?.paid && retryResponse.data?.booking) {
+                  setBooking(retryResponse.data.booking);
+                  toast.success('Payment successful! Booking confirmed.');
+                } else {
+                  toast.success('Payment successful! Your booking will be confirmed shortly.');
+                  // Still show success even without booking details
+                }
+              } catch (retryError: any) {
+                console.error('Retry error:', retryError);
+                toast.success('Payment successful! Your booking will be confirmed shortly.');
+              } finally {
+                setLoading(false);
+              }
+            }, 2000);
+            return;
+          }
         } else {
-          toast.error('Payment verification failed');
-          navigate('/book-call');
+          // Payment not completed
+          const status = response.data.paymentStatus || 'pending';
+          console.log('Payment not completed, status:', status);
+          toast.error(`Payment status: ${status}. Please complete the payment.`);
+          setTimeout(() => navigate('/book-call'), 2000);
         }
       } catch (error: any) {
         console.error('Payment verification error:', error);
-        toast.error('Failed to verify payment');
-        navigate('/book-call');
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to verify payment';
+        console.error('Error details:', {
+          message: errorMessage,
+          response: error.response?.data,
+          status: error.response?.status
+        });
+        toast.error(errorMessage);
+        setTimeout(() => navigate('/book-call'), 3000);
       } finally {
         setLoading(false);
       }

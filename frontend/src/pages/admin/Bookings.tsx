@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useAdminAuth } from '../../contexts/AdminAuthContext.tsx';
 
 interface Booking {
   _id: string;
@@ -18,40 +21,50 @@ interface Booking {
 }
 
 const AdminBookings: React.FC = () => {
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      _id: '1',
-      clientName: 'John Doe',
-      clientEmail: 'john@example.com',
-      clientPhone: '+1234567890',
-      serviceType: 'Life Coaching Session',
-      preferredDate: '2024-01-20',
-      preferredTime: '14:00',
-      duration: 60,
-      price: 150,
-      status: 'pending',
-      paymentStatus: 'pending',
-      message: 'Looking forward to our session'
-    },
-    {
-      _id: '2',
-      clientName: 'Jane Smith',
-      clientEmail: 'jane@example.com',
-      clientPhone: '+1234567891',
-      serviceType: 'Career Guidance',
-      preferredDate: '2024-01-22',
-      preferredTime: '10:00',
-      duration: 90,
-      price: 200,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      message: 'Need help with career transition',
-      meetingLink: 'https://zoom.us/j/123456789'
-    }
-  ]);
+  const { token } = useAdminAuth();
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pages: 1,
+    total: 0
+  });
+  const [filters, setFilters] = useState({
+    status: '',
+    page: 1,
+    limit: 10
+  });
 
   const [showModal, setShowModal] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Fetch bookings from API
+  useEffect(() => {
+    fetchBookings();
+  }, [filters, token]);
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (filters.status) params.append('status', filters.status);
+      params.append('page', filters.page.toString());
+      params.append('limit', filters.limit.toString());
+
+      const response = await axios.get(`/api/bookings?${params.toString()}`);
+      
+      if (response.data.success) {
+        setBookings(response.data.bookings || []);
+        setPagination(response.data.pagination || { current: 1, pages: 1, total: 0 });
+      }
+    } catch (error: any) {
+      console.error('Error fetching bookings:', error);
+      toast.error(error.response?.data?.message || 'Failed to fetch bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
   const [formData, setFormData] = useState({
     clientName: '',
     clientEmail: '',
@@ -102,37 +115,54 @@ const AdminBookings: React.FC = () => {
     resetForm();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (editingBooking) {
-      // Update existing booking
-      setBookings(bookings.map(booking => 
-        booking._id === editingBooking._id 
-          ? { ...booking, ...formData }
-          : booking
-      ));
-    } else {
-      // Create new booking
-      const newBooking: Booking = {
-        _id: Date.now().toString(),
-        ...formData
-      };
-      setBookings([newBooking, ...bookings]);
+    try {
+      setSubmitting(true);
+      
+      if (editingBooking) {
+        // Update existing booking
+        const response = await axios.put(`/api/bookings/${editingBooking._id}`, formData);
+        
+        if (response.data.success) {
+          toast.success('Booking updated successfully');
+          await fetchBookings();
+          setShowModal(false);
+          resetForm();
+        }
+      } else {
+        // Create new booking
+        const response = await axios.post('/api/bookings', formData);
+        
+        if (response.data.success) {
+          toast.success('Booking created successfully');
+          await fetchBookings();
+          setShowModal(false);
+          resetForm();
+        }
+      }
+    } catch (error: any) {
+      console.error('Error saving booking:', error);
+      toast.error(error.response?.data?.message || 'Failed to save booking');
+    } finally {
+      setSubmitting(false);
     }
-
-    setShowModal(false);
-    resetForm();
   };
 
   const handleEdit = (booking: Booking) => {
     setEditingBooking(booking);
+    // Format date for input field (YYYY-MM-DD)
+    const dateStr = booking.preferredDate instanceof Date 
+      ? booking.preferredDate.toISOString().split('T')[0]
+      : new Date(booking.preferredDate).toISOString().split('T')[0];
+    
     setFormData({
       clientName: booking.clientName,
       clientEmail: booking.clientEmail,
       clientPhone: booking.clientPhone,
       serviceType: booking.serviceType,
-      preferredDate: booking.preferredDate,
+      preferredDate: dateStr,
       preferredTime: booking.preferredTime,
       duration: booking.duration,
       price: booking.price,
@@ -144,9 +174,21 @@ const AdminBookings: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this booking?')) {
-      setBookings(bookings.filter(booking => booking._id !== id));
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this booking?')) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(`/api/bookings/${id}`);
+      
+      if (response.data.success) {
+        toast.success('Booking deleted successfully');
+        await fetchBookings();
+      }
+    } catch (error: any) {
+      console.error('Error deleting booking:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete booking');
     }
   };
 
@@ -253,17 +295,59 @@ const AdminBookings: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-semibold text-gray-900">${bookings.reduce((sum, booking) => sum + booking.price, 0)}</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                ${bookings
+                  .filter(b => b.paymentStatus === 'paid')
+                  .reduce((sum, booking) => sum + (booking.price || 0), 0)
+                  .toLocaleString()}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="flex flex-wrap gap-4 items-center">
+          <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
       {/* Bookings Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">All Bookings</h3>
+          {loading && (
+            <div className="flex items-center text-gray-500">
+              <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Loading...
+            </div>
+          )}
         </div>
+        {loading && bookings.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading bookings...</p>
+          </div>
+        ) : bookings.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-gray-500 text-lg">No bookings found</p>
+          </div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -292,7 +376,15 @@ const AdminBookings: React.FC = () => {
                     <div className="text-sm text-gray-900">{booking.serviceType}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{new Date(booking.preferredDate).toLocaleDateString()}</div>
+                    <div className="text-sm text-gray-900">
+                      {booking.preferredDate 
+                        ? new Date(booking.preferredDate).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })
+                        : 'N/A'}
+                    </div>
                     <div className="text-sm text-gray-500">{booking.preferredTime}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{booking.duration} min</td>
@@ -328,6 +420,32 @@ const AdminBookings: React.FC = () => {
             </tbody>
           </table>
         </div>
+        )}
+
+        {/* Pagination */}
+        {pagination.pages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+            <div className="text-sm text-gray-700">
+              Showing {((filters.page - 1) * filters.limit) + 1} to {Math.min(filters.page * filters.limit, pagination.total)} of {pagination.total} bookings
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setFilters({ ...filters, page: filters.page - 1 })}
+                disabled={filters.page === 1}
+                className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setFilters({ ...filters, page: filters.page + 1 })}
+                disabled={filters.page >= pagination.pages}
+                className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sidebar */}
@@ -524,11 +642,22 @@ const AdminBookings: React.FC = () => {
                 </motion.button>
                 <motion.button
                   type="submit"
-                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={submitting}
+                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  whileHover={submitting ? {} : { scale: 1.02, y: -1 }}
+                  whileTap={submitting ? {} : { scale: 0.98 }}
                 >
-                  {editingBooking ? 'Update Booking' : 'Create Booking'}
+                  {submitting ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {editingBooking ? 'Updating...' : 'Creating...'}
+                    </span>
+                  ) : (
+                    editingBooking ? 'Update Booking' : 'Create Booking'
+                  )}
                 </motion.button>
               </div>
             </form>
