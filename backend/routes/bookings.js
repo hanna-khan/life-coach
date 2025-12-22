@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Booking = require('../models/Booking');
 const Pricing = require('../models/Pricing');
 const { auth, adminAuth } = require('../middleware/auth');
+const availabilityService = require('../services/availabilityService');
 
 const router = express.Router();
 
@@ -60,6 +61,19 @@ router.post('/', [
         return res.status(400).json({ message: 'Invalid service type or duration combination' });
       }
       price = pricing[serviceType][duration];
+    }
+
+    // Check availability with duration-based checking
+    const isAvailable = await availabilityService.isSlotAvailableForBooking(
+      req.body.preferredDate,
+      req.body.preferredTime,
+      duration
+    );
+
+    if (!isAvailable) {
+      return res.status(400).json({ 
+        message: 'Selected time slot is not available. Please choose another time.' 
+      });
     }
 
     const bookingData = {
@@ -247,7 +261,7 @@ router.delete('/:id', auth, adminAuth, async (req, res) => {
 });
 
 // @route   GET /api/bookings/available-times/:date
-// @desc    Get available times for a specific date
+// @desc    Get available times for a specific date (legacy - uses simple checking)
 // @access  Public
 router.get('/available-times/:date', async (req, res) => {
   try {
@@ -279,6 +293,99 @@ router.get('/available-times/:date', async (req, res) => {
   } catch (error) {
     console.error('Get available times error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/bookings/available-slots/:date
+// @desc    Get available time slots for a specific date with duration-based checking
+// @access  Public
+router.get('/available-slots/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    const duration = parseInt(req.query.duration) || 60; // Default 60 minutes
+
+    if (isNaN(duration) || ![30, 60, 90].includes(duration)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Duration must be 30, 60, or 90 minutes' 
+      });
+    }
+
+    const availableSlots = await availabilityService.getAvailableSlots(date, duration);
+
+    res.json({
+      success: true,
+      availableSlots,
+      date,
+      duration
+    });
+  } catch (error) {
+    console.error('Get available slots error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
+// @route   POST /api/bookings/:id/generate-meeting-link
+// @desc    Manually generate Google Meet link for a booking (Admin only)
+// @access  Private (Admin)
+router.post('/:id/generate-meeting-link', auth, adminAuth, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    if (booking.paymentStatus !== 'paid') {
+      return res.status(400).json({ 
+        message: 'Payment must be completed before generating meeting link' 
+      });
+    }
+
+    const meetingLinkService = require('../services/meetingLinkService');
+    const emailService = require('../services/emailService');
+
+    // Generate Google Meet link
+    console.log(`🔄 Generating Google Meet link for booking ${booking._id}...`);
+    const meetLink = await meetingLinkService.generateGoogleMeetLink(booking);
+
+    if (meetLink) {
+      booking.meetingLink = meetLink;
+      await booking.save();
+
+      // Send email with meeting link
+      try {
+        await emailService.sendBookingConfirmation(booking);
+        console.log(`✅ Email sent with meeting link`);
+      } catch (error) {
+        console.error('❌ Email sending failed:', error.message);
+      }
+
+      res.json({
+        success: true,
+        message: 'Google Meet link generated successfully',
+        meetingLink: meetLink,
+        booking
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to generate Google Meet link. Please check Google Calendar setup.',
+        error: 'Google Meet link generation returned null'
+      });
+    }
+  } catch (error) {
+    console.error('Generate meeting link error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

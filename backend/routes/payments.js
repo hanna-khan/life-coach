@@ -1,6 +1,8 @@
 const express = require('express');
 const Booking = require('../models/Booking');
 const { auth, adminAuth } = require('../middleware/auth');
+const meetingLinkService = require('../services/meetingLinkService');
+const emailService = require('../services/emailService');
 
 // Initialize Stripe only if valid secret key is provided
 let stripe;
@@ -65,6 +67,29 @@ router.get('/session/:sessionId', async (req, res) => {
         if (booking.paymentStatus !== 'paid') {
           booking.paymentStatus = 'paid';
           booking.status = 'confirmed';
+          
+          // Generate Google Meet link if not already generated
+          if (!booking.meetingLink) {
+            try {
+              const meetLink = await meetingLinkService.generateGoogleMeetLink(booking);
+              if (meetLink) {
+                booking.meetingLink = meetLink;
+                console.log(`✅ Google Meet link generated: ${meetLink}`);
+              }
+            } catch (error) {
+              console.error('❌ Google Meet generation failed:', error.message);
+            }
+          }
+          
+          // Send email if not already sent (check if meeting link exists as indicator)
+          if (!booking.meetingLink || booking.meetingLink.includes('meet.google.com')) {
+            try {
+              await emailService.sendBookingConfirmation(booking);
+            } catch (error) {
+              console.error('❌ Email sending failed:', error.message);
+            }
+          }
+          
           await booking.save();
           console.log(`✅ Updated booking ${booking._id} to paid status`);
         }
@@ -242,13 +267,38 @@ async function handleSuccessfulPayment(session) {
       if (session.payment_status === 'paid') {
         booking.paymentStatus = 'paid';
         booking.status = 'confirmed';
+        
+        // Generate Google Meet link automatically
+        try {
+          const meetLink = await meetingLinkService.generateGoogleMeetLink(booking);
+          if (meetLink) {
+            booking.meetingLink = meetLink;
+            console.log(`✅ Google Meet link generated: ${meetLink}`);
+          } else {
+            console.warn('⚠️  Google Meet link not generated. Admin can add manually.');
+          }
+        } catch (error) {
+          console.error('❌ Google Meet generation failed:', error.message);
+          // Continue without meeting link (admin can add manually)
+        }
+        
         await booking.save();
+        
+        // Send confirmation email with meeting link
+        try {
+          await emailService.sendBookingConfirmation(booking);
+        } catch (error) {
+          console.error('❌ Email sending failed:', error.message);
+          // Continue even if email fails
+        }
         
         console.log(`✅ Payment successful for booking ${booking._id}`);
         console.log(`   Client: ${booking.clientName} (${booking.clientEmail})`);
         console.log(`   Amount: $${booking.price}`);
-        
-        // Here you could send confirmation emails, create calendar events, etc.
+        console.log(`   Status: ${booking.status}`);
+        if (booking.meetingLink) {
+          console.log(`   Meeting Link: ${booking.meetingLink}`);
+        }
       } else {
         console.log(`⚠️  Payment session completed but status is: ${session.payment_status}`);
       }
