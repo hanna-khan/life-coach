@@ -60,7 +60,7 @@ const AdminBookings: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters, token]);
+  }, [filters]);
 
   useEffect(() => {
     fetchBookings();

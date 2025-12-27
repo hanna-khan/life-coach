@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { useAuth } from '../contexts/AuthContext.tsx';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
   // Static testimonials (always shown)
-  const staticTestimonials = [
+  const staticTestimonials = useMemo(() => [
     {
       name: "Michael Chen",
       role: "Software Engineer, 34",
@@ -40,7 +39,7 @@ const Home: React.FC = () => {
       content: "I was overthinking every decision, paralyzed by fear of making the wrong choice. Luke helped me break that cycle and start taking action. Now I'm making moves I've been putting off for years. The momentum is real.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
     }
-  ];
+  ], []);
 
   const [testimonials, setTestimonials] = useState<any[]>(staticTestimonials);
   const [testimonialForm, setTestimonialForm] = useState({
@@ -77,7 +76,7 @@ const Home: React.FC = () => {
   };
 
   // Fetch testimonials from API and combine with static ones
-  const fetchTestimonials = React.useCallback(async () => {
+  const fetchTestimonials = useCallback(async () => {
     try {
       const response = await axios.get('/api/testimonials');
       
