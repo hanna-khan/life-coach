@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 import { hexToRgba } from '../utils/themeHelpers.ts';
 

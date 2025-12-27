@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
-interface BlogPost {
+interface BlogPostData {
   _id: string;
   title: string;
   excerpt: string;
@@ -24,8 +24,7 @@ interface BlogPost {
 
 const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
-  const [blog, setBlog] = useState<BlogPost | null>(null);
+  const [blog, setBlog] = useState<BlogPostData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

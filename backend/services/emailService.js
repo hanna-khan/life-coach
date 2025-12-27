@@ -130,8 +130,9 @@ class EmailService {
           .button { 
             display: inline-block; 
             padding: 14px 28px; 
-            background: #4F46E5; 
-            color: white; 
+            background: transparent;
+            border: 1px solid #4F46E5;
+            color: #4F46E5; 
             text-decoration: none; 
             border-radius: 6px; 
             margin: 15px 0; 

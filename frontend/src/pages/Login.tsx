@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 import { getLogoPath } from '../utils/themeHelpers.ts';
@@ -13,7 +12,7 @@ interface LoginFormData {
 }
 
 const Login: React.FC = () => {
-  const { themeColors, currentTheme } = useTheme();
+  const { currentTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -138,7 +137,7 @@ const Login: React.FC = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
+                <a href="/reset-password" className="font-medium text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
                   Forgot your password?
                 </a>
               </div>

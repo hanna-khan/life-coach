@@ -50,7 +50,7 @@ const AdminBlogs: React.FC = () => {
     isFeatured: false
   });
   const [imagePreview, setImagePreview] = useState<string>('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [, setImageFile] = useState<File | null>(null);
 
   const categories = ['Personal Growth', 'Career', 'Relationships', 'Health', 'Mindfulness', 'Success'];
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,7 +29,7 @@ ChartJS.register(
 );
 
 const AdminDashboard: React.FC = () => {
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     totalUsers: 1247,
     totalBlogs: 45,
     totalBookings: 189,

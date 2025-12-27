@@ -51,8 +51,6 @@ const ThemeSelector: React.FC = () => {
     },
   ];
 
-  const currentThemeData = themeOptions.find(opt => opt.id === currentTheme);
-
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Settings Button */}

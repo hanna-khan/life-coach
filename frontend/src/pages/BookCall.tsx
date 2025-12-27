@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -19,7 +18,6 @@ interface PricingPackage {
 
 const BookCall: React.FC = () => {
   const { themeColors } = useTheme();
-  const navigate = useNavigate();
   const [packages, setPackages] = useState<PricingPackage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);

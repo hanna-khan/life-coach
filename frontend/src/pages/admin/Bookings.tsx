@@ -40,11 +40,7 @@ const AdminBookings: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   // Fetch bookings from API
-  useEffect(() => {
-    fetchBookings();
-  }, [filters, token]);
-
-  const fetchBookings = async () => {
+  const fetchBookings = React.useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -64,7 +60,12 @@ const AdminBookings: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, token]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
   const [formData, setFormData] = useState({
     clientName: '',
     clientEmail: '',

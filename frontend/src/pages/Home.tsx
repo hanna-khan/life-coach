@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext.tsx';
 
 const Home: React.FC = () => {
-  const { isAuthenticated } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
   // Static testimonials (always shown)
@@ -44,7 +43,6 @@ const Home: React.FC = () => {
   ];
 
   const [testimonials, setTestimonials] = useState<any[]>(staticTestimonials);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
   const [testimonialForm, setTestimonialForm] = useState({
     name: '',
     role: '',
@@ -79,13 +77,8 @@ const Home: React.FC = () => {
   };
 
   // Fetch testimonials from API and combine with static ones
-  useEffect(() => {
-    fetchTestimonials();
-  }, []);
-
-  const fetchTestimonials = async () => {
+  const fetchTestimonials = React.useCallback(async () => {
     try {
-      setLoadingTestimonials(true);
       const response = await axios.get('/api/testimonials');
       
       console.log('API Response:', response.data);
@@ -126,10 +119,8 @@ const Home: React.FC = () => {
       // On error, use static testimonials only
       console.log('Using static testimonials only due to error');
       setTestimonials(staticTestimonials);
-    } finally {
-      setLoadingTestimonials(false);
     }
-  };
+  }, [staticTestimonials]);
 
   const handleTestimonialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

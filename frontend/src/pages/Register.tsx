@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useTheme } from '../contexts/ThemeContext.tsx';
 import { getLogoPath } from '../utils/themeHelpers.ts';
@@ -15,7 +14,7 @@ interface RegisterFormData {
 }
 
 const Register: React.FC = () => {
-  const { themeColors, currentTheme } = useTheme();
+  const { currentTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
@@ -184,13 +183,13 @@ const Register: React.FC = () => {
               />
               <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-900">
                 I agree to the{' '}
-                <a href="#" className="text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
+                <Link to="/terms" className="text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
                   Terms of Service
-                </a>{' '}
+                </Link>{' '}
                 and{' '}
-                <a href="#" className="text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
+                <Link to="/privacy" className="text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
                   Privacy Policy
-                </a>
+                </Link>
               </label>
             </div>
 
