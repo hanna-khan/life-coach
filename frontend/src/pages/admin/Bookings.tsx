@@ -174,31 +174,6 @@ const AdminBookings: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleGenerateMeetingLink = async (booking: Booking) => {
-    if (booking.paymentStatus !== 'paid') {
-      toast.error('Payment must be completed before generating meeting link');
-      return;
-    }
-
-    if (!window.confirm('Generate Google Meet link for this booking?')) {
-      return;
-    }
-
-    try {
-      const response = await axios.post(`/api/bookings/${booking._id}/generate-meeting-link`);
-      
-      if (response.data.success) {
-        toast.success('Google Meet link generated successfully!');
-        fetchBookings(); // Refresh bookings list
-      } else {
-        toast.error(response.data.message || 'Failed to generate meeting link');
-      }
-    } catch (error: any) {
-      console.error('Generate meeting link error:', error);
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to generate meeting link';
-      toast.error(errorMessage);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this booking?')) {
@@ -426,45 +401,19 @@ const AdminBookings: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex flex-col space-y-2">
-                      {booking.meetingLink ? (
-                        <a
-                          href={booking.meetingLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline text-xs flex items-center space-x-1 mb-2"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                          <span>Join Meeting</span>
-                        </a>
-                      ) : booking.paymentStatus === 'paid' ? (
-                        <button
-                          onClick={() => handleGenerateMeetingLink(booking)}
-                          className="text-green-600 hover:text-green-800 text-xs flex items-center space-x-1 mb-2 underline"
-                          title="Generate Google Meet link"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                          </svg>
-                          <span>Generate Link</span>
-                        </button>
-                      ) : null}
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(booking)}
-                          className="text-primary-600 hover:text-primary-900"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(booking._id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEdit(booking)}
+                        className="text-primary-600 hover:text-primary-900"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(booking._id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>

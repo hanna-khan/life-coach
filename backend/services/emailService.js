@@ -183,7 +183,7 @@ class EmailService {
                 <h3>Meeting Link</h3>
                 <p>Join your session using the link below:</p>
                 <div style="text-align: center;">
-                  <a href="${booking.meetingLink}" class="button">Join Google Meet</a>
+                  <a href="${booking.meetingLink}" class="button">Join Meeting</a>
                 </div>
                 <div class="meeting-link">
                   <strong>Or copy this link:</strong><br>
