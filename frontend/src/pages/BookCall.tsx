@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useTheme } from '../contexts/ThemeContext.tsx';
+import { hexToRgba } from '../utils/themeHelpers.ts';
 
 interface PricingPackage {
   _id: string;
@@ -16,6 +18,7 @@ interface PricingPackage {
 }
 
 const BookCall: React.FC = () => {
+  const { themeColors } = useTheme();
   const navigate = useNavigate();
   const [packages, setPackages] = useState<PricingPackage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -135,8 +138,8 @@ const BookCall: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">Book Your Call</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <h1 className="text-5xl font-bold mb-6 text-white">Book Your Call</h1>
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Ready to break old patterns and build a life on your terms? 
               Choose your session and let's get started.
             </p>
@@ -162,7 +165,7 @@ const BookCall: React.FC = () => {
 
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-accent mx-auto mb-4" style={{ borderColor: 'var(--theme-accent)' }}></div>
               <p className="text-gray-500">Loading packages...</p>
             </div>
           ) : packages.length === 0 ? (
@@ -176,9 +179,15 @@ const BookCall: React.FC = () => {
                   key={pkg._id}
                   className={`card p-8 cursor-pointer transition-all duration-300 relative ${
                     selectedPackage === pkg._id 
-                      ? 'ring-2 ring-primary-600 bg-primary-50' 
+                      ? 'ring-2' 
                       : 'hover:shadow-lg'
-                  } ${pkg.isPopular ? 'ring-2 ring-primary-500' : ''}`}
+                  } ${pkg.isPopular ? 'ring-2' : ''}`}
+                  style={selectedPackage === pkg._id ? {
+                    '--tw-ring-color': 'var(--theme-accent)',
+                    backgroundColor: hexToRgba(themeColors.accent, 0.05)
+                  } as React.CSSProperties : pkg.isPopular ? {
+                    '--tw-ring-color': 'var(--theme-accent)'
+                  } as React.CSSProperties : {}}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -187,13 +196,13 @@ const BookCall: React.FC = () => {
                   onClick={() => setSelectedPackage(pkg._id)}
                 >
                   {pkg.isPopular && (
-                    <div className="absolute top-4 right-4 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10 mb-2">
+                    <div className="absolute top-4 right-4 bg-theme-accent text-white text-xs font-bold px-3 py-1 rounded-full z-10 mb-2">
                       Popular
                     </div>
                   )}
                   <div className={`text-center mb-6 ${pkg.isPopular ? 'mt-8' : ''}`}>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
-                    <div className="text-3xl font-bold text-primary-600 mb-2">
+                    <div className="text-3xl font-bold mb-2" style={{ color: 'var(--theme-accent)' }}>
                       ${pkg.price}
                     </div>
                     <div className="text-gray-600">{pkg.duration} minutes</div>
@@ -215,7 +224,7 @@ const BookCall: React.FC = () => {
                   </ul>
                   <div className={`w-full py-3 px-4 rounded-lg text-center font-medium ${
                     selectedPackage === pkg._id 
-                      ? 'bg-primary-600 text-white' 
+                      ? 'bg-theme-accent text-white' 
                       : 'bg-gray-100 text-gray-700'
                   }`}>
                     {selectedPackage === pkg._id ? 'Selected' : 'Select'}

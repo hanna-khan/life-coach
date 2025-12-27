@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { useAdminAuth } from '../contexts/AdminAuthContext.tsx';
+import { useTheme } from '../contexts/ThemeContext.tsx';
+import { getLogoPath } from '../utils/themeHelpers.ts';
 
 interface AdminLoginFormData {
   email: string;
@@ -10,6 +12,7 @@ interface AdminLoginFormData {
 }
 
 const AdminLogin: React.FC = () => {
+  const { currentTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAdminAuth();
   const navigate = useNavigate();
@@ -42,9 +45,11 @@ const AdminLogin: React.FC = () => {
       >
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-primary-600 font-bold text-2xl">LC</span>
-            </div>
+            <img 
+              src={getLogoPath(currentTheme)} 
+              alt="Life Coach Logo" 
+              className="h-16 w-auto object-contain"
+            />
           </div>
           <h2 className="text-3xl font-bold text-white mb-2">
             Admin Login

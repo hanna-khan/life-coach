@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useTheme } from '../contexts/ThemeContext.tsx';
+import { hexToRgba } from '../utils/themeHelpers.ts';
 
 interface BlogPost {
   _id: string;
@@ -16,6 +18,7 @@ interface BlogPost {
 }
 
 const Blog: React.FC = () => {
+  const { themeColors } = useTheme();
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -76,8 +79,8 @@ const Blog: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">The Westbrook Letter</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <h1 className="text-5xl font-bold mb-6 text-white">The Westbrook Letter</h1>
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Direct insights on breaking old patterns and building authentic masculinity. 
               No fluff, no BS - just real talk for men ready to change.
             </p>
@@ -100,9 +103,19 @@ const Blog: React.FC = () => {
                 onClick={() => handleCategoryChange(category)}
                 className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
                   selectedCategory === category
-                    ? "bg-primary-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
+                    ? "bg-theme-accent text-white"
+                    : "bg-gray-100 text-gray-700 hover:text-theme-accent"
                 }`}
+                onMouseEnter={(e) => {
+                  if (selectedCategory !== category) {
+                    e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedCategory !== category) {
+                    e.currentTarget.style.backgroundColor = '';
+                  }
+                }}
               >
                 {category}
               </button>
@@ -129,7 +142,7 @@ const Blog: React.FC = () => {
 
           {loading && blogs.length === 0 ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-accent mx-auto mb-4" style={{ borderColor: 'var(--theme-accent)' }}></div>
               <p className="text-gray-500">Loading blogs...</p>
             </div>
           ) : blogs.length === 0 ? (
@@ -162,7 +175,7 @@ const Blog: React.FC = () => {
                         }}
                       />
                       <div className="absolute top-4 left-4">
-                        <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <span className="bg-theme-accent text-white px-3 py-1 rounded-full text-sm font-medium">
                           {post.category}
                         </span>
                       </div>
@@ -177,7 +190,7 @@ const Blog: React.FC = () => {
                     <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                       <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}</span>
                     </div>
-                      <span className="mt-4 text-primary-600 font-medium hover:text-primary-700 transition-colors duration-300 inline-block">
+                      <span className="mt-4 text-theme-accent font-medium hover:text-theme-accent-hover transition-colors duration-300 inline-block">
                         Read More →
                       </span>
                     </div>
@@ -209,7 +222,7 @@ const Blog: React.FC = () => {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="section-padding bg-primary-600">
+      <section className="section-padding bg-theme-accent">
         <div className="container-max text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -220,7 +233,7 @@ const Blog: React.FC = () => {
             <h2 className="text-4xl font-bold text-white mb-4">
               Get The Westbrook Letter
             </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Weekly insights on breaking old patterns and building authentic masculinity. 
               No fluff, no BS - just real talk for men ready to change.
             </p>
@@ -228,9 +241,10 @@ const Blog: React.FC = () => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2"
+                style={{ '--tw-ring-offset-color': 'var(--theme-accent)' } as React.CSSProperties}
               />
-              <button className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition-all duration-300">
+              <button className="bg-white hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition-all duration-300" style={{ color: 'var(--theme-accent)' }}>
                 Subscribe
               </button>
             </div>

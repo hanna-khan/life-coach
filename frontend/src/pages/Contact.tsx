@@ -4,8 +4,11 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { formFieldAnimation, buttonHover } from '../utils/animations.ts';
+import { useTheme } from '../contexts/ThemeContext.tsx';
+import { hexToRgba } from '../utils/themeHelpers.ts';
 
 const Contact: React.FC = () => {
+  const { themeColors } = useTheme();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -73,8 +76,8 @@ const Contact: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">Get in Touch</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <h1 className="text-5xl font-bold mb-6 text-white">Get in Touch</h1>
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               If you have questions about coaching, packages, or availability, reach out anytime.
             </p>
           </motion.div>
@@ -244,7 +247,7 @@ const Contact: React.FC = () => {
                 {[
                   {
                     icon: (
-                      <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--theme-accent)' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     ),
@@ -253,7 +256,7 @@ const Contact: React.FC = () => {
                   },
                   {
                     icon: (
-                      <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--theme-accent)' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -263,7 +266,7 @@ const Contact: React.FC = () => {
                   },
                   {
                     icon: (
-                      <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--theme-accent)' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     ),
@@ -281,7 +284,16 @@ const Contact: React.FC = () => {
                     whileHover={{ x: 5 }}
                   >
                     <motion.div 
-                      className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-primary-200 transition-colors duration-300"
+                      className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300"
+                      style={{ 
+                        backgroundColor: hexToRgba(themeColors.accent, 0.1)
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.2);
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                      }}
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       transition={{ duration: 0.2 }}
                     >
@@ -307,7 +319,16 @@ const Contact: React.FC = () => {
               >
                 <Link
                   to="/book-call"
-                  className="block w-full bg-primary-600 text-white hover:bg-primary-700 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center"
+                  className="block w-full bg-theme-accent text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center"
+                  style={{ 
+                    backgroundColor: 'var(--theme-accent)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--theme-accent-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--theme-accent)';
+                  }}
                 >
                   Book a Free Discovery Call
                 </Link>

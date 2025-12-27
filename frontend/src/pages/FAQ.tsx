@@ -40,7 +40,7 @@ const FAQ: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">Frequently Asked Questions</h1>
+            <h1 className="text-5xl font-bold mb-6 text-white">Frequently Asked Questions</h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
               Here are some common questions I receive. Don't see your question? Feel free to reach out!
             </p>

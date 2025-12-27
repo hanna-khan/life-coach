@@ -22,8 +22,8 @@ const About: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">About Luke</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <h1 className="text-5xl font-bold mb-6 text-white">About Luke</h1>
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
               Men's clarity and momentum coach. Helping men break old patterns and build lives on their terms.
             </p>
           </motion.div>
@@ -69,7 +69,10 @@ const About: React.FC = () => {
                 alt="Luke Westbrook-Manhattan"
                 className="rounded-2xl shadow-2xl"
               />
-              <div className="absolute -bottom-6 -right-6 bg-primary-600 text-white p-6 rounded-xl shadow-lg">
+              <div 
+                className="absolute -bottom-6 -right-6 text-white p-6 rounded-xl shadow-lg"
+                style={{ backgroundColor: 'var(--theme-accent)' }}
+              >
                 <div className="text-center">
                   <div className="text-3xl font-bold">3 Years</div>
                   <div className="text-sm">Sober</div>
@@ -107,7 +110,10 @@ const About: React.FC = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div 
+                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
+                    style={{ backgroundColor: 'var(--theme-accent)' }}
+                  >
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -172,19 +178,26 @@ const About: React.FC = () => {
             <h2 className="text-4xl font-bold text-white mb-6">
               If you're ready to get unstuck and build something real:
             </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
               Book your free discovery call today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/book-call"
-                className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="bg-white hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                style={{ color: 'var(--theme-accent)' }}
               >
                 Book Your Free Discovery Call
               </Link>
               <Link
                 to="/contact"
-                className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="border-2 border-white text-white hover:bg-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--theme-accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'white';
+                }}
               >
                 Get in Touch
               </Link>

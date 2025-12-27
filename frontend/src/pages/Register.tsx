@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext.tsx';
+import { useTheme } from '../contexts/ThemeContext.tsx';
+import { getLogoPath } from '../utils/themeHelpers.ts';
 
 interface RegisterFormData {
   name: string;
@@ -13,6 +15,7 @@ interface RegisterFormData {
 }
 
 const Register: React.FC = () => {
+  const { themeColors, currentTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
@@ -48,10 +51,11 @@ const Register: React.FC = () => {
       >
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">LC</span>
-            </div>
-            <span className="text-2xl font-bold text-gradient">Life Coach</span>
+            <img 
+              src={getLogoPath(currentTheme)} 
+              alt="Life Coach Logo" 
+              className="h-12 w-auto object-contain"
+            />
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
             Create your account
@@ -60,7 +64,7 @@ const Register: React.FC = () => {
             Or{' '}
             <Link
               to="/login"
-              className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-300"
+              className="font-medium text-theme-accent hover:text-theme-accent-hover transition-colors duration-300"
             >
               sign in to your existing account
             </Link>
@@ -175,15 +179,16 @@ const Register: React.FC = () => {
                 name="agree-terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 border-gray-300 rounded focus:ring-theme-accent"
+                style={{ accentColor: 'var(--theme-accent)' } as React.CSSProperties}
               />
               <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-900">
                 I agree to the{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500 transition-colors duration-300">
+                <a href="#" className="text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-500 transition-colors duration-300">
+                <a href="#" className="text-theme-accent hover:text-theme-accent-hover transition-colors duration-300">
                   Privacy Policy
                 </a>
               </label>

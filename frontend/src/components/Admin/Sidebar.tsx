@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fadeInLeft, scaleIn, staggerContainer } from '../../utils/animations.ts';
+import { useTheme } from '../../contexts/ThemeContext.tsx';
+import { getLogoPath } from '../../utils/themeHelpers.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -9,6 +11,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { currentTheme } = useTheme();
   const location = useLocation();
 
   const menuItems = [
@@ -94,13 +97,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             animate="animate"
           >
             <Link to="/admin" className="flex items-center space-x-2 mb-8">
-              <motion.div 
-                className="w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center"
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ duration: 0.2 }}
-              >
-                <span className="text-white font-bold text-sm">LC</span>
-              </motion.div>
+              <img 
+                src={getLogoPath(currentTheme)} 
+                alt="Life Coach Logo" 
+                className="h-10 w-auto object-contain"
+              />
               <span className="text-xl font-bold text-gray-900">Admin Panel</span>
             </Link>
           </motion.div>

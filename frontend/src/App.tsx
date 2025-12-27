@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { AdminAuthProvider } from './contexts/AdminAuthContext.tsx';
 import { StripeProvider } from './contexts/StripeContext.tsx';
+import { ThemeProvider } from './contexts/ThemeContext.tsx';
 import PageTransition from './components/Animation/PageTransition.tsx';
 
 // Components
@@ -37,9 +38,10 @@ import Pricing from './pages/admin/Pricing.tsx';
 
 function App() {
   return (
-    <AuthProvider>
-      <AdminAuthProvider>
-        <StripeProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AdminAuthProvider>
+          <StripeProvider>
           <Router>
             <Routes>
               {/* Public Routes with Navbar and Footer */}
@@ -182,9 +184,10 @@ function App() {
               }}
             />
           </Router>
-        </StripeProvider>
-      </AdminAuthProvider>
-    </AuthProvider>
+          </StripeProvider>
+        </AdminAuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext.tsx';
+import { hexToRgba } from '../utils/themeHelpers.ts';
 
 const Resources: React.FC = () => {
+  const { themeColors } = useTheme();
   const guides = [
     {
       id: 1,
@@ -78,8 +81,8 @@ const Resources: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6">Resources & Guides</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <h1 className="text-5xl font-bold mb-6 text-white">Resources & Guides</h1>
+            <p className="text-xl max-w-3xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Practical tools and frameworks to help you break old patterns and build authentic lives. 
               Download these guides and start implementing change today.
             </p>
@@ -101,9 +104,19 @@ const Resources: React.FC = () => {
                 key={category}
                 className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
                   category === "All"
-                    ? "bg-primary-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
+                    ? "bg-theme-accent text-white"
+                    : "bg-gray-100 text-gray-700 hover:text-theme-accent"
                 }`}
+                onMouseEnter={(e) => {
+                  if (category !== "All") {
+                    e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (category !== "All") {
+                    e.currentTarget.style.backgroundColor = '';
+                  }
+                }}
               >
                 {category}
               </button>
@@ -146,14 +159,20 @@ const Resources: React.FC = () => {
                       className="w-full h-64 lg:h-full object-cover"
                     />
                     <div className="absolute top-4 left-4">
-                      <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-theme-accent text-white px-3 py-1 rounded-full text-sm font-medium">
                         Featured
                       </span>
                     </div>
                   </div>
                   <div className="p-8 flex flex-col justify-center">
                     <div className="mb-4">
-                      <span className="bg-primary-100 text-primary-600 px-3 py-1 rounded-full text-sm font-medium">
+                      <span 
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={{ 
+                          backgroundColor: 'rgba(var(--theme-accent-rgb), 0.1)',
+                          color: 'var(--theme-accent)'
+                        }}
+                      >
                         {guide.category}
                       </span>
                     </div>
@@ -218,7 +237,7 @@ const Resources: React.FC = () => {
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 left-4">
-                    <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <span className="bg-theme-accent text-white px-3 py-1 rounded-full text-sm font-medium">
                       {guide.category}
                     </span>
                   </div>
@@ -255,7 +274,7 @@ const Resources: React.FC = () => {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="section-padding bg-primary-600">
+      <section className="section-padding bg-theme-accent">
         <div className="container-max text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -266,7 +285,7 @@ const Resources: React.FC = () => {
             <h2 className="text-4xl font-bold text-white mb-4">
               Get New Resources First
             </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Be the first to access new guides, frameworks, and tools as they're released. 
               Plus get exclusive content not available anywhere else.
             </p>
@@ -274,10 +293,12 @@ const Resources: React.FC = () => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2"
+                style={{ '--tw-ring-offset-color': 'var(--theme-accent)' } as React.CSSProperties}
               />
               <motion.button
-                className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition-all duration-300"
+                className="bg-white hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition-all duration-300"
+                style={{ color: 'var(--theme-accent)' }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

@@ -2,15 +2,21 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext.tsx';
+import { useTheme } from '../../contexts/ThemeContext.tsx';
+import { hexToRgba } from '../../utils/themeColors.ts';
+import { getLogoPath } from '../../utils/themeHelpers.ts';
+import ThemeSelector from '../UI/ThemeSelector.tsx';
 // import { useAuth } from '../contexts/AuthContext';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  const { themeColors, currentTheme } = useTheme();
   const location = useLocation();
 
   // Check if running in developer mode
-  const IS_DEVELOPER = (process.env as any).REACT_APP_IS_DEVELOPER === 'true';
+  // @ts-ignore
+  const IS_DEVELOPER = process.env.REACT_APP_IS_DEVELOPER === 'true';
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -40,10 +46,11 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center py-4 mx-2">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">LC</span>
-            </div>
-            {/* <span className="text-2xl font-bold text-gradient">Lukewestbrookmanhattan</span> */}
+            <img 
+              src={getLogoPath(currentTheme)} 
+              alt="Life Coach Logo" 
+              className="h-10 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -58,29 +65,35 @@ const Navbar: React.FC = () => {
                 <Link
                   to={item.path}
                   className={`navbar-link font-medium transition-all duration-300 relative group ${
-                    isActive(item.path)
-                      ? 'text-primary-600'
-                      : 'text-gray-700 hover:text-primary-600'
+                    isActive(item.path) ? 'active' : 'text-gray-700'
                   }`}
+                  style={isActive(item.path) ? { color: 'var(--theme-accent)' } : {}}
+                  onMouseEnter={(e) => {
+                    if (!isActive(item.path)) {
+                      e.currentTarget.style.color = 'var(--theme-accent)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive(item.path)) {
+                      e.currentTarget.style.color = '';
+                    }
+                  }}
                 >
                   <span className="relative z-10">{item.name}</span>
-                  <motion.div
-                    className="absolute inset-0 bg-primary-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.2 }}
-                  />
                 </Link>
               </motion.div>
             ))}
           </div>
 
-          {/* Auth Buttons */}
+          {/* Settings & Auth Buttons */}
           <motion.div 
             className="hidden md:flex items-center space-x-4"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
+            {/* Theme Selector */}
+            <ThemeSelector />
             {IS_DEVELOPER ? (
               <div className="flex items-center space-x-4">
                 <motion.span 
@@ -103,7 +116,18 @@ const Navbar: React.FC = () => {
                 >
                   <Link
                     to="/admin"
-                    className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                    className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
+                    style={{ 
+                      color: 'var(--theme-text)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--theme-accent)';
+                      e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '';
+                      e.currentTarget.style.backgroundColor = '';
+                    }}
                   >
                     Admin Panel
                   </Link>
@@ -118,7 +142,18 @@ const Navbar: React.FC = () => {
                   >
                     <Link
                       to="/admin"
-                      className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                      className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
+                      style={{ 
+                        color: 'var(--theme-text)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = 'var(--theme-accent)';
+                        e.currentTarget.style.backgroundColor = 'rgba(var(--theme-accent-rgb, 196, 98, 45), 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '';
+                        e.currentTarget.style.backgroundColor = '';
+                      }}
                     >
                       Admin
                     </Link>
@@ -130,7 +165,7 @@ const Navbar: React.FC = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
                 >
-                  Welcome, <span className="text-primary-600 font-semibold">{user?.name || 'User'}</span>
+                  Welcome, <span className="font-semibold" style={{ color: 'var(--theme-accent)' }}>{user?.name || 'User'}</span>
                 </motion.span>
                 <motion.button
                   onClick={logout}
@@ -150,7 +185,18 @@ const Navbar: React.FC = () => {
                 >
                   <Link
                     to="/login"
-                    className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                    className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
+                    style={{ 
+                      color: 'var(--theme-text)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--theme-accent)';
+                      e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '';
+                      e.currentTarget.style.backgroundColor = '';
+                    }}
                   >
                     Login
                   </Link>
@@ -227,11 +273,25 @@ const Navbar: React.FC = () => {
                 >
                   <Link
                     to={item.path}
-                    className={`font-medium transition-all duration-300 px-3 py-2 rounded-lg ${
-                      isActive(item.path)
-                        ? 'text-primary-600 bg-primary-50'
-                        : 'text-gray-700 hover:text-primary-600 hover:bg-primary-50'
-                    }`}
+                    className="font-medium transition-all duration-300 px-3 py-2 rounded-lg"
+                    style={isActive(item.path) ? {
+                      color: 'var(--theme-accent)',
+                      backgroundColor: hexToRgba(themeColors.accent, 0.1)
+                    } : {
+                      color: 'var(--theme-text)'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive(item.path)) {
+                        e.currentTarget.style.color = 'var(--theme-accent)';
+                        e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive(item.path)) {
+                        e.currentTarget.style.color = '';
+                        e.currentTarget.style.backgroundColor = '';
+                      }
+                    }}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -245,6 +305,10 @@ const Navbar: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
+                {/* Theme Selector for Mobile */}
+                <div className="mb-4 px-3">
+                  <ThemeSelector />
+                </div>
                 {IS_DEVELOPER ? (
                   <div className="flex flex-col space-y-2">
                     <motion.span 
@@ -265,13 +329,24 @@ const Navbar: React.FC = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Link
-                        to="/admin"
-                        className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Admin Panel
-                      </Link>
+                          <Link
+                            to="/admin"
+                            className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
+                            style={{ 
+                              color: 'var(--theme-text)',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = 'var(--theme-accent)';
+                              e.currentTarget.style.backgroundColor = 'rgba(var(--theme-accent-rgb, 196, 98, 45), 0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '';
+                              e.currentTarget.style.backgroundColor = '';
+                            }}
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            Admin Panel
+                          </Link>
                     </motion.div>
                   </div>
                 ) : isAuthenticated ? (
@@ -283,7 +358,18 @@ const Navbar: React.FC = () => {
                       >
                         <Link
                           to="/admin"
-                          className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                          className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
+                          style={{ 
+                            color: 'var(--theme-text)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = 'var(--theme-accent)';
+                            e.currentTarget.style.backgroundColor = 'rgba(var(--theme-accent-rgb, 196, 98, 45), 0.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '';
+                            e.currentTarget.style.backgroundColor = '';
+                          }}
                           onClick={() => setIsMenuOpen(false)}
                         >
                           Admin Panel
@@ -318,7 +404,18 @@ const Navbar: React.FC = () => {
                     >
                       <Link
                         to="/login"
-                        className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 px-3 py-2 rounded-lg hover:bg-primary-50"
+                        className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
+                        style={{ 
+                          color: 'var(--theme-text)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = 'var(--theme-accent)';
+                          e.currentTarget.style.backgroundColor = 'rgba(var(--theme-accent-rgb, 196, 98, 45), 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = '';
+                          e.currentTarget.style.backgroundColor = '';
+                        }}
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Login

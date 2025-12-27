@@ -154,7 +154,7 @@ html {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, var(--theme-accent), var(--theme-accent-hover));
   transition: width var(--animation-duration-normal) var(--animation-easing-smooth);
 }
 

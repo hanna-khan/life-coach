@@ -264,13 +264,23 @@ const Home: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
                   to="/book-call"
-                  className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
+                  className="bg-white hover:bg-gray-100 font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
+                  style={{ color: 'var(--theme-accent)' }}
                 >
                   Book Your Free Discovery Call Now
                 </Link>
                 <Link
                   to="/about"
-                  className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
+                  className="border-2 border-white text-white hover:bg-white font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
+                  style={{ 
+                    '--hover-color': 'var(--theme-accent)'
+                  } as React.CSSProperties}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--theme-accent)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'white';
+                  }}
                 >
                   Learn More
                 </Link>
@@ -336,7 +346,10 @@ const Home: React.FC = () => {
                 viewport={{ once: true }}
                   whileHover={{ x: 5 }}
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md">
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md"
+                    style={{ background: `linear-gradient(to bottom right, var(--theme-accent), var(--theme-accent-hover))` }}
+                  >
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -375,7 +388,8 @@ const Home: React.FC = () => {
             {whyThisWorks.map((item, index) => (
               <motion.div
                 key={item.title}
-                className="card p-6 lg:p-8 bg-white shadow-md hover:shadow-xl transition-all duration-300 border-t-4 border-primary-600"
+                className="card p-6 lg:p-8 bg-white shadow-md hover:shadow-xl transition-all duration-300 border-t-4"
+                style={{ borderTopColor: 'var(--theme-accent)' }}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -419,14 +433,21 @@ const Home: React.FC = () => {
               {whatYouGet.map((item, index) => (
                 <motion.div
                   key={index}
-                  className="flex items-start space-x-4 p-5 rounded-xl bg-gradient-to-br from-primary-50 to-white border border-primary-100 hover:shadow-lg transition-all duration-300"
+                  className="flex items-start space-x-4 p-5 rounded-xl bg-gradient-to-br from-white to-white border hover:shadow-lg transition-all duration-300"
+                  style={{ 
+                    backgroundColor: 'var(--theme-background)',
+                    borderColor: 'rgba(var(--theme-accent-rgb, 196, 98, 45), 0.2)'
+                  }}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ x: 5 }}
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md">
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md"
+                    style={{ background: `linear-gradient(to bottom right, var(--theme-accent), var(--theme-accent-hover))` }}
+                  >
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -489,10 +510,14 @@ const Home: React.FC = () => {
                       src={testimonial.image}
                       alt={testimonial.name}
                       onError={() => handleImageError(testimonial.name)}
-                      className="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-primary-100"
+                      className="w-14 h-14 rounded-full object-cover mr-4 ring-2"
+                      style={{ '--tw-ring-color': 'rgba(196, 98, 45, 0.2)' } as React.CSSProperties}
                     />
                   ) : (
-                    <div className={`w-14 h-14 rounded-full mr-4 ring-2 ring-primary-100 flex items-center justify-center text-white font-semibold text-lg ${getAvatarColor(testimonial.name)}`}>
+                    <div 
+                      className={`w-14 h-14 rounded-full mr-4 ring-2 flex items-center justify-center text-white font-semibold text-lg ${getAvatarColor(testimonial.name)}`}
+                      style={{ '--tw-ring-color': 'rgba(196, 98, 45, 0.2)' } as React.CSSProperties}
+                    >
                       {getInitials(testimonial.name)}
                     </div>
                   )}
@@ -523,7 +548,10 @@ const Home: React.FC = () => {
               aria-label="Previous testimonials"
             >
               <svg
-                className="w-6 h-6 text-primary-600 group-hover:text-primary-700"
+                className="w-6 h-6 text-theme-accent group-hover:text-theme-accent-hover"
+                style={{ color: 'var(--theme-accent)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--theme-accent-hover)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--theme-accent)'; }}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -537,7 +565,10 @@ const Home: React.FC = () => {
               aria-label="Next testimonials"
             >
               <svg
-                className="w-6 h-6 text-primary-600 group-hover:text-primary-700"
+                className="w-6 h-6 text-theme-accent group-hover:text-theme-accent-hover"
+                style={{ color: 'var(--theme-accent)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--theme-accent-hover)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--theme-accent)'; }}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -554,7 +585,7 @@ const Home: React.FC = () => {
                   onClick={() => goToSlide(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     index === currentSlide
-                      ? 'bg-primary-600 w-8'
+                      ? 'w-8'
                       : 'bg-gray-300 hover:bg-gray-400'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
@@ -573,7 +604,10 @@ const Home: React.FC = () => {
           >
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
               {/* Header Section */}
-              <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6 lg:px-10 lg:py-8">
+              <div 
+                className="px-8 py-6 lg:px-10 lg:py-8"
+                style={{ background: 'linear-gradient(to right, var(--theme-accent), var(--theme-accent-hover))' }}
+              >
                 <div className="flex items-center justify-center space-x-4 mb-3">
                   <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                     <svg className="w-6 h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -600,7 +634,18 @@ const Home: React.FC = () => {
                       name="name"
                       value={testimonialForm.name}
                       onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 transition-all duration-300 shadow-sm hover:shadow-md"
+                      style={{ 
+                        '--tw-ring-color': 'var(--theme-accent)',
+                        '--focus-border-color': 'var(--theme-accent)'
+                      } as React.CSSProperties}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--theme-accent)';
+                        e.currentTarget.style.setProperty('--tw-ring-color', 'var(--theme-accent)');
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                      }}
                       placeholder="Your name"
                       required
                     />
@@ -615,7 +660,18 @@ const Home: React.FC = () => {
                       name="role"
                       value={testimonialForm.role}
                       onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all duration-300 shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 transition-all duration-300 shadow-sm hover:shadow-md"
+                      style={{ 
+                        '--tw-ring-color': 'var(--theme-accent)',
+                        '--focus-border-color': 'var(--theme-accent)'
+                      } as React.CSSProperties}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--theme-accent)';
+                        e.currentTarget.style.setProperty('--tw-ring-color', 'var(--theme-accent)');
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '';
+                      }}
                       placeholder="e.g., Software Engineer, Denver"
                     />
                   </div>
@@ -642,7 +698,16 @@ const Home: React.FC = () => {
                   <button
                     type="submit"
                     disabled={submittingTestimonial}
-                    className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="w-full text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    style={{ 
+                      background: 'linear-gradient(to right, var(--theme-accent), var(--theme-accent-hover))'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, var(--theme-accent-hover), var(--theme-accent))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, var(--theme-accent), var(--theme-accent-hover))';
+                    }}
                   >
                     {submittingTestimonial ? (
                       <span className="flex items-center justify-center">
@@ -681,13 +746,20 @@ const Home: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/book-call"
-                className="bg-white text-primary-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="bg-white hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                style={{ color: 'var(--theme-accent)' }}
               >
                 Book Your Free Discovery Call Now
               </Link>
               <Link
                 to="/contact"
-                className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="border-2 border-white text-white hover:bg-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--theme-accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'white';
+                }}
               >
                 Get in Touch
               </Link>
