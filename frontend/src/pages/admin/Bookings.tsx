@@ -153,9 +153,7 @@ const AdminBookings: React.FC = () => {
   const handleEdit = (booking: Booking) => {
     setEditingBooking(booking);
     // Format date for input field (YYYY-MM-DD)
-    const dateStr = booking.preferredDate instanceof Date 
-      ? booking.preferredDate.toISOString().split('T')[0]
-      : new Date(booking.preferredDate).toISOString().split('T')[0];
+    const dateStr = new Date(booking.preferredDate).toISOString().split('T')[0];
     
     setFormData({
       clientName: booking.clientName,
@@ -220,7 +218,7 @@ const AdminBookings: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Booking Management</h1>
           <p className="text-gray-600 mt-2">Manage client bookings and appointments</p>
         </div>
-        <motion.button
+        {/* <motion.button
           onClick={() => {
             resetForm();
             setShowModal(true);
@@ -240,7 +238,7 @@ const AdminBookings: React.FC = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </motion.svg>
           <span>Add New Booking</span>
-        </motion.button>
+        </motion.button> */}
       </div>
 
       {/* Stats Cards */}
@@ -360,6 +358,7 @@ const AdminBookings: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meeting Link</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -399,6 +398,24 @@ const AdminBookings: React.FC = () => {
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusColor(booking.paymentStatus)}`}>
                       {booking.paymentStatus}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {booking.meetingLink ? (
+                      <a
+                        href={booking.meetingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary-600 hover:text-primary-800 hover:underline flex items-center space-x-1"
+                        title={booking.meetingLink}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        <span>View Link</span>
+                      </a>
+                    ) : (
+                      <span className="text-sm text-gray-400">No link</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
