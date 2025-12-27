@@ -180,20 +180,23 @@ class EmailService {
             
             ${booking.meetingLink ? `
               <div class="details">
-                <h3>Meeting Link</h3>
-                <p>Join your session using the link below:</p>
+                <h3>📅 Book Your Session</h3>
+                <p>Click the link below to book your session via Calendly:</p>
                 <div style="text-align: center;">
-                  <a href="${booking.meetingLink}" class="button">Join Meeting</a>
+                  <a href="${booking.meetingLink}" class="button">Book via Calendly</a>
                 </div>
                 <div class="meeting-link">
                   <strong>Or copy this link:</strong><br>
                   ${booking.meetingLink}
                 </div>
+                <p style="margin-top: 15px; color: #6b7280; font-size: 14px;">
+                  <strong>Note:</strong> You'll be redirected to Calendly to complete your booking. Please select the date and time you prefer.
+                </p>
               </div>
             ` : `
               <div class="details">
                 <h3>Meeting Link</h3>
-                <p>Your meeting link will be sent to you shortly.</p>
+                <p>Your booking link will be sent to you shortly.</p>
               </div>
             `}
             

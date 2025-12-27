@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const Pricing = require('../models/Pricing');
 const { auth, adminAuth } = require('../middleware/auth');
@@ -23,6 +24,14 @@ router.post('/', [
   body('message').optional().trim().isLength({ max: 500 }).withMessage('Message cannot be more than 500 characters')
 ], async (req, res) => {
   try {
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ 
+        message: 'Database connection not ready. Please try again in a moment.',
+        error: 'Database not connected' 
+      });
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });

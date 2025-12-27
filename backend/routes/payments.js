@@ -2,6 +2,7 @@ const express = require('express');
 const Booking = require('../models/Booking');
 const { auth, adminAuth } = require('../middleware/auth');
 const emailService = require('../services/emailService');
+const calendlyService = require('../services/calendlyService');
 
 // Initialize Stripe only if valid secret key is provided
 let stripe;
@@ -67,15 +68,35 @@ router.get('/session/:sessionId', async (req, res) => {
           booking.paymentStatus = 'paid';
           booking.status = 'confirmed';
           
-          // Send confirmation email
+          // Generate Calendly booking link if not already created
+          if (calendlyService.isConfigured() && !booking.meetingLink) {
+            try {
+              console.log(`📅 Generating Calendly booking link for booking ${booking._id}...`);
+              const bookingLink = await calendlyService.createEventAndGetMeetingLink(booking);
+              
+              if (bookingLink) {
+                booking.meetingLink = bookingLink;
+                console.log(`✅ Calendly booking link added to booking: ${bookingLink}`);
+              }
+            } catch (calendlyError) {
+              console.error('❌ Calendly integration failed:', calendlyError.message);
+              // Continue with booking confirmation even if Calendly fails
+            }
+          }
+          
+          await booking.save();
+          
+          // Send confirmation email (includes meeting link if available)
           try {
             await emailService.sendBookingConfirmation(booking);
           } catch (error) {
             console.error('❌ Email sending failed:', error.message);
           }
           
-          await booking.save();
           console.log(`✅ Updated booking ${booking._id} to paid status`);
+          if (booking.meetingLink) {
+            console.log(`   Meeting Link: ${booking.meetingLink}`);
+          }
         }
         
         res.json({
@@ -252,9 +273,28 @@ async function handleSuccessfulPayment(session) {
         booking.paymentStatus = 'paid';
         booking.status = 'confirmed';
         
+        // Generate Calendly booking link
+        if (calendlyService.isConfigured()) {
+          try {
+            console.log(`📅 Generating Calendly booking link for booking ${booking._id}...`);
+            const bookingLink = await calendlyService.createEventAndGetMeetingLink(booking);
+            
+            if (bookingLink) {
+              booking.meetingLink = bookingLink;
+              console.log(`✅ Calendly booking link added to booking: ${bookingLink}`);
+            }
+          } catch (calendlyError) {
+            console.error('❌ Calendly integration failed:', calendlyError.message);
+            // Continue with booking confirmation even if Calendly fails
+            // Admin can manually add booking link later
+          }
+        } else {
+          console.warn('⚠️  Calendly is not configured. Skipping Calendly booking link generation.');
+        }
+        
         await booking.save();
         
-        // Send confirmation email
+        // Send confirmation email (includes meeting link if available)
         try {
           await emailService.sendBookingConfirmation(booking);
         } catch (error) {
@@ -266,6 +306,9 @@ async function handleSuccessfulPayment(session) {
         console.log(`   Client: ${booking.clientName} (${booking.clientEmail})`);
         console.log(`   Amount: $${booking.price}`);
         console.log(`   Status: ${booking.status}`);
+        if (booking.meetingLink) {
+          console.log(`   Meeting Link: ${booking.meetingLink}`);
+        }
       } else {
         console.log(`⚠️  Payment session completed but status is: ${session.payment_status}`);
       }

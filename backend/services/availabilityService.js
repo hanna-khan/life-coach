@@ -13,9 +13,10 @@ class AvailabilityService {
       const dayOfWeek = selectedDate.getDay();
       
       // Working days (Monday-Friday = 1-5, Sunday = 0, Saturday = 6)
+      // Default: Allow all days (0-6) - can be restricted via WORKING_DAYS env variable
       const workingDays = process.env.WORKING_DAYS 
         ? process.env.WORKING_DAYS.split(',').map(Number)
-        : [1, 2, 3, 4, 5]; // Monday to Friday
+        : [0, 1, 2, 3, 4, 5, 6]; // All days (Sunday-Saturday)
       
       if (!workingDays.includes(dayOfWeek)) {
         return [];
@@ -146,9 +147,10 @@ class AvailabilityService {
       const dayOfWeek = selectedDate.getDay();
       
       // Working days (Monday-Friday = 1-5, Sunday = 0, Saturday = 6)
+      // Default: Allow all days (0-6) - can be restricted via WORKING_DAYS env variable
       const workingDays = process.env.WORKING_DAYS 
         ? process.env.WORKING_DAYS.split(',').map(Number)
-        : [1, 2, 3, 4, 5]; // Monday to Friday
+        : [0, 1, 2, 3, 4, 5, 6]; // All days (Sunday-Saturday)
       
       if (!workingDays.includes(dayOfWeek)) {
         return false;
