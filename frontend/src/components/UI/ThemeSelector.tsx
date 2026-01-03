@@ -27,8 +27,8 @@ const ThemeSelector: React.FC = () => {
   const themeOptions = [
     {
       id: 'original' as ThemeOption,
-      name: 'Original (Blue + Purple)',
-      description: 'Classic blue and purple gradient theme',
+      name: 'Grounded Blue + Aubergine',
+      description: 'Deep navy base with dark purple accents - authoritative & disciplined',
       colors: themes.original,
     },
     {
@@ -48,6 +48,24 @@ const ThemeSelector: React.FC = () => {
       name: 'Charcoal + Oxblood',
       description: 'Strong, serious, direct',
       colors: themes.option3,
+    },
+    {
+      id: 'option4' as ThemeOption,
+      name: 'Deep Blue + Slate',
+      description: 'Professional, structured, minimal',
+      colors: themes.option4,
+    },
+    {
+      id: 'option5' as ThemeOption,
+      name: 'Navy + Charcoal',
+      description: 'Classic, authoritative, grounded',
+      colors: themes.option5,
+    },
+    {
+      id: 'option6' as ThemeOption,
+      name: 'Steel Blue + Dark Purple',
+      description: 'Sophisticated, muted, disciplined',
+      colors: themes.option6,
     },
   ];
 

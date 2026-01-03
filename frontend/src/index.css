@@ -106,14 +106,14 @@
   }
   
   .text-gradient {
-    background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%);
+    background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .hero-bg {
-    background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%);
+    background: var(--theme-primary);
     transition: background 0.3s ease;
   }
   
@@ -194,10 +194,16 @@
     color: var(--theme-text);
   }
   
-  /* Divider styles */
+  /* Divider styles - using charcoal for better grounding */
   .divider {
     border-color: var(--theme-secondary);
-    opacity: 0.3;
+    opacity: 0.2;
+  }
+  
+  /* Section separators with charcoal for contrast */
+  .section-divider {
+    border-color: var(--theme-secondary);
+    opacity: 0.15;
   }
   
   /* Navbar link hover states using theme accent */
@@ -261,9 +267,9 @@
     border-color: var(--theme-primary);
   }
   
-  /* Logo gradient - attractive theme-based gradient with vibrant colors */
+  /* Logo gradient - grounded, authoritative styling */
   .logo-gradient {
-    background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-accent-hover) 100%);
+    background: var(--theme-primary);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     position: relative;
     overflow: hidden;
@@ -276,13 +282,13 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+    background: rgba(255, 255, 255, 0.05);
     pointer-events: none;
   }
   
   .logo-gradient:hover {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
   
   .logo-gradient span {

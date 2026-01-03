@@ -48,7 +48,7 @@ const AdminLogin: React.FC = () => {
             <img 
               src={getLogoPath(currentTheme)} 
               alt="Life Coach Logo" 
-              className="h-16 w-auto object-contain"
+              className="h-24 w-auto object-contain"
             />
           </div>
           <h2 className="text-3xl font-bold text-white mb-2">

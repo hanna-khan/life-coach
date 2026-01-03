@@ -56,15 +56,9 @@ export function hexToRgba(hex: string, alpha: number): string {
 }
 
 /**
- * Get logo path based on theme
+ * Get logo path - always returns lwm-logo.png regardless of theme
  */
-export function getLogoPath(theme: 'option1' | 'option2' | 'option3' | 'original'): string {
-  const logoMap = {
-    option1: '/rust-logo.png',    // Charcoal + Burnt Rust
-    option2: '/green-logo.png',   // Deep Navy + Muted Olive
-    option3: '/blood-logo.png',   // Charcoal + Oxblood
-    original: '/blue-logo.png',   // Blue + Purple
-  };
-  
-  return logoMap[theme] || logoMap.original;
+export function getLogoPath(theme?: string): string {
+  // Always use lwm-logo.png for all themes
+  return '/lwm-logo.png';
 }

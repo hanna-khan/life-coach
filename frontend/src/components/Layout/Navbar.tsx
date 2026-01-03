@@ -43,13 +43,13 @@ const Navbar: React.FC = () => {
       transition={{ duration: 0.5 }}
     >
       <div className="container-max">
-        <div className="flex justify-between items-center py-4 mx-2">
+        <div className="flex justify-between items-center py-2 mx-2">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img 
               src={getLogoPath(currentTheme)} 
               alt="Life Coach Logo" 
-              className="h-10 w-auto object-contain"
+              className="h-20 w-auto object-contain"
             />
           </Link>
 

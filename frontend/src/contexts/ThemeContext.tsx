@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type ThemeOption = 'option1' | 'option2' | 'option3' | 'original';
+export type ThemeOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5' | 'option6' | 'original';
 
 export interface ThemeColors {
   primary: string;
@@ -44,14 +44,44 @@ export const themes: Record<ThemeOption, ThemeColors> = {
     text: '#181818',
   },
   original: {
-    // Original Blue + Purple Theme
-    primary: '#0284c7', // Sky Blue (primary-600)
-    primaryHover: '#0369a1', // Darker Blue (primary-700)
-    background: '#ffffff', // White
-    secondary: '#6b7280', // Gray
-    accent: '#d946ef', // Purple/Pink (secondary-500)
-    accentHover: '#c026d3', // Darker Purple (secondary-600)
-    text: '#1f2937', // Gray-800
+    // Grounded Blue + Purple Theme (More Masculine & Authoritative)
+    primary: '#1e3a8a', // Deep Navy Blue (dominant base/structural)
+    primaryHover: '#1e40af', // Slightly lighter navy
+    background: '#f8f9fa', // Soft neutral background
+    secondary: '#2d3748', // Charcoal gray for grounding
+    accent: '#4a2c5a', // Dark desaturated purple (ink/aubergine, not violet)
+    accentHover: '#3d2a4d', // Darker aubergine
+    text: '#1a202c', // Near-black for strong contrast
+  },
+  option4: {
+    // Deep Blue + Slate
+    primary: '#1e293b', // Slate-800
+    primaryHover: '#334155', // Slate-700
+    background: '#f1f5f9', // Slate-50
+    secondary: '#475569', // Slate-600
+    accent: '#0f172a', // Slate-900 (near-black)
+    accentHover: '#1e293b',
+    text: '#0f172a',
+  },
+  option5: {
+    // Navy + Charcoal
+    primary: '#1e3a8a', // Navy
+    primaryHover: '#1e40af',
+    background: '#fafafa', // Neutral white
+    secondary: '#374151', // Gray-700
+    accent: '#111827', // Gray-900 (charcoal)
+    accentHover: '#1f2937',
+    text: '#111827',
+  },
+  option6: {
+    // Steel Blue + Dark Purple
+    primary: '#334155', // Slate-700
+    primaryHover: '#475569',
+    background: '#f8fafc', // Slate-50
+    secondary: '#64748b', // Slate-500
+    accent: '#3d2a4d', // Dark aubergine
+    accentHover: '#2d1f3a',
+    text: '#0f172a',
   },
 };
 
@@ -89,7 +119,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [currentTheme, setCurrentThemeState] = useState<ThemeOption>(() => {
     // Load theme from localStorage or default to original
     const saved = localStorage.getItem('theme') as ThemeOption;
-    return saved && ['option1', 'option2', 'option3', 'original'].includes(saved) ? saved : 'original';
+    return saved && ['option1', 'option2', 'option3', 'option4', 'option5', 'option6', 'original'].includes(saved) ? saved : 'original';
   });
 
   const themeColors = themes[currentTheme];
@@ -104,6 +134,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     root.style.setProperty('--theme-accent', themeColors.accent);
     root.style.setProperty('--theme-accent-hover', themeColors.accentHover);
     root.style.setProperty('--theme-text', themeColors.text);
+    
+    // Charcoal/near-black for grounding (using secondary or text color)
+    root.style.setProperty('--theme-charcoal', themeColors.secondary);
     
     // Convert accent color to RGB for rgba() usage
     const accentRgb = hexToRgb(themeColors.accent);

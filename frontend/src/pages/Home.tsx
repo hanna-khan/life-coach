@@ -338,7 +338,7 @@ const Home: React.FC = () => {
                 >
                   <div 
                     className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md"
-                    style={{ background: `linear-gradient(to bottom right, var(--theme-accent), var(--theme-accent-hover))` }}
+                    style={{ background: `var(--theme-accent)` }}
                   >
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -436,7 +436,7 @@ const Home: React.FC = () => {
                 >
                   <div 
                     className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md"
-                    style={{ background: `linear-gradient(to bottom right, var(--theme-accent), var(--theme-accent-hover))` }}
+                    style={{ background: `var(--theme-accent)` }}
                   >
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -596,7 +596,7 @@ const Home: React.FC = () => {
               {/* Header Section */}
               <div 
                 className="px-8 py-6 lg:px-10 lg:py-8"
-                style={{ background: 'linear-gradient(to right, var(--theme-accent), var(--theme-accent-hover))' }}
+                style={{ background: 'var(--theme-primary)' }}
               >
                 <div className="flex items-center justify-center space-x-4 mb-3">
                   <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
@@ -690,13 +690,13 @@ const Home: React.FC = () => {
                     disabled={submittingTestimonial}
                     className="w-full text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     style={{ 
-                      background: 'linear-gradient(to right, var(--theme-accent), var(--theme-accent-hover))'
+                      background: 'var(--theme-primary)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, var(--theme-accent-hover), var(--theme-accent))';
+                      e.currentTarget.style.background = 'var(--theme-primary-hover)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, var(--theme-accent), var(--theme-accent-hover))';
+                      e.currentTarget.style.background = 'var(--theme-primary)';
                     }}
                   >
                     {submittingTestimonial ? (

@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
     <footer 
       className="text-white" 
       style={{ 
-        background: `linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%)`,
+        background: `var(--theme-primary)`,
       }}
     >
       <div className="container-max section-padding">
@@ -46,7 +46,8 @@ const Footer: React.FC = () => {
               <img 
                 src={getLogoPath(currentTheme)} 
                 alt="Life Coach Logo" 
-                className="h-10 w-auto object-contain"
+                className="w-auto object-contain"
+                style={{ height: '96px' }}
               />
             </Link>
             <p className="mb-6" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>

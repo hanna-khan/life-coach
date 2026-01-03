@@ -53,7 +53,7 @@ const Register: React.FC = () => {
             <img 
               src={getLogoPath(currentTheme)} 
               alt="Life Coach Logo" 
-              className="h-12 w-auto object-contain"
+              className="h-20 w-auto object-contain"
             />
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">

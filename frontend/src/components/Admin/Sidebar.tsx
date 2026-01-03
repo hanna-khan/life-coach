@@ -100,7 +100,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <img 
                 src={getLogoPath(currentTheme)} 
                 alt="Life Coach Logo" 
-                className="h-10 w-auto object-contain"
+                className="w-auto object-contain"
+                style={{ height: '72px' }}
               />
               <span className="text-xl font-bold text-gray-900">Admin Panel</span>
             </Link>

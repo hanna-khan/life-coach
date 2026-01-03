@@ -55,7 +55,7 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05));
+  background: rgba(0, 0, 0, 0.02);
   opacity: 0;
   transition: opacity var(--animation-duration-normal) var(--animation-easing-smooth);
   border-radius: inherit;
@@ -154,7 +154,7 @@ html {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--theme-accent), var(--theme-accent-hover));
+  background: var(--theme-accent);
   transition: width var(--animation-duration-normal) var(--animation-easing-smooth);
 }
 
@@ -165,9 +165,8 @@ html {
 
 /* Enhanced hero section animations */
 .hero-bg {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #8b5cf6 100%);
-  background-size: 400% 400%;
-  animation: gradient-shift 20s ease infinite;
+  background: var(--theme-primary);
+  /* Removed animated gradient for more grounded, authoritative look */
 }
 
 /* Enhanced section animations */
@@ -264,7 +263,7 @@ html {
 
 /* Enhanced text animations */
 .text-gradient {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -425,13 +424,13 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--theme-primary), var(--theme-accent));
+  background: var(--theme-secondary);
   border-radius: 4px;
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, var(--theme-primary-hover), var(--theme-accent-hover));
+  background: var(--theme-primary);
 }
 
 /* Firefox scrollbar */
