@@ -31,37 +31,37 @@ const Privacy: React.FC = () => {
             viewport={{ once: true }}
           >
             <div className="space-y-6 text-gray-700 leading-relaxed">
-              <p className="text-lg">
-                <strong className="text-gray-900">Note:</strong> This is NOT legal advice — but it's a standard small-coaching-business version.
-              </p>
-
               <p className="text-xl font-semibold text-gray-900">
                 Your privacy matters.
               </p>
 
               <p>
-                Luke Westbrook-Manhattan Coaching ("we") collects minimal personal information such as your name, email, and details you voluntarily submit when booking a call or submitting a form.
+                Luke Westbrook-Manhattan Coaching ("we", "us") collects minimal personal information, including your name, email address, and any details you voluntarily provide when booking a call or submitting a form through this website.
               </p>
 
               <p className="text-lg font-semibold text-gray-900 mt-8">
-                We use this information to:
+                We use this information solely to:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Respond to enquiries</li>
                 <li>Deliver coaching services</li>
-                <li>Improve our website and client experience</li>
+                <li>Improve our website and overall client experience</li>
               </ul>
 
               <p className="mt-8">
-                We do not sell or share your information with third parties.
+                We do not sell, rent, or share your personal information with third parties for marketing or advertising purposes.
               </p>
 
               <p>
-                Your data is stored securely and only accessed when required for communication or service delivery.
+                Your data may be processed and securely stored using trusted third-party tools (such as scheduling, payment, or email service providers) strictly for communication, administration, and service delivery. Reasonable technical and organisational measures are taken to protect your information from unauthorised access or misuse.
               </p>
 
               <p className="mt-8">
-                You may request to have your data deleted at any time by contacting:
+                This website may use basic cookies or analytics to understand site usage and improve functionality. No personally identifiable information is sold, shared, or used for targeted advertising.
+              </p>
+
+              <p className="mt-8">
+                You may request access to, correction of, or deletion of your personal data at any time by contacting:
               </p>
               <p className="text-lg">
                 <a 
@@ -70,6 +70,19 @@ const Privacy: React.FC = () => {
                 >
                   lukewestbrookmanhattan@gmail.com
                 </a>
+              </p>
+
+              <div className="mt-12 pt-8 border-t border-gray-200">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                  Coaching Disclaimer
+                </h2>
+                <p>
+                  Coaching services provided by Luke Westbrook-Manhattan Coaching are not therapy, counselling, or medical treatment, and are not a substitute for professional mental health care, medical advice, or diagnosis.
+                </p>
+              </div>
+
+              <p className="mt-8 text-sm text-gray-500">
+                Last updated: January 2026
               </p>
             </div>
           </motion.div>

@@ -179,37 +179,29 @@ const Navbar: React.FC = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <Link
+                  to="/login"
+                  className="text-gray-700 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:text-theme-accent hover:bg-opacity-10"
+                  style={{ 
+                    color: 'var(--theme-text)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--theme-accent)';
+                    e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--theme-text)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
-                  <Link
-                    to="/login"
-                    className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
-                    style={{ 
-                      color: 'var(--theme-text)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = 'var(--theme-accent)';
-                      e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = '';
-                      e.currentTarget.style.backgroundColor = '';
-                    }}
-                  >
-                    Login
-                  </Link>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
+                  Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="btn-primary text-sm py-2 px-4 transition-all duration-200  hover:shadow-md"
                 >
-                  <Link to="/register" className="btn-primary text-sm py-2 px-4">
-                    Sign Up
-                  </Link>
-                </motion.div>
+                  Sign Up
+                </Link>
               </div>
             )}
           </motion.div>
@@ -398,41 +390,31 @@ const Navbar: React.FC = () => {
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-2">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <Link
+                      to="/login"
+                      className="text-gray-700 font-medium transition-colors duration-200 px-3 py-2 rounded-lg"
+                      style={{ 
+                        color: 'var(--theme-text)',
+                      }}
+                      // onMouseEnter={(e) => {
+                      //   e.currentTarget.style.color = 'var(--theme-accent)';
+                      //   e.currentTarget.style.backgroundColor = hexToRgba(themeColors.accent, 0.1);
+                      // }}
+                      // onMouseLeave={(e) => {
+                      //   e.currentTarget.style.color = 'var(--theme-text)';
+                      //   e.currentTarget.style.backgroundColor = 'transparent';
+                      // }}
+                      onClick={() => setIsMenuOpen(false)}
                     >
-                      <Link
-                        to="/login"
-                        className="text-gray-700 font-medium transition-all duration-300 px-3 py-2 rounded-lg"
-                        style={{ 
-                          color: 'var(--theme-text)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = 'var(--theme-accent)';
-                          e.currentTarget.style.backgroundColor = 'rgba(var(--theme-accent-rgb, 196, 98, 45), 0.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = '';
-                          e.currentTarget.style.backgroundColor = '';
-                        }}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Login
-                      </Link>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      Login
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="btn-primary text-sm py-2 px-4 text-center transition-all duration-200 hover:opacity-90 hover:shadow-md"
+                      onClick={() => setIsMenuOpen(false)}
                     >
-                      <Link
-                        to="/register"
-                        className="btn-primary text-sm py-2 px-4 text-center"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Sign Up
-                      </Link>
-                    </motion.div>
+                      Sign Up
+                    </Link>
                   </div>
                 )}
               </motion.div>

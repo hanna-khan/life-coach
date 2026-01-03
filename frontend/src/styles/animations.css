@@ -15,7 +15,7 @@ html {
 }
 
 /* Enhanced button animations */
-.btn-primary,
+/* .btn-primary,
 .btn-secondary,
 .btn-outline {
   position: relative;
@@ -34,7 +34,7 @@ html {
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s;
-}
+} */
 
 .btn-primary:hover::before,
 .btn-secondary:hover::before,
