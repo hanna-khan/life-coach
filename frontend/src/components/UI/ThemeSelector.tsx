@@ -109,18 +109,18 @@ const ThemeSelector: React.FC = () => {
             
             {/* Dropdown */}
             <motion.div
-              className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+              className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[80vh] flex flex-col"
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="p-4 border-b border-gray-200">
+              <div className="p-4 border-b border-gray-200 flex-shrink-0">
                 <h3 className="text-lg font-semibold text-gray-900">Theme Settings</h3>
                 <p className="text-sm text-gray-500 mt-1">Choose a color palette</p>
               </div>
 
-              <div className="p-4 space-y-3 ">
+              <div className="p-4 space-y-3 overflow-y-auto flex-1">
                 {themeOptions.map((option) => (
                   <motion.button
                     key={option.id}
@@ -185,7 +185,7 @@ const ThemeSelector: React.FC = () => {
                 ))}
               </div>
 
-              <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <div className="p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
                 <p className="text-xs text-gray-500 text-center">
                   Theme preference is saved automatically
                 </p>
