@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type ThemeOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5' | 'option6' | 'original';
+export type ThemeOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5' | 'option6' | 'option7' | 'option8' | 'option9' | 'option10' | 'option11' | 'option12' | 'original';
 
 export interface ThemeColors {
   primary: string;
@@ -83,6 +83,66 @@ export const themes: Record<ThemeOption, ThemeColors> = {
     accentHover: '#2d1f3a',
     text: '#0f172a',
   },
+  option7: {
+    // Deep Teal + Bronze (Elegant, Refined)
+    primary: '#0f4c75', // Deep teal
+    primaryHover: '#1a5a8a',
+    background: '#f8f9fa', // Soft white
+    secondary: '#2d3748', // Charcoal
+    accent: '#c9a961', // Bronze gold
+    accentHover: '#b8964a',
+    text: '#1a202c',
+  },
+  option8: {
+    // Royal Blue + Charcoal (Professional, Strong)
+    primary: '#1e3a8a', // Royal blue
+    primaryHover: '#2563eb',
+    background: '#ffffff', // Pure white
+    secondary: '#374151', // Charcoal gray
+    accent: '#1f2937', // Near-black
+    accentHover: '#111827',
+    text: '#111827',
+  },
+  option9: {
+    // Dark Slate + Burnt Orange (Bold, Confident)
+    primary: '#1e293b', // Dark slate
+    primaryHover: '#334155',
+    background: '#fafafa', // Off-white
+    secondary: '#475569', // Medium slate
+    accent: '#ea580c', // Burnt orange
+    accentHover: '#c2410c',
+    text: '#0f172a',
+  },
+  option10: {
+    // Navy + Copper (Sophisticated, Warm)
+    primary: '#1e40af', // Navy blue
+    primaryHover: '#2563eb',
+    background: '#f9fafb', // Light gray
+    secondary: '#4b5563', // Gray-600
+    accent: '#b45309', // Copper
+    accentHover: '#92400e',
+    text: '#111827',
+  },
+  option11: {
+    // Charcoal + Deep Red (Powerful, Elegant)
+    primary: '#111827', // Charcoal
+    primaryHover: '#1f2937',
+    background: '#ffffff', // White
+    secondary: '#4b5563', // Gray-600
+    accent: '#991b1b', // Deep red
+    accentHover: '#7f1d1d',
+    text: '#111827',
+  },
+  option12: {
+    // Midnight + Gold Accent (Luxury, Premium)
+    primary: '#0f172a', // Midnight
+    primaryHover: '#1e293b',
+    background: '#f8fafc', // Slate-50
+    secondary: '#334155', // Slate-700
+    accent: '#f59e0b', // Amber gold
+    accentHover: '#d97706',
+    text: '#0f172a',
+  },
 };
 
 interface ThemeContextType {
@@ -119,7 +179,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [currentTheme, setCurrentThemeState] = useState<ThemeOption>(() => {
     // Load theme from localStorage or default to original
     const saved = localStorage.getItem('theme') as ThemeOption;
-    return saved && ['option1', 'option2', 'option3', 'option4', 'option5', 'option6', 'original'].includes(saved) ? saved : 'original';
+    return saved && ['option1', 'option2', 'option3', 'option4', 'option5', 'option6', 'option7', 'option8', 'option9', 'option10', 'option11', 'option12', 'original'].includes(saved) ? saved : 'original';
   });
 
   const themeColors = themes[currentTheme];

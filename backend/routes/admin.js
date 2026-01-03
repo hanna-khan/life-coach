@@ -51,7 +51,7 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5);
 
-    // Get monthly revenue
+    // Get monthly revenue (current month)
     const currentMonth = new Date();
     currentMonth.setDate(1);
     currentMonth.setHours(0, 0, 0, 0);
@@ -71,6 +71,62 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
       }
     ]);
 
+    // Get previous month revenue for growth calculation
+    const previousMonth = new Date();
+    previousMonth.setMonth(previousMonth.getMonth() - 1);
+    previousMonth.setDate(1);
+    previousMonth.setHours(0, 0, 0, 0);
+    const previousMonthEnd = new Date(currentMonth);
+    previousMonthEnd.setDate(0);
+    previousMonthEnd.setHours(23, 59, 59, 999);
+
+    const previousMonthRevenue = await Booking.aggregate([
+      {
+        $match: {
+          paymentStatus: 'paid',
+          createdAt: { $gte: previousMonth, $lt: currentMonth }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$price' }
+        }
+      }
+    ]);
+
+    const currentRevenue = monthlyRevenue[0]?.total || 0;
+    const prevRevenue = previousMonthRevenue[0]?.total || 0;
+    const monthlyGrowth = prevRevenue > 0 
+      ? ((currentRevenue - prevRevenue) / prevRevenue * 100).toFixed(1)
+      : currentRevenue > 0 ? 100 : 0;
+
+    // Get booking status breakdown
+    const bookingStatusBreakdown = await Booking.aggregate([
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const statusMap = {
+      completed: 0,
+      confirmed: 0,
+      pending: 0,
+      cancelled: 0
+    };
+    bookingStatusBreakdown.forEach(item => {
+      if (item._id === 'completed' || item._id === 'confirmed') {
+        statusMap.completed += item.count;
+      } else if (item._id === 'pending') {
+        statusMap.pending = item.count;
+      } else if (item._id === 'cancelled') {
+        statusMap.cancelled = item.count;
+      }
+    });
+
     res.json({
       success: true,
       dashboard: {
@@ -85,7 +141,10 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
           confirmedBookings,
           newContacts,
           readContacts,
-          monthlyRevenue: monthlyRevenue[0]?.total || 0
+          monthlyRevenue: currentRevenue,
+          previousMonthRevenue: prevRevenue,
+          monthlyGrowth: parseFloat(monthlyGrowth),
+          bookingStatusBreakdown: statusMap
         },
         recentActivities: {
           blogs: recentBlogs,
@@ -193,6 +252,13 @@ router.delete('/users/:id', auth, adminAuth, async (req, res) => {
 // @access  Private (Admin)
 router.get('/analytics', auth, adminAuth, async (req, res) => {
   try {
+    // Get total counts first
+    const [totalBlogs, totalBookings, totalContacts] = await Promise.all([
+      Blog.countDocuments(),
+      Booking.countDocuments(),
+      Contact.countDocuments()
+    ]);
+
     // Blog analytics
     const blogStats = await Blog.aggregate([
       {
@@ -241,12 +307,107 @@ router.get('/analytics', auth, adminAuth, async (req, res) => {
       }
     ]);
 
+    // Weekly bookings (last 7 days) - get bookings per day
+    const weeklyBookings = [];
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = new Date();
+      dayStart.setDate(dayStart.getDate() - i);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setHours(23, 59, 59, 999);
+      
+      const count = await Booking.countDocuments({
+        createdAt: { $gte: dayStart, $lte: dayEnd }
+      });
+      
+      // Get day of week (0=Sunday, 1=Monday, etc.)
+      const dayOfWeek = dayStart.getDay();
+      // MongoDB $dayOfWeek returns 1=Sunday, 2=Monday, etc., so we add 1
+      weeklyBookings.push({
+        _id: dayOfWeek === 0 ? 1 : dayOfWeek + 1, // Convert to MongoDB format (1=Sunday, 2=Monday, etc.)
+        count: count
+      });
+    }
+
+    // User growth (last 4 weeks)
+    const fourWeeksAgo = new Date();
+    fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+    fourWeeksAgo.setHours(0, 0, 0, 0);
+
+    const userGrowth = await User.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: fourWeeksAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            week: { $week: '$createdAt' },
+            year: { $year: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { '_id.year': 1, '_id.week': 1 }
+      }
+    ]);
+
+    // Get total users count for cumulative growth
+    const totalUsers = await User.countDocuments();
+    const userGrowthCumulative = [];
+    let cumulative = totalUsers - userGrowth.reduce((sum, item) => sum + item.count, 0);
+    
+    for (let i = 0; i < 4; i++) {
+      const weekData = userGrowth.find((ug, idx) => idx === i);
+      if (weekData) {
+        cumulative += weekData.count;
+      }
+      userGrowthCumulative.push(cumulative);
+    }
+
+    // Booking status breakdown
+    const bookingStatusBreakdown = await Booking.aggregate([
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Calculate conversion rate (bookings / contacts)
+    const conversionRate = totalContacts > 0 
+      ? ((totalBookings / totalContacts) * 100).toFixed(1)
+      : 0;
+
+    // Calculate blog engagement (average views per blog)
+    const totalBlogViews = await Blog.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalViews: { $sum: '$views' }
+        }
+      }
+    ]);
+    const avgViewsPerBlog = totalBlogs > 0 && totalBlogViews[0]?.totalViews
+      ? Math.round(totalBlogViews[0].totalViews / totalBlogs)
+      : 0;
+    // Convert to percentage (assuming 100 views = 100%)
+    const blogEngagement = Math.min(avgViewsPerBlog, 100);
+
     res.json({
       success: true,
       analytics: {
         blogStats,
         bookingStats,
-        monthlyRevenue
+        monthlyRevenue,
+        weeklyBookings,
+        userGrowth: userGrowthCumulative,
+        bookingStatusBreakdown,
+        conversionRate: parseFloat(conversionRate),
+        blogEngagement: parseInt(blogEngagement)
       }
     });
   } catch (error) {

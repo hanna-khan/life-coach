@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -25,10 +26,14 @@ const AdminLayout: React.FC = () => {
       </div>
 
       {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)}
+        onCollapseChange={setSidebarCollapsed}
+      />
 
-      {/* Main Content */}
-      <div className="lg:ml-64">
+      {/* Main Content - Dynamic margin based on sidebar collapse state */}
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <main className="p-6">
           <Outlet />
         </main>

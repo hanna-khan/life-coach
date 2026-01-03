@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  BarElement,
   Title,
   Tooltip,
   Legend,
   ArcElement,
 } from 'chart.js';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { Line, Doughnut } from 'react-chartjs-2';
 import { motion } from 'framer-motion';
 import AnimatedContainer from '../../components/Animation/AnimatedContainer.tsx';
 import { fadeInUp, scaleIn, chartAnimation } from '../../utils/animations.ts';
+import LoadingSpinner from '../../components/Animation/LoadingSpinner.tsx';
+import toast from 'react-hot-toast';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -29,24 +30,129 @@ ChartJS.register(
 );
 
 const AdminDashboard: React.FC = () => {
-  const [stats] = useState({
-    totalUsers: 1247,
-    totalBlogs: 45,
-    totalBookings: 189,
-    totalRevenue: 45680,
-    monthlyGrowth: 15.3,
-    activeUsers: 892,
-    pendingBookings: 12,
-    completedBookings: 177
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalBlogs: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    monthlyGrowth: 0,
+    activeUsers: 0,
+    pendingBookings: 0,
+    confirmedBookings: 0,
+    publishedBlogs: 0,
+    draftBlogs: 0,
+    totalContacts: 0,
+    newContacts: 0
+  });
+  const [recentBookings, setRecentBookings] = useState<any[]>([]);
+  const [monthlyRevenueData, setMonthlyRevenueData] = useState<any[]>([]);
+  const [bookingStatusData, setBookingStatusData] = useState({
+    completed: 0,
+    pending: 0,
+    cancelled: 0
   });
 
-  // Revenue Line Chart Data
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [dashboardRes, analyticsRes] = await Promise.all([
+          axios.get('/api/admin/dashboard'),
+          axios.get('/api/admin/analytics')
+        ]);
+
+        if (dashboardRes.data.success) {
+          const dashboardData = dashboardRes.data.dashboard;
+          const statsData = dashboardData.stats;
+
+          setStats({
+            totalUsers: statsData.totalUsers || 0,
+            totalBlogs: statsData.totalBlogs || 0,
+            totalBookings: statsData.totalBookings || 0,
+            totalRevenue: statsData.monthlyRevenue || 0,
+            monthlyRevenue: statsData.monthlyRevenue || 0,
+            monthlyGrowth: statsData.monthlyGrowth || 0,
+            activeUsers: statsData.totalUsers || 0,
+            pendingBookings: statsData.pendingBookings || 0,
+            confirmedBookings: statsData.confirmedBookings || 0,
+            publishedBlogs: statsData.publishedBlogs || 0,
+            draftBlogs: statsData.draftBlogs || 0,
+            totalContacts: statsData.totalContacts || 0,
+            newContacts: statsData.newContacts || 0
+          });
+
+          // Set recent bookings
+          if (dashboardData.recentActivities?.bookings) {
+            setRecentBookings(dashboardData.recentActivities.bookings);
+          }
+
+          // Use booking status breakdown from API
+          if (statsData.bookingStatusBreakdown) {
+            setBookingStatusData({
+              completed: statsData.bookingStatusBreakdown.completed || 0,
+              pending: statsData.bookingStatusBreakdown.pending || 0,
+              cancelled: statsData.bookingStatusBreakdown.cancelled || 0
+            });
+          } else {
+            // Fallback calculation
+            const total = statsData.totalBookings || 0;
+            const pending = statsData.pendingBookings || 0;
+            const confirmed = statsData.confirmedBookings || 0;
+            setBookingStatusData({
+              completed: confirmed,
+              pending: pending,
+              cancelled: total - confirmed - pending
+            });
+          }
+        }
+
+        if (analyticsRes.data.success) {
+          const analytics = analyticsRes.data.analytics;
+          
+          // Process monthly revenue for chart
+          if (analytics.monthlyRevenue && analytics.monthlyRevenue.length > 0) {
+            const revenueData = analytics.monthlyRevenue.map((item: any) => item.revenue || 0);
+            setMonthlyRevenueData(revenueData);
+          } else {
+            setMonthlyRevenueData([]);
+          }
+        }
+      } catch (error: any) {
+        console.error('Error fetching dashboard data:', error);
+        toast.error(error.response?.data?.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Revenue Line Chart Data - Dynamic
+  const getMonthLabels = (count: number): string[] => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+    const labels: string[] = [];
+    for (let i = count - 1; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      labels.push(months[monthIndex]);
+    }
+    return labels;
+  };
+
   const revenueChartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    labels: monthlyRevenueData.length > 0 
+      ? getMonthLabels(monthlyRevenueData.length)
+      : getMonthLabels(6),
     datasets: [
       {
         label: 'Revenue ($)',
-        data: [8500, 9200, 7800, 11200, 9800, 12800, 15200, 13400, 16800, 18900, 20100, 22800],
+        data: monthlyRevenueData.length > 0 
+          ? monthlyRevenueData 
+          : Array(6).fill(0),
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         tension: 0.4,
@@ -55,47 +161,22 @@ const AdminDashboard: React.FC = () => {
     ],
   };
 
-  // Weekly Bookings Bar Chart
-  const bookingsChartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        label: 'Bookings',
-        data: [12, 19, 8, 15, 22, 18, 14],
-        backgroundColor: 'rgba(34, 197, 94, 0.7)',
-        borderColor: 'rgb(34, 197, 94)',
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  // Booking Status Doughnut Chart
-  const bookingStatusData = {
+  // Booking Status Doughnut Chart - Dynamic
+  const bookingStatusChartData = {
     labels: ['Completed', 'Pending', 'Cancelled'],
     datasets: [
       {
-        data: [177, 12, 8],
+        data: [
+          bookingStatusData.completed,
+          bookingStatusData.pending,
+          bookingStatusData.cancelled
+        ],
         backgroundColor: [
           'rgba(34, 197, 94, 0.8)',
           'rgba(234, 179, 8, 0.8)',
           'rgba(239, 68, 68, 0.8)',
         ],
         borderWidth: 2,
-      },
-    ],
-  };
-
-  // User Growth Line Chart
-  const userGrowthData = {
-    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-    datasets: [
-      {
-        label: 'New Users',
-        data: [45, 62, 58, 89],
-        borderColor: 'rgb(168, 85, 247)',
-        backgroundColor: 'rgba(168, 85, 247, 0.1)',
-        tension: 0.4,
-        fill: true,
       },
     ],
   };
@@ -109,6 +190,14 @@ const AdminDashboard: React.FC = () => {
       },
     },
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -136,7 +225,7 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
-                <h3 className="text-3xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</h3>
+                <h3 className="text-3xl font-bold text-gray-900">${stats.monthlyRevenue.toLocaleString()}</h3>
                 <p className="text-sm text-green-600 mt-2 flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
@@ -163,7 +252,7 @@ const AdminDashboard: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Users</p>
                 <h3 className="text-3xl font-bold text-gray-900">{stats.totalUsers}</h3>
-                <p className="text-sm text-gray-500 mt-2">{stats.activeUsers} active</p>
+                <p className="text-sm text-gray-500 mt-2">{stats.totalUsers} total users</p>
               </div>
               <div className="bg-purple-100 p-3 rounded-lg">
                 <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,7 +294,7 @@ const AdminDashboard: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Blogs</p>
                 <h3 className="text-3xl font-bold text-gray-900">{stats.totalBlogs}</h3>
-                <p className="text-sm text-gray-500 mt-2">Published articles</p>
+                <p className="text-sm text-gray-500 mt-2">{stats.publishedBlogs} published, {stats.draftBlogs} drafts</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
                 <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +305,7 @@ const AdminDashboard: React.FC = () => {
           </motion.div>
         </AnimatedContainer>
 
-        {/* Charts Row 1 */}
+        {/* Charts Row */}
         <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Revenue Line Chart */}
           <motion.div 
@@ -230,48 +319,21 @@ const AdminDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Weekly Bookings Bar Chart */}
-          <motion.div 
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-            variants={chartAnimation}
-            custom={1}
-          >
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Bookings</h3>
-            <div style={{ height: '300px' }}>
-              <Bar data={bookingsChartData} options={chartOptions} />
-            </div>
-          </motion.div>
-        </AnimatedContainer>
-
-        {/* Charts Row 2 */}
-        <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Booking Status Doughnut Chart */}
           <motion.div 
             className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
             variants={chartAnimation}
-            custom={0}
-          >
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Status</h3>
-            <div style={{ height: '250px' }}>
-              <Doughnut data={bookingStatusData} options={chartOptions} />
-            </div>
-          </motion.div>
-
-          {/* User Growth Chart */}
-          <motion.div 
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2"
-            variants={chartAnimation}
             custom={1}
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">User Growth (Last 4 Weeks)</h3>
-            <div style={{ height: '250px' }}>
-              <Line data={userGrowthData} options={chartOptions} />
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Status</h3>
+            <div style={{ height: '300px' }}>
+              <Doughnut data={bookingStatusChartData} options={chartOptions} />
             </div>
           </motion.div>
         </AnimatedContainer>
 
         {/* Recent Activity */}
-        <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <AnimatedContainer className="mt-8">
           {/* Recent Bookings */}
           <motion.div 
             className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
@@ -280,86 +342,38 @@ const AdminDashboard: React.FC = () => {
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Bookings</h3>
             <div className="space-y-4">
-              {[1, 2, 3, 4].map((item) => (
+              {recentBookings.length > 0 ? (
+                recentBookings.slice(0, 5).map((booking, index) => {
+                  const timeAgo = booking.createdAt 
+                    ? new Date(booking.createdAt).toLocaleDateString()
+                    : 'Recently';
+                  return (
                 <motion.div 
-                  key={item} 
+                      key={booking._id || index} 
                   className="flex items-center justify-between py-3 border-b last:border-0"
                   variants={fadeInUp}
-                  custom={item}
+                      custom={index}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                      U{item}
+                          {(booking.clientName || booking.name || booking.userName || 'U')[0].toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">User {item}</p>
-                      <p className="text-sm text-gray-500">Session booked</p>
-                    </div>
-                  </div>
-                  <span className="text-sm text-gray-500">{item}h ago</span>
+                          <p className="font-medium text-gray-900">
+                            {booking.clientName || booking.name || booking.userName || 'User'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {booking.serviceType || 'Session'} - ${booking.price || 0}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-500">{timeAgo}</span>
                 </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Quick Stats */}
-          <motion.div 
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-            variants={fadeInUp}
-            custom={1}
-          >
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Statistics</h3>
-            <div className="space-y-4">
-              <motion.div 
-                className="flex items-center justify-between"
-                variants={fadeInUp}
-                custom={0}
-              >
-                <span className="text-gray-600">Conversion Rate</span>
-                <span className="font-semibold text-gray-900">12.5%</span>
-              </motion.div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <motion.div 
-                  className="bg-blue-600 h-2 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: '12.5%' }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                />
-              </div>
-              
-              <motion.div 
-                className="flex items-center justify-between mt-4"
-                variants={fadeInUp}
-                custom={1}
-              >
-                <span className="text-gray-600">Customer Satisfaction</span>
-                <span className="font-semibold text-gray-900">94%</span>
-              </motion.div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <motion.div 
-                  className="bg-green-600 h-2 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: '94%' }}
-                  transition={{ duration: 1, delay: 0.7 }}
-                />
-              </div>
-              
-              <motion.div 
-                className="flex items-center justify-between mt-4"
-                variants={fadeInUp}
-                custom={2}
-              >
-                <span className="text-gray-600">Blog Engagement</span>
-                <span className="font-semibold text-gray-900">78%</span>
-              </motion.div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <motion.div 
-                  className="bg-purple-600 h-2 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: '78%' }}
-                  transition={{ duration: 1, delay: 0.9 }}
-                />
-              </div>
+                  );
+                })
+              ) : (
+                <p className="text-gray-500 text-center py-4">No recent bookings</p>
+              )}
             </div>
           </motion.div>
         </AnimatedContainer>

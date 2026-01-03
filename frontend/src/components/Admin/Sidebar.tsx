@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fadeInLeft, scaleIn, staggerContainer } from '../../utils/animations.ts';
@@ -8,11 +8,21 @@ import { getLogoPath } from '../../utils/themeHelpers.ts';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onCollapseChange?: (collapsed: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onCollapseChange }) => {
   const { currentTheme } = useTheme();
   const location = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleCollapse = () => {
+    const newCollapsed = !isCollapsed;
+    setIsCollapsed(newCollapsed);
+    if (onCollapseChange) {
+      onCollapseChange(newCollapsed);
+    }
+  };
 
   const menuItems = [
     {
@@ -70,42 +80,63 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <motion.div
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-50 transform transition-all duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
+        } lg:translate-x-0 ${isCollapsed ? 'w-16' : 'w-64'}`}
         initial={{ x: -256 }}
         animate={{ x: isOpen ? 0 : -256 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Mobile Close Button */}
-        <div className="lg:hidden flex justify-end p-4">
-          <button
-            onClick={onClose}
-            className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+        {/* Header with Collapse Button */}
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+          {!isCollapsed && (
+            <motion.div
+              variants={scaleIn}
+              initial="initial"
+              animate="animate"
+              className="flex-1"
+            >
+              <Link to="/admin" className="flex items-center space-x-2">
+                <img 
+                  src={getLogoPath(currentTheme)} 
+                  alt="Life Coach Logo" 
+                  className="w-auto object-contain"
+                  style={{ height: '40px' }}
+                />
+                <span className="text-lg font-bold text-gray-900">Admin</span>
+              </Link>
+            </motion.div>
+          )}
+          <div className="flex items-center space-x-2">
+            {/* Collapse/Expand Button */}
+            <button
+              onClick={handleCollapse}
+              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              <svg 
+                className="w-5 h-5" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                style={{ transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            </button>
+            {/* Mobile Close Button */}
+            <button
+              onClick={onClose}
+              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div className="p-6">
-          {/* Logo */}
-          <motion.div
-            variants={scaleIn}
-            initial="initial"
-            animate="animate"
-          >
-            <Link to="/admin" className="flex items-center space-x-2 mb-8">
-              <img 
-                src={getLogoPath(currentTheme)} 
-                alt="Life Coach Logo" 
-                className="w-auto object-contain"
-                style={{ height: '72px' }}
-              />
-              <span className="text-xl font-bold text-gray-900">Admin Panel</span>
-            </Link>
-          </motion.div>
+        <div className={`p-4 ${isCollapsed ? 'px-2' : ''}`}>
 
           {/* Menu Items */}
           <motion.nav 
@@ -122,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               >
                 <Link
                   to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                  className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} px-4 py-3 rounded-lg transition-all duration-200 group ${
                     location.pathname === item.path
                       ? 'bg-primary-100 text-primary-700 border-r-2 border-primary-600'
                       : 'text-gray-700 hover:bg-gray-100'
@@ -133,6 +164,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       onClose();
                     }
                   }}
+                  title={isCollapsed ? item.name : ''}
                 >
                   <motion.div
                     className="flex-shrink-0"
@@ -141,36 +173,56 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   >
                     {item.icon}
                   </motion.div>
-                  <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">
-                    {item.name}
-                  </span>
+                  {!isCollapsed && (
+                    <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">
+                      {item.name}
+                    </span>
+                  )}
                 </Link>
               </motion.div>
             ))}
           </motion.nav>
 
           {/* User Info */}
-          <motion.div 
-            className="absolute bottom-6 left-6 right-6"
-            variants={fadeInLeft}
-            custom={menuItems.length}
-          >
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center space-x-3">
-                <motion.div 
-                  className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span className="text-white font-semibold text-sm">A</span>
-                </motion.div>
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">Admin User</p>
-                  <p className="text-gray-500 text-xs">admin@lifecoach.com</p>
+          {!isCollapsed && (
+            <motion.div 
+              className="absolute bottom-6 left-4 right-4"
+              variants={fadeInLeft}
+              custom={menuItems.length}
+            >
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <motion.div 
+                    className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <span className="text-white font-semibold text-sm">A</span>
+                  </motion.div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">Admin User</p>
+                    <p className="text-gray-500 text-xs">admin@lifecoach.com</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
+          {isCollapsed && (
+            <motion.div 
+              className="absolute bottom-6 left-0 right-0 flex justify-center"
+              variants={fadeInLeft}
+              custom={menuItems.length}
+            >
+              <motion.div 
+                className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+                title="Admin User"
+              >
+                <span className="text-white font-semibold text-sm">A</span>
+              </motion.div>
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </>

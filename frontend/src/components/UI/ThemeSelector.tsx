@@ -67,6 +67,42 @@ const ThemeSelector: React.FC = () => {
       description: 'Sophisticated, muted, disciplined',
       colors: themes.option6,
     },
+    {
+      id: 'option7' as ThemeOption,
+      name: 'Deep Teal + Bronze',
+      description: 'Elegant, refined, sophisticated luxury',
+      colors: themes.option7,
+    },
+    {
+      id: 'option8' as ThemeOption,
+      name: 'Royal Blue + Charcoal',
+      description: 'Professional, strong, authoritative',
+      colors: themes.option8,
+    },
+    {
+      id: 'option9' as ThemeOption,
+      name: 'Dark Slate + Burnt Orange',
+      description: 'Bold, confident, modern attitude',
+      colors: themes.option9,
+    },
+    {
+      id: 'option10' as ThemeOption,
+      name: 'Navy + Copper',
+      description: 'Sophisticated warmth, refined elegance',
+      colors: themes.option10,
+    },
+    {
+      id: 'option11' as ThemeOption,
+      name: 'Charcoal + Deep Red',
+      description: 'Powerful, elegant, commanding presence',
+      colors: themes.option11,
+    },
+    {
+      id: 'option12' as ThemeOption,
+      name: 'Midnight + Gold',
+      description: 'Luxury premium, sophisticated elegance',
+      colors: themes.option12,
+    },
   ];
 
   return (

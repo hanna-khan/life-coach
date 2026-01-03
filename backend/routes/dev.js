@@ -119,6 +119,10 @@ router.get('/contact', (req, res) => {
 });
 
 router.get('/dashboard', (req, res) => {
+  const monthlyRevenue = 12500;
+  const previousMonthRevenue = 10800;
+  const monthlyGrowth = ((monthlyRevenue - previousMonthRevenue) / previousMonthRevenue * 100).toFixed(1);
+
   res.json({
     success: true,
     dashboard: {
@@ -133,13 +137,90 @@ router.get('/dashboard', (req, res) => {
         confirmedBookings: 77,
         newContacts: 8,
         readContacts: 37,
-        monthlyRevenue: 12500
+        monthlyRevenue: monthlyRevenue,
+        previousMonthRevenue: previousMonthRevenue,
+        monthlyGrowth: parseFloat(monthlyGrowth),
+        bookingStatusBreakdown: {
+          completed: 60,
+          pending: 12,
+          cancelled: 17
+        }
       },
       recentActivities: {
         blogs: mockBlogs.slice(0, 3),
         bookings: mockBookings,
         contacts: mockContacts
       }
+    }
+  });
+});
+
+// @route   GET /api/admin/analytics
+// @desc    Get analytics data (mock for developer mode)
+router.get('/analytics', (req, res) => {
+  // Generate mock monthly revenue data for last 6 months
+  const monthlyRevenue = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    monthlyRevenue.push({
+      _id: {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1
+      },
+      revenue: Math.floor(Math.random() * 5000) + 5000, // Random between 5000-10000
+      bookings: Math.floor(Math.random() * 20) + 10
+    });
+  }
+
+  // Weekly bookings (last 7 days) - get bookings per day
+  const weeklyBookings = [];
+  for (let i = 6; i >= 0; i--) {
+    const dayStart = new Date();
+    dayStart.setDate(dayStart.getDate() - i);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayOfWeek = dayStart.getDay();
+    // MongoDB $dayOfWeek returns 1=Sunday, 2=Monday, etc., so we add 1
+    weeklyBookings.push({
+      _id: dayOfWeek === 0 ? 1 : dayOfWeek + 1, // Convert to MongoDB format (1=Sunday, 2=Monday, etc.)
+      count: Math.floor(Math.random() * 10) + 5
+    });
+  }
+
+  // User growth (last 4 weeks) - cumulative
+  const userGrowth = [];
+  let cumulative = 50;
+  for (let week = 0; week < 4; week++) {
+    cumulative += Math.floor(Math.random() * 15) + 5;
+    userGrowth.push(cumulative);
+  }
+
+  res.json({
+    success: true,
+    analytics: {
+      blogStats: [
+        { _id: 'Personal Growth', count: 8, totalViews: 1200 },
+        { _id: 'Career', count: 6, totalViews: 900 },
+        { _id: 'Relationships', count: 5, totalViews: 750 },
+        { _id: 'Health', count: 4, totalViews: 600 },
+        { _id: 'Mindfulness', count: 2, totalViews: 300 }
+      ],
+      bookingStats: [
+        { _id: 'Life Coaching Session', count: 45, totalRevenue: 6750 },
+        { _id: 'Career Guidance', count: 25, totalRevenue: 3750 },
+        { _id: 'Relationship Coaching', count: 15, totalRevenue: 2250 },
+        { _id: 'Initial Consultation', count: 4, totalRevenue: 600 }
+      ],
+      monthlyRevenue,
+      weeklyBookings,
+      userGrowth,
+      bookingStatusBreakdown: [
+        { _id: 'completed', count: 60 },
+        { _id: 'pending', count: 12 },
+        { _id: 'cancelled', count: 8 }
+      ],
+      conversionRate: 12.5,
+      blogEngagement: 78
     }
   });
 });
