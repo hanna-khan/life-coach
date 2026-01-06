@@ -122,28 +122,30 @@ router.get('/dashboard', (req, res) => {
   const monthlyRevenue = 12500;
   const previousMonthRevenue = 10800;
   const monthlyGrowth = ((monthlyRevenue - previousMonthRevenue) / previousMonthRevenue * 100).toFixed(1);
+  const totalRevenue = 125000; // All-time revenue
 
   res.json({
     success: true,
     dashboard: {
       stats: {
-        totalUsers: 150,
-        totalBlogs: 25,
-        totalBookings: 89,
+        totalUsers: 150, // From User table
+        totalBlogs: 25, // From Blog table
+        totalBookings: 89, // From Booking table
         totalContacts: 45,
-        publishedBlogs: 20,
-        draftBlogs: 5,
-        pendingBookings: 12,
-        confirmedBookings: 77,
+        publishedBlogs: 20, // From Blog table
+        draftBlogs: 5, // From Blog table
+        pendingBookings: 12, // From Booking table
+        confirmedBookings: 77, // From Booking table
         newContacts: 8,
         readContacts: 37,
-        monthlyRevenue: monthlyRevenue,
+        totalRevenue: totalRevenue, // All-time revenue from Booking table
+        monthlyRevenue: monthlyRevenue, // Current month revenue from Booking table
         previousMonthRevenue: previousMonthRevenue,
         monthlyGrowth: parseFloat(monthlyGrowth),
         bookingStatusBreakdown: {
-          completed: 60,
-          pending: 12,
-          cancelled: 17
+          completed: 60, // From Booking table
+          pending: 12, // From Booking table
+          cancelled: 17 // From Booking table
         }
       },
       recentActivities: {

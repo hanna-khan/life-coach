@@ -51,6 +51,21 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5);
 
+    // Get total revenue (all-time) from bookings table
+    const totalRevenue = await Booking.aggregate([
+      {
+        $match: {
+          paymentStatus: 'paid'
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$price' }
+        }
+      }
+    ]);
+
     // Get monthly revenue (current month)
     const currentMonth = new Date();
     currentMonth.setDate(1);
@@ -131,20 +146,21 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
       success: true,
       dashboard: {
         stats: {
-          totalUsers,
-          totalBlogs,
-          totalBookings,
+          totalUsers, // From User table
+          totalBlogs, // From Blog table
+          totalBookings, // From Booking table
           totalContacts,
-          publishedBlogs,
-          draftBlogs,
-          pendingBookings,
-          confirmedBookings,
+          publishedBlogs, // From Blog table
+          draftBlogs, // From Blog table
+          pendingBookings, // From Booking table
+          confirmedBookings, // From Booking table
           newContacts,
           readContacts,
-          monthlyRevenue: currentRevenue,
+          totalRevenue: totalRevenue[0]?.total || 0, // All-time revenue from Booking table
+          monthlyRevenue: currentRevenue, // Current month revenue from Booking table
           previousMonthRevenue: prevRevenue,
           monthlyGrowth: parseFloat(monthlyGrowth),
-          bookingStatusBreakdown: statusMap
+          bookingStatusBreakdown: statusMap // From Booking table
         },
         recentActivities: {
           blogs: recentBlogs,

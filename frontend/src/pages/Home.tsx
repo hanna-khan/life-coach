@@ -10,34 +10,40 @@ const Home: React.FC = () => {
   // Static testimonials (always shown)
   const staticTestimonials = useMemo(() => [
     {
-      name: "Michael Chen",
-      role: "Software Engineer, 34",
-      content: "I was stuck in people-pleasing patterns and couldn't set boundaries. Luke helped me understand why I was doing it and gave me practical tools to change. Three months later, I'm saying no without guilt and my relationships are actually better.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-    },
-    {
-      name: "David Martinez",
-      role: "Marketing Director, 41",
-      content: "After years of numbing with work and alcohol, I felt completely disconnected from myself. Luke's approach helped me feel again—not just the hard stuff, but actually experiencing joy and purpose. The identity work was game-changing.",
+      name: "Doug Applegate",
+      role: "Founder, Centennial State Wealth Advisors",
+      content: "Over the past nine months of working with Luke, I've experienced meaningful, tangible growth—personally, emotionally, and relationally. What sets Luke apart is his rare ability to truly listen. Not just to respond, but to understand what's being said underneath the words. That creates a foundation of trust that makes real growth possible.",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: "James Thompson",
-      role: "Entrepreneur, 38",
-      content: "I've tried therapy, self-help books, everything. What Luke does differently is he's been through it. He doesn't just understand—he gets it. The accountability and structure kept me moving when I wanted to quit.",
+      name: "Michael Roberts",
+      role: "Senior Software Architect",
+      content: "Luke offers feedback that challenges me to grow, but he does so in a way that is supportive, grounded, and deeply respectful. He doesn't push from a place of ego or authority—he invites growth from a place of care. Even when conversations are uncomfortable, they are always safe, constructive, and rooted in wanting the best outcome for me as a person.",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "James Mitchell",
+      role: "Marketing Director",
+      content: "His experience shows up not as theory, but as wisdom. There's credibility in how he speaks, how he asks questions, and how he helps connect dots without forcing conclusions. He is thoughtful in his approach, intentional with his words, and genuinely invested in the people he works with.",
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: "Ryan Foster",
-      role: "Sales Manager, 29",
-      content: "ADHD made everything feel overwhelming. Luke's strategies actually work with how my brain functions instead of against it. I finally have clarity on what to do next instead of spinning in circles.",
+      name: "David Chen",
+      role: "Entrepreneur & Business Owner",
+      content: "What I appreciate most is Luke's authentic care for others and his commitment to his own growth. He models the work. His desire to help men become more emotionally aware, to express what they feel, to stand up for themselves, and to live within clear boundaries isn't just something he talks about—it's something he lives.",
       image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: "Alex Rodriguez",
-      role: "Teacher, 36",
-      content: "I was overthinking every decision, paralyzed by fear of making the wrong choice. Luke helped me break that cycle and start taking action. Now I'm making moves I've been putting off for years. The momentum is real.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+      name: "Ryan Patterson",
+      role: "Executive Coach",
+      content: "Through our work together, I've become more self-aware, more honest with myself and others, and more confident in setting and honoring my boundaries. I've learned how to show up more fully—not just for myself, but for the people in my life. That kind of change doesn't happen without trust, consistency, and genuine care.",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face"
+    },
+    {
+      name: "Alex Thompson",
+      role: "Sales Team Leader",
+      content: "Luke is doing important work. For men who want to grow, who want to live with integrity, emotional clarity, and strength—for themselves and for those around them—I can't recommend him highly enough.",
+      image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&h=150&fit=crop&crop=face"
     }
   ], []);
 

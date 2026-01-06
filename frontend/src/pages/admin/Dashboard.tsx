@@ -32,17 +32,17 @@ ChartJS.register(
 const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalBlogs: 0,
-    totalBookings: 0,
-    totalRevenue: 0,
-    monthlyRevenue: 0,
+    totalUsers: 0, // From User table
+    totalBlogs: 0, // From Blog table
+    totalBookings: 0, // From Booking table
+    totalRevenue: 0, // All-time revenue from Booking table
+    monthlyRevenue: 0, // Current month revenue from Booking table
     monthlyGrowth: 0,
     activeUsers: 0,
-    pendingBookings: 0,
-    confirmedBookings: 0,
-    publishedBlogs: 0,
-    draftBlogs: 0,
+    pendingBookings: 0, // From Booking table
+    confirmedBookings: 0, // From Booking table
+    publishedBlogs: 0, // From Blog table
+    draftBlogs: 0, // From Blog table
     totalContacts: 0,
     newContacts: 0
   });
@@ -69,17 +69,17 @@ const AdminDashboard: React.FC = () => {
           const statsData = dashboardData.stats;
 
           setStats({
-            totalUsers: statsData.totalUsers || 0,
-            totalBlogs: statsData.totalBlogs || 0,
-            totalBookings: statsData.totalBookings || 0,
-            totalRevenue: statsData.monthlyRevenue || 0,
-            monthlyRevenue: statsData.monthlyRevenue || 0,
+            totalUsers: statsData.totalUsers || 0, // From User table
+            totalBlogs: statsData.totalBlogs || 0, // From Blog table
+            totalBookings: statsData.totalBookings || 0, // From Booking table
+            totalRevenue: statsData.totalRevenue || statsData.monthlyRevenue || 0, // All-time revenue from Booking table
+            monthlyRevenue: statsData.monthlyRevenue || 0, // Current month revenue from Booking table
             monthlyGrowth: statsData.monthlyGrowth || 0,
             activeUsers: statsData.totalUsers || 0,
-            pendingBookings: statsData.pendingBookings || 0,
-            confirmedBookings: statsData.confirmedBookings || 0,
-            publishedBlogs: statsData.publishedBlogs || 0,
-            draftBlogs: statsData.draftBlogs || 0,
+            pendingBookings: statsData.pendingBookings || 0, // From Booking table
+            confirmedBookings: statsData.confirmedBookings || 0, // From Booking table
+            publishedBlogs: statsData.publishedBlogs || 0, // From Blog table
+            draftBlogs: statsData.draftBlogs || 0, // From Blog table
             totalContacts: statsData.totalContacts || 0,
             newContacts: statsData.newContacts || 0
           });
@@ -225,12 +225,12 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
-                <h3 className="text-3xl font-bold text-gray-900">${stats.monthlyRevenue.toLocaleString()}</h3>
+                <h3 className="text-3xl font-bold text-gray-900">${stats.totalRevenue.toLocaleString()}</h3>
                 <p className="text-sm text-green-600 mt-2 flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                   </svg>
-                  +{stats.monthlyGrowth}% this month
+                  ${stats.monthlyRevenue.toLocaleString()} this month (+{stats.monthlyGrowth}%)
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
