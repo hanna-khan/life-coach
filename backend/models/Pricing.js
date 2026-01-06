@@ -22,6 +22,16 @@ const pricingSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Please provide duration']
   },
+  frequency: {
+    type: String,
+    enum: ['one-time', 'weekly', 'biweekly', 'monthly'],
+    default: 'one-time'
+  },
+  sessions: {
+    type: Number,
+    default: 1,
+    min: [1, 'Sessions must be at least 1']
+  },
   features: [{
     type: String,
     trim: true

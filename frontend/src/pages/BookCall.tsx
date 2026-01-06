@@ -11,6 +11,8 @@ interface PricingPackage {
   description: string;
   price: number;
   duration: number;
+  frequency?: 'one-time' | 'weekly' | 'biweekly' | 'monthly';
+  sessions?: number;
   features: string[];
   isPopular: boolean;
   isActive: boolean;
@@ -204,6 +206,11 @@ const BookCall: React.FC = () => {
                       ${pkg.price}
                     </div>
                     <div className="text-gray-600">{pkg.duration} minutes</div>
+                    {pkg.frequency && pkg.sessions && (
+                      <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        {pkg.sessions > 1 ? `${pkg.sessions} sessions` : '1 session'} • {pkg.frequency === 'one-time' ? 'One Time' : pkg.frequency === 'weekly' ? 'Weekly' : pkg.frequency === 'biweekly' ? 'Bi-Weekly' : 'Monthly'}
+                      </div>
+                    )}
                   </div>
                   <p className="text-gray-600 mb-6 text-center">{pkg.description}</p>
                   <ul className="space-y-2 mb-6">

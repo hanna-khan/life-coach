@@ -8,6 +8,8 @@ interface PricingPackage {
   description: string;
   price: number;
   duration: number;
+  frequency: 'one-time' | 'weekly' | 'biweekly' | 'monthly';
+  sessions: number;
   features: string[];
   isPopular: boolean;
   isActive: boolean;
@@ -26,6 +28,8 @@ const AdminPricing: React.FC = () => {
     description: '',
     price: 0,
     duration: 30,
+    frequency: 'one-time' as 'one-time' | 'weekly' | 'biweekly' | 'monthly',
+    sessions: 1,
     features: '',
     isPopular: false,
     isActive: true
@@ -39,6 +43,8 @@ const AdminPricing: React.FC = () => {
       description: '',
       price: 0,
       duration: 30,
+      frequency: 'one-time' as 'one-time' | 'weekly' | 'biweekly' | 'monthly',
+      sessions: 1,
       features: '',
       isPopular: false,
       isActive: true
@@ -115,6 +121,8 @@ const AdminPricing: React.FC = () => {
       description: pkg.description,
       price: pkg.price,
       duration: pkg.duration,
+      frequency: pkg.frequency || 'one-time',
+      sessions: pkg.sessions || 1,
       features: pkg.features.join('\n'),
       isPopular: pkg.isPopular,
       isActive: pkg.isActive
@@ -291,6 +299,9 @@ const AdminPricing: React.FC = () => {
               <div className="mb-6">
                 <div className="text-3xl font-bold text-gray-900">${pkg.price}</div>
                 <div className="text-gray-600">{pkg.duration} minutes</div>
+                <div className="mt-2 text-sm text-gray-500">
+                  {pkg.sessions > 1 ? `${pkg.sessions} sessions` : '1 session'} • {pkg.frequency === 'one-time' ? 'One Time' : pkg.frequency === 'weekly' ? 'Weekly' : pkg.frequency === 'biweekly' ? 'Bi-Weekly' : 'Monthly'}
+                </div>
               </div>
 
               <ul className="space-y-2 mb-6">
@@ -396,6 +407,35 @@ const AdminPricing: React.FC = () => {
                     type="number"
                     value={formData.duration}
                     onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                  <select
+                    value={formData.frequency}
+                    onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'one-time' | 'weekly' | 'biweekly' | 'monthly' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    required
+                  >
+                    <option value="one-time">One Time</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="biweekly">Bi-Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Number of Sessions</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.sessions}
+                    onChange={(e) => setFormData({ ...formData, sessions: parseInt(e.target.value) || 1 })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     required
                   />
