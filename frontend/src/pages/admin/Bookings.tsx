@@ -18,7 +18,7 @@ interface Booking {
   paymentStatus: 'pending' | 'paid' | 'refunded';
   message?: string;
   meetingLink?: string;
-  frequency?: 'one-time' | 'after-3-mins' | 'weekly' | 'biweekly' | 'monthly';
+  frequency?: 'one-time' | 'after-3-mins' | '1-day' | 'weekly' | 'biweekly' | 'monthly';
   totalSessions?: number;
   currentSession?: number;
   sessionsCompleted?: number;
@@ -44,6 +44,8 @@ const AdminBookings: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completingBooking, setCompletingBooking] = useState<Booking | null>(null);
 
   // Fetch bookings from API
   const fetchBookings = React.useCallback(async () => {
@@ -209,15 +211,20 @@ const AdminBookings: React.FC = () => {
       return;
     }
 
-    if (!window.confirm(`Mark session ${booking.sessionsCompleted ? booking.sessionsCompleted + 1 : 1} as complete and send email for next session?`)) {
-      return;
-    }
+    setCompletingBooking(booking);
+    setShowCompleteModal(true);
+  };
+
+  const confirmCompleteSession = async () => {
+    if (!completingBooking) return;
 
     try {
-      const response = await axios.post(`/api/bookings/${booking._id}/complete-session`);
+      const response = await axios.post(`/api/bookings/${completingBooking._id}/complete-session`);
       
       if (response.data.success) {
         toast.success(response.data.message);
+        setShowCompleteModal(false);
+        setCompletingBooking(null);
         await fetchBookings();
       }
     } catch (error: any) {
@@ -342,19 +349,30 @@ const AdminBookings: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex flex-wrap gap-4 items-center">
-          <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+        <div className="flex flex-wrap gap-4 items-center justify-between">
+          <div className="flex flex-wrap gap-4 items-center">
+            <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">All</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <button
+            onClick={fetchBookings}
+            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors flex items-center gap-2"
           >
-            <option value="">All</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
         </div>
       </div>
 
@@ -431,7 +449,7 @@ const AdminBookings: React.FC = () => {
                           {booking.sessionsCompleted || 0}/{booking.totalSessions}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {booking.frequency === 'weekly' ? 'Weekly' : booking.frequency === 'biweekly' ? 'Bi-Weekly' : booking.frequency === 'monthly' ? 'Monthly' : booking.frequency === 'after-3-mins' ? 'After 3 Mins' : 'One Time'}
+                          {booking.frequency === 'weekly' ? 'Weekly' : booking.frequency === 'biweekly' ? 'Bi-Weekly' : booking.frequency === 'monthly' ? 'Monthly' : booking.frequency === 'after-3-mins' ? 'After 3 Mins' : booking.frequency === '1-day' ? '1 Day' : 'One Time'}
                         </div>
                       </div>
                     ) : (
@@ -469,7 +487,7 @@ const AdminBookings: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      {booking.totalSessions && booking.totalSessions > 1 && booking.sessionsCompleted && booking.sessionsCompleted < booking.totalSessions && (
+                      {booking.totalSessions && booking.totalSessions > 1 && booking.sessionsCompleted < booking.totalSessions && booking.paymentStatus === 'paid' && (
                         <button
                           onClick={() => handleCompleteSession(booking)}
                           className="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors"
@@ -747,6 +765,62 @@ const AdminBookings: React.FC = () => {
               </div>
             </form>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Complete Session Confirmation Modal */}
+      <AnimatePresence>
+        {showCompleteModal && completingBooking && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0  flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setShowCompleteModal(false);
+              setCompletingBooking(null);
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Complete Session</h3>
+                <p className="text-gray-600">
+                  Mark session {completingBooking.sessionsCompleted ? completingBooking.sessionsCompleted + 1 : 1} as complete and send email for next session?
+                </p>
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="text-sm text-gray-700">
+                    <p><strong>Client:</strong> {completingBooking.clientName}</p>
+                    <p><strong>Sessions:</strong> {completingBooking.sessionsCompleted || 0}/{completingBooking.totalSessions}</p>
+                    <p><strong>Frequency:</strong> {completingBooking.frequency === 'weekly' ? 'Weekly' : completingBooking.frequency === 'biweekly' ? 'Bi-Weekly' : completingBooking.frequency === 'monthly' ? 'Monthly' : completingBooking.frequency === 'after-3-mins' ? 'After 3 Mins' : completingBooking.frequency === '1-day' ? '1 Day' : 'One Time'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setShowCompleteModal(false);
+                    setCompletingBooking(null);
+                  }}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmCompleteSession}
+                  className="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+                >
+                  OK
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

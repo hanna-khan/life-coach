@@ -383,6 +383,8 @@ router.post('/:id/complete-session', auth, adminAuth, async (req, res) => {
       switch (frequency) {
         case 'after-3-mins':
           return new Date(now.getTime() + 3 * 60 * 1000); // 3 minutes
+        case '1-day':
+          return new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000); // 1 day
         case 'weekly':
           return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
         case 'biweekly':

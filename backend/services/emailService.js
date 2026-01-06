@@ -242,6 +242,7 @@ class EmailService {
     const frequencyText = {
       'one-time': 'one-time',
       'after-3-mins': 'after 3 minutes',
+      '1-day': 'daily (1 day)',
       'weekly': 'weekly',
       'biweekly': 'bi-weekly',
       'monthly': 'monthly'

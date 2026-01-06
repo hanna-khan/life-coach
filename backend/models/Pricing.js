@@ -24,7 +24,7 @@ const pricingSchema = new mongoose.Schema({
   },
   frequency: {
     type: String,
-    enum: ['one-time', 'after-3-mins', 'weekly', 'biweekly', 'monthly'],
+    enum: ['one-time', 'after-3-mins', '1-day', 'weekly', 'biweekly', 'monthly'],
     default: 'one-time'
   },
   sessions: {
