@@ -11,7 +11,7 @@ interface PricingPackage {
   description: string;
   price: number;
   duration: number;
-  frequency?: 'one-time' | 'weekly' | 'biweekly' | 'monthly';
+  frequency?: 'one-time' | 'after-3-mins' | 'weekly' | 'biweekly' | 'monthly';
   sessions?: number;
   features: string[];
   isPopular: boolean;
@@ -68,11 +68,6 @@ const BookCall: React.FC = () => {
     
     if (!selectedPackage) {
       toast.error('Please select a session package');
-      return;
-    }
-
-    if (!selectedDate || !selectedTime) {
-      toast.error('Please select date and time');
       return;
     }
 
@@ -208,7 +203,7 @@ const BookCall: React.FC = () => {
                     <div className="text-gray-600">{pkg.duration} minutes</div>
                     {pkg.frequency && pkg.sessions && (
                       <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                        {pkg.sessions > 1 ? `${pkg.sessions} sessions` : '1 session'} • {pkg.frequency === 'one-time' ? 'One Time' : pkg.frequency === 'weekly' ? 'Weekly' : pkg.frequency === 'biweekly' ? 'Bi-Weekly' : 'Monthly'}
+                        {pkg.sessions > 1 ? `${pkg.sessions} sessions` : '1 session'} • {pkg.frequency === 'one-time' ? 'One Time' : pkg.frequency === 'after-3-mins' ? 'After 3 Mins' : pkg.frequency === 'weekly' ? 'Weekly' : pkg.frequency === 'biweekly' ? 'Bi-Weekly' : 'Monthly'}
                       </div>
                     )}
                   </div>
@@ -265,7 +260,6 @@ const BookCall: React.FC = () => {
                         onChange={(e) => setSelectedDate(e.target.value)}
                         className="input-field"
                         min={new Date().toISOString().split('T')[0]}
-                        required
                       />
                     </div>
                     <div>
@@ -274,7 +268,6 @@ const BookCall: React.FC = () => {
                         value={selectedTime}
                         onChange={(e) => setSelectedTime(e.target.value)}
                         className="input-field"
-                        required
                       >
                         <option value="">Select a time</option>
                         {timeSlots.map(slot => (

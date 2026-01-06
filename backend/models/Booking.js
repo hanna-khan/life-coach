@@ -22,18 +22,16 @@ const bookingSchema = new mongoose.Schema({
   },
   preferredDate: {
     type: Date,
-    required: [true, 'Please select a preferred date']
+    required: false
   },
   preferredTime: {
     type: String,
-    required: [true, 'Please select a preferred time'],
-    enum: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00']
+    required: false,
+    enum: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '']
   },
   duration: {
     type: Number,
-    required: [true, 'Duration is required'],
-    min: [15, 'Duration must be at least 15 minutes'],
-    max: [180, 'Duration cannot exceed 180 minutes']
+    required: false,
   },
   message: {
     type: String,
@@ -60,6 +58,34 @@ const bookingSchema = new mongoose.Schema({
   stripeSessionId: {
     type: String,
     default: ''
+  },
+  // Multi-session package tracking
+  frequency: {
+    type: String,
+    enum: ['one-time', 'after-3-mins', 'weekly', 'biweekly', 'monthly'],
+    default: 'one-time'
+  },
+  totalSessions: {
+    type: Number,
+    default: 1,
+    min: [1, 'Total sessions must be at least 1']
+  },
+  currentSession: {
+    type: Number,
+    default: 1,
+    min: [1, 'Current session must be at least 1']
+  },
+  sessionsCompleted: {
+    type: Number,
+    default: 0
+  },
+  nextSessionDate: {
+    type: Date,
+    default: null
+  },
+  lastSessionCompletedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

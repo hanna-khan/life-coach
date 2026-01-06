@@ -15,8 +15,8 @@ router.post('/', [
   body('clientName').trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('clientEmail').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
   body('clientPhone').trim().isLength({ min: 10 }).withMessage('Please provide a valid phone number'),
-  body('preferredDate').isISO8601().withMessage('Please provide a valid date'),
-  body('preferredTime').isIn(['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00']).withMessage('Please select a valid time'),
+  body('preferredDate').optional().isISO8601().withMessage('Please provide a valid date'),
+  body('preferredTime').optional().isIn(['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00']).withMessage('Please select a valid time'),
   body('packageId').optional().isMongoId().withMessage('Invalid package ID'),
   body('serviceType').optional().isString().withMessage('Service type must be a string'),
   body('duration').optional().isIn([30, 60, 90]).withMessage('Duration must be 30, 60, or 90 minutes'),
@@ -40,6 +40,8 @@ router.post('/', [
     let serviceType = req.body.serviceType;
     let duration = req.body.duration;
     let price = req.body.price;
+    let frequency = 'one-time';
+    let totalSessions = 1;
 
     // If packageId is provided, fetch pricing from package
     if (req.body.packageId) {
@@ -51,6 +53,8 @@ router.post('/', [
       serviceType = pricingPackage.name;
       duration = pricingPackage.duration;
       price = pricingPackage.price;
+      frequency = pricingPackage.frequency || 'one-time';
+      totalSessions = pricingPackage.sessions || 1;
     } else {
       // Fallback to hardcoded pricing if no packageId
       const pricing = {
@@ -72,17 +76,19 @@ router.post('/', [
       price = pricing[serviceType][duration];
     }
 
-    // Check availability with duration-based checking
-    const isAvailable = await availabilityService.isSlotAvailableForBooking(
-      req.body.preferredDate,
-      req.body.preferredTime,
-      duration
-    );
+    // Check availability with duration-based checking (only if date/time provided)
+    if (req.body.preferredDate && req.body.preferredTime) {
+      const isAvailable = await availabilityService.isSlotAvailableForBooking(
+        req.body.preferredDate,
+        req.body.preferredTime,
+        duration
+      );
 
-    if (!isAvailable) {
-      return res.status(400).json({ 
-        message: 'Selected time slot is not available. Please choose another time.' 
-      });
+      if (!isAvailable) {
+        return res.status(400).json({ 
+          message: 'Selected time slot is not available. Please choose another time.' 
+        });
+      }
     }
 
     const bookingData = {
@@ -90,13 +96,17 @@ router.post('/', [
       clientEmail: req.body.clientEmail,
       clientPhone: req.body.clientPhone,
       serviceType: serviceType,
-      preferredDate: req.body.preferredDate,
-      preferredTime: req.body.preferredTime,
+      preferredDate: req.body.preferredDate || null,
+      preferredTime: req.body.preferredTime || '',
       duration: duration,
       price: price,
       message: req.body.message || '',
       status: 'pending',
-      paymentStatus: 'pending'
+      paymentStatus: 'pending',
+      frequency: frequency,
+      totalSessions: totalSessions,
+      currentSession: 1,
+      sessionsCompleted: 0
     };
 
     const booking = await Booking.create(bookingData);
@@ -332,6 +342,111 @@ router.get('/available-slots/:date', async (req, res) => {
     console.error('Get available slots error:', error);
     res.status(500).json({ 
       success: false,
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+});
+
+// @route   POST /api/bookings/:id/complete-session
+// @desc    Mark current session as complete and trigger next session email
+// @access  Private (Admin)
+router.post('/:id/complete-session', auth, adminAuth, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Check if this is a multi-session package
+    if (booking.totalSessions <= 1) {
+      return res.status(400).json({ 
+        message: 'This is a single session booking. No next session available.' 
+      });
+    }
+
+    // Check if all sessions are already completed
+    if (booking.sessionsCompleted >= booking.totalSessions) {
+      return res.status(400).json({ 
+        message: 'All sessions have been completed for this booking.' 
+      });
+    }
+
+    // Mark current session as completed
+    booking.sessionsCompleted += 1;
+    booking.lastSessionCompletedAt = new Date();
+
+    // Calculate next session date based on frequency
+    const calculateNextSessionDate = (frequency) => {
+      const now = new Date();
+      switch (frequency) {
+        case 'after-3-mins':
+          return new Date(now.getTime() + 3 * 60 * 1000); // 3 minutes
+        case 'weekly':
+          return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        case 'biweekly':
+          return new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
+        case 'monthly':
+          return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        default:
+          return null;
+      }
+    };
+
+    // If there are more sessions remaining
+    if (booking.sessionsCompleted < booking.totalSessions) {
+      booking.currentSession = booking.sessionsCompleted + 1;
+      booking.nextSessionDate = calculateNextSessionDate(booking.frequency);
+      booking.status = 'confirmed'; // Keep it confirmed for next session
+      
+      await booking.save();
+
+      // Send next session reminder email
+      const emailService = require('../services/emailService');
+      const calendlyService = require('../services/calendlyService');
+      
+      // Generate new Calendly booking link for next session
+      if (calendlyService.isConfigured()) {
+        try {
+          const bookingLink = calendlyService.generateBookingLink(booking);
+          booking.meetingLink = bookingLink;
+          await booking.save();
+          console.log(`✅ Calendly booking link generated for session ${booking.currentSession}/${booking.totalSessions}`);
+        } catch (error) {
+          console.error('❌ Error generating Calendly link:', error.message);
+        }
+      }
+
+      // Send next session email
+      try {
+        await emailService.sendNextSessionReminder(booking);
+        console.log(`✅ Next session email sent for booking ${booking._id}`);
+      } catch (error) {
+        console.error('❌ Error sending next session email:', error.message);
+      }
+
+      res.json({
+        success: true,
+        message: `Session ${booking.sessionsCompleted}/${booking.totalSessions} completed. Email sent for next session.`,
+        booking,
+        nextSessionDate: booking.nextSessionDate
+      });
+    } else {
+      // All sessions completed
+      booking.status = 'completed';
+      booking.nextSessionDate = null;
+      await booking.save();
+
+      res.json({
+        success: true,
+        message: `All sessions completed (${booking.totalSessions}/${booking.totalSessions})!`,
+        booking
+      });
+    }
+  } catch (error) {
+    console.error('Complete session error:', error);
+    res.status(500).json({ 
       message: 'Server error',
       error: error.message 
     });

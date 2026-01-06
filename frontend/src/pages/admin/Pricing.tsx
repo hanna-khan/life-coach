@@ -8,7 +8,7 @@ interface PricingPackage {
   description: string;
   price: number;
   duration: number;
-  frequency: 'one-time' | 'weekly' | 'biweekly' | 'monthly';
+  frequency: 'one-time' | 'after-3-mins' | 'weekly' | 'biweekly' | 'monthly';
   sessions: number;
   features: string[];
   isPopular: boolean;
@@ -28,7 +28,7 @@ const AdminPricing: React.FC = () => {
     description: '',
     price: 0,
     duration: 30,
-    frequency: 'one-time' as 'one-time' | 'weekly' | 'biweekly' | 'monthly',
+    frequency: 'one-time' as 'one-time' | 'after-3-mins' | 'weekly' | 'biweekly' | 'monthly',
     sessions: 1,
     features: '',
     isPopular: false,
@@ -43,7 +43,7 @@ const AdminPricing: React.FC = () => {
       description: '',
       price: 0,
       duration: 30,
-      frequency: 'one-time' as 'one-time' | 'weekly' | 'biweekly' | 'monthly',
+      frequency: 'one-time' as 'one-time' | 'after-3-mins' | 'weekly' | 'biweekly' | 'monthly',
       sessions: 1,
       features: '',
       isPopular: false,
@@ -300,7 +300,7 @@ const AdminPricing: React.FC = () => {
                 <div className="text-3xl font-bold text-gray-900">${pkg.price}</div>
                 <div className="text-gray-600">{pkg.duration} minutes</div>
                 <div className="mt-2 text-sm text-gray-500">
-                  {pkg.sessions > 1 ? `${pkg.sessions} sessions` : '1 session'} • {pkg.frequency === 'one-time' ? 'One Time' : pkg.frequency === 'weekly' ? 'Weekly' : pkg.frequency === 'biweekly' ? 'Bi-Weekly' : 'Monthly'}
+                  {pkg.sessions > 1 ? `${pkg.sessions} sessions` : '1 session'} • {pkg.frequency === 'one-time' ? 'One Time' : pkg.frequency === 'after-3-mins' ? 'After 3 Mins' : pkg.frequency === 'weekly' ? 'Weekly' : pkg.frequency === 'biweekly' ? 'Bi-Weekly' : 'Monthly'}
                 </div>
               </div>
 
@@ -418,11 +418,12 @@ const AdminPricing: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
                   <select
                     value={formData.frequency}
-                    onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'one-time' | 'weekly' | 'biweekly' | 'monthly' })}
+                    onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'one-time' | 'after-3-mins' | 'weekly' | 'biweekly' | 'monthly' })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     required
                   >
                     <option value="one-time">One Time</option>
+                    <option value="after-3-mins">After 3 Mins (Testing)</option>
                     <option value="weekly">Weekly</option>
                     <option value="biweekly">Bi-Weekly</option>
                     <option value="monthly">Monthly</option>

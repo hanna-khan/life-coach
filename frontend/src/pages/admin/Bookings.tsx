@@ -18,6 +18,12 @@ interface Booking {
   paymentStatus: 'pending' | 'paid' | 'refunded';
   message?: string;
   meetingLink?: string;
+  frequency?: 'one-time' | 'after-3-mins' | 'weekly' | 'biweekly' | 'monthly';
+  totalSessions?: number;
+  currentSession?: number;
+  sessionsCompleted?: number;
+  nextSessionDate?: string;
+  lastSessionCompletedAt?: string;
 }
 
 const AdminBookings: React.FC = () => {
@@ -192,6 +198,34 @@ const AdminBookings: React.FC = () => {
     }
   };
 
+  const handleCompleteSession = async (booking: Booking) => {
+    if (!booking.totalSessions || booking.totalSessions <= 1) {
+      toast.error('This is not a multi-session package');
+      return;
+    }
+
+    if (booking.sessionsCompleted && booking.sessionsCompleted >= booking.totalSessions) {
+      toast.error('All sessions have been completed');
+      return;
+    }
+
+    if (!window.confirm(`Mark session ${booking.sessionsCompleted ? booking.sessionsCompleted + 1 : 1} as complete and send email for next session?`)) {
+      return;
+    }
+
+    try {
+      const response = await axios.post(`/api/bookings/${booking._id}/complete-session`);
+      
+      if (response.data.success) {
+        toast.success(response.data.message);
+        await fetchBookings();
+      }
+    } catch (error: any) {
+      console.error('Error completing session:', error);
+      toast.error(error.response?.data?.message || 'Failed to complete session');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
@@ -356,6 +390,7 @@ const AdminBookings: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sessions</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
@@ -389,6 +424,20 @@ const AdminBookings: React.FC = () => {
                     <div className="text-sm text-gray-500">{booking.preferredTime}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{booking.duration} min</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {booking.totalSessions && booking.totalSessions > 1 ? (
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {booking.sessionsCompleted || 0}/{booking.totalSessions}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {booking.frequency === 'weekly' ? 'Weekly' : booking.frequency === 'biweekly' ? 'Bi-Weekly' : booking.frequency === 'monthly' ? 'Monthly' : booking.frequency === 'after-3-mins' ? 'After 3 Mins' : 'One Time'}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500">Single</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${booking.price}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
@@ -419,7 +468,18 @@ const AdminBookings: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-3">
+                    <div className="flex space-x-2">
+                      {booking.totalSessions && booking.totalSessions > 1 && booking.sessionsCompleted && booking.sessionsCompleted < booking.totalSessions && (
+                        <button
+                          onClick={() => handleCompleteSession(booking)}
+                          className="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                          title="Complete Session & Send Next Email"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </button>
+                      )}
                       <button
                         onClick={() => handleEdit(booking)}
                         className="text-primary-600 hover:text-primary-900 p-2 rounded-lg hover:bg-primary-50 transition-colors"
