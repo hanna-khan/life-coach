@@ -329,7 +329,7 @@ class EmailService {
             display: inline-block; 
             padding: 14px 28px; 
             background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            color: white; 
+            color: #ffffff !important; 
             text-decoration: none; 
             border-radius: 6px; 
             margin: 15px 0; 
@@ -402,7 +402,7 @@ class EmailService {
                 <h3>📅 Book Your Next Session</h3>
                 <p>Click the button below to schedule Session ${booking.currentSession}:</p>
                 <div style="text-align: center;">
-                  <a href="${booking.meetingLink}" class="button">Book Session ${booking.currentSession} Now</a>
+                  <a href="${booking.meetingLink}" class="button" style="color: #ffffff !important; background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); display: inline-block; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600;">Book Session ${booking.currentSession} Now</a>
                 </div>
                 <div class="meeting-link">
                   <strong>Or copy this link:</strong><br>

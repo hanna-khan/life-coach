@@ -66,6 +66,8 @@ const BookCall: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submitted, submitting state:', submitting);
+    
     if (!selectedPackage) {
       toast.error('Please select a session package');
       return;
@@ -73,11 +75,14 @@ const BookCall: React.FC = () => {
 
     try {
       setSubmitting(true);
+      console.log('Submitting set to true');
       
       // Get selected package details
       const selectedPkg = packages.find(pkg => pkg._id === selectedPackage);
       if (!selectedPkg) {
         toast.error('Selected package not found');
+        setSubmitting(false);
+        console.log('Package not found, submitting set to false');
         return;
       }
 
@@ -99,6 +104,7 @@ const BookCall: React.FC = () => {
       const bookingResponse = await axios.post('/api/bookings', bookingData);
       
       if (!bookingResponse.data.success) {
+        setSubmitting(false);
         throw new Error('Failed to create booking');
       }
 
@@ -114,6 +120,7 @@ const BookCall: React.FC = () => {
         // Redirect to Stripe checkout
         window.location.href = paymentResponse.data.url;
       } else {
+        setSubmitting(false);
         throw new Error('Failed to create payment session');
       }
     } catch (error: any) {
@@ -335,13 +342,36 @@ const BookCall: React.FC = () => {
                     />
                   </div>
 
-                  <div className="text-center">
-                    <motion.button
+                  <div className="text-center relative z-10">
+                    {/* Debug button state */}
+                    {submitting && (
+                      <div className="mb-2 text-xs text-red-600">
+                        Button is currently disabled (submitting = true)
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setSubmitting(false);
+                            toast.success('Button reset!');
+                          }}
+                          className="ml-2 px-2 py-1 bg-red-500 text-white rounded text-xs"
+                        >
+                          Reset Button
+                        </button>
+                      </div>
+                    )}
+                    
+                    <button
                       type="submit"
                       disabled={submitting}
-                      className="btn-primary text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                      whileHover={{ scale: submitting ? 1 : 1.05 }}
-                      whileTap={{ scale: submitting ? 1 : 0.95 }}
+                      onClick={(e) => {
+                        console.log('Button clicked directly!', submitting);
+                        if (submitting) {
+                          e.preventDefault();
+                          console.log('Prevented because submitting is true');
+                        }
+                      }}
+                      className="btn-primary text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity relative z-10"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       {submitting ? (
                         <span className="flex items-center justify-center">
@@ -354,7 +384,7 @@ const BookCall: React.FC = () => {
                       ) : (
                         'Proceed to Payment'
                       )}
-                    </motion.button>
+                    </button>
                     <p className="text-sm text-gray-600 mt-4">
                       Secure payment via Stripe. You'll receive a confirmation email with session details.
                     </p>
