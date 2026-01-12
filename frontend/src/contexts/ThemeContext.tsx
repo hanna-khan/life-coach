@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export type ThemeOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5' | 'option6' | 'option7' | 'option8' | 'option9' | 'option10' | 'option11' | 'option12' | 'original';
 
@@ -176,11 +179,29 @@ const hexToRgb = (hex: string) => {
 };
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [currentTheme, setCurrentThemeState] = useState<ThemeOption>(() => {
-    // Load theme from localStorage or default to original
-    const saved = localStorage.getItem('theme') as ThemeOption;
-    return saved && ['option1', 'option2', 'option3', 'option4', 'option5', 'option6', 'option7', 'option8', 'option9', 'option10', 'option11', 'option12', 'original'].includes(saved) ? saved : 'original';
-  });
+  const [currentTheme, setCurrentThemeState] = useState<ThemeOption>('option12'); // Default to Midnight + Gold
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch theme from backend on mount
+  useEffect(() => {
+    const fetchTheme = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/theme`);
+        const fetchedTheme = response.data.selectedTheme;
+        if (fetchedTheme && ['option1', 'option2', 'option3', 'option4', 'option5', 'option6', 'option7', 'option8', 'option9', 'option10', 'option11', 'option12', 'original'].includes(fetchedTheme)) {
+          setCurrentThemeState(fetchedTheme);
+        }
+      } catch (error) {
+        console.error('Error fetching theme:', error);
+        // Fallback to Midnight + Gold theme if fetch fails
+        setCurrentThemeState('option12');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTheme();
+  }, []);
 
   const themeColors = themes[currentTheme];
 
@@ -210,8 +231,30 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const setTheme = (theme: ThemeOption) => {
     setCurrentThemeState(theme);
-    localStorage.setItem('theme', theme);
+    // Note: Saving to backend is now handled by the admin page
   };
+
+  // Show a minimal loader while theme is being fetched
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        backgroundColor: '#f8f9fa'
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '4px solid #e2e8f0',
+          borderTop: '4px solid #1e3a8a',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+      </div>
+    );
+  }
 
   return (
     <ThemeContext.Provider value={{ currentTheme, themeColors, setTheme }}>

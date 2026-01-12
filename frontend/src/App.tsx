@@ -25,6 +25,7 @@ import AdminDashboard from './pages/admin/Dashboard.tsx';
 import AdminBlogs from './pages/admin/Blogs.tsx';
 import AdminBookings from './pages/admin/Bookings.tsx';
 import AdminContacts from './pages/admin/Contacts.tsx';
+import AdminThemeSettings from './pages/admin/ThemeSettings.tsx';
 import BookingSuccess from './pages/BookingSuccess.tsx';
 import BookingCancel from './pages/BookingCancel.tsx';
 import Resources from './pages/Resources.tsx';
@@ -155,6 +156,11 @@ function App() {
                 <Route path="contacts" element={
                   <PageTransition>
                     <AdminContacts />
+                  </PageTransition>
+                } />
+                <Route path="theme-settings" element={
+                  <PageTransition>
+                    <AdminThemeSettings />
                   </PageTransition>
                 } />
               </Route>

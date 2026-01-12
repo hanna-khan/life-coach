@@ -38,8 +38,8 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-auth-token'],
+  exposedHeaders: ['Authorization', 'x-auth-token']
 }));
 
 // Rate limiting (skip in developer mode)
@@ -143,6 +143,18 @@ app.use('/api/testimonials', require('./routes/testimonials'));
 
 // Contact route - always available (needs database and email)
 app.use('/api/contact', require('./routes/contact'));
+
+// Public theme route (no auth required)
+const Theme = require('./models/Theme');
+app.get('/api/theme', async (req, res) => {
+  try {
+    const theme = await Theme.getTheme();
+    res.json(theme);
+  } catch (error) {
+    console.error('Get theme error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 if (IS_DEVELOPER) {
   // In developer mode, use mock routes for some endpoints

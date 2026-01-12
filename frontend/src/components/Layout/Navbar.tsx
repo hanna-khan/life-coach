@@ -5,7 +5,6 @@ import { useAuth } from '../../contexts/AuthContext.tsx';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { hexToRgba } from '../../utils/themeColors.ts';
 import { getLogoPath } from '../../utils/themeHelpers.ts';
-import ThemeSelector from '../UI/ThemeSelector.tsx';
 // import { useAuth } from '../contexts/AuthContext';
 
 const Navbar: React.FC = () => {
@@ -92,8 +91,6 @@ const Navbar: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            {/* Theme Selector */}
-            <ThemeSelector />
             {IS_DEVELOPER ? (
               <div className="flex items-center space-x-4">
                 <motion.span 
@@ -297,10 +294,6 @@ const Navbar: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                {/* Theme Selector for Mobile */}
-                <div className="mb-4 px-3">
-                  <ThemeSelector />
-                </div>
                 {IS_DEVELOPER ? (
                   <div className="flex flex-col space-y-2">
                     <motion.span 

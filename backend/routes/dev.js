@@ -227,4 +227,40 @@ router.get('/analytics', (req, res) => {
   });
 });
 
+// Theme routes (use real database for theme)
+const Theme = require('../models/Theme');
+const { auth, adminAuth } = require('../middleware/auth');
+
+// @route   GET /api/admin/theme
+// @desc    Get current theme
+// @access  Private (Admin)
+router.get('/theme', auth, adminAuth, async (req, res) => {
+  try {
+    const theme = await Theme.getTheme();
+    res.json(theme);
+  } catch (error) {
+    console.error('Get theme error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/admin/theme
+// @desc    Update theme
+// @access  Private (Admin)
+router.put('/theme', auth, adminAuth, async (req, res) => {
+  try {
+    const { selectedTheme } = req.body;
+    
+    if (!selectedTheme) {
+      return res.status(400).json({ message: 'Theme selection is required' });
+    }
+
+    const theme = await Theme.updateTheme(selectedTheme, req.user.id);
+    res.json(theme);
+  } catch (error) {
+    console.error('Update theme error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
