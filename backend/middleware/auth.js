@@ -5,8 +5,11 @@ const auth = async (req, res, next) => {
   try {
     const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
     
-    // Check for token first (even in developer mode, if token exists, verify it)
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    // Check for token in multiple places
+    let token = req.header('x-auth-token'); // Check x-auth-token first
+    if (!token) {
+      token = req.header('Authorization')?.replace('Bearer ', ''); // Then check Authorization
+    }
     
     if (token) {
       // Token exists - verify it and get real user (even in developer mode)

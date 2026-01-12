@@ -18,6 +18,8 @@ import { fadeInUp, scaleIn, chartAnimation } from '../../utils/animations.ts';
 import LoadingSpinner from '../../components/Animation/LoadingSpinner.tsx';
 import toast from 'react-hot-toast';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -59,9 +61,14 @@ const AdminDashboard: React.FC = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem('adminToken');
+        const config = {
+          headers: { 'x-auth-token': token }
+        };
+        
         const [dashboardRes, analyticsRes] = await Promise.all([
-          axios.get('/api/admin/dashboard'),
-          axios.get('/api/admin/analytics')
+          axios.get(`${API_URL}/admin/dashboard`, config),
+          axios.get(`${API_URL}/admin/analytics`, config)
         ]);
 
         if (dashboardRes.data.success) {
