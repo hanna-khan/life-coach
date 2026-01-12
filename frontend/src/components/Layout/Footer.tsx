@@ -46,7 +46,7 @@ const Footer: React.FC = () => {
                 alt="Life Coach Logo" 
                 className="w-auto object-contain"
                 style={{ 
-                  height: '112px',
+                  height: '128px',
                   filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) brightness(1.05)'
                 }}
               />

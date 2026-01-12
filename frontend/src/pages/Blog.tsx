@@ -79,7 +79,7 @@ const Blog: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl font-bold mb-6 text-white">The Westbrook Letter</h1>
+            <h1 className="text-5xl font-bold mb-6 text-white">The Manhattan Manual</h1>
             <p className="text-xl max-w-3xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Direct insights on breaking old patterns and building authentic masculinity. 
               No fluff, no BS - just real talk for men ready to change.
@@ -231,7 +231,7 @@ const Blog: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl font-bold text-white mb-4">
-              Get The Westbrook Letter
+              Get The Manhattan Manual
             </h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Weekly insights on breaking old patterns and building authentic masculinity. 

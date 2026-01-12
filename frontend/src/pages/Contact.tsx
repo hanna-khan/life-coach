@@ -319,7 +319,7 @@ const Contact: React.FC = () => {
               >
                 <Link
                   to="/book-call"
-                  className="block w-full bg-theme-accent text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center"
+                  className="block w-full bg-theme-accent text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center shadow-lg"
                   style={{ 
                     backgroundColor: 'var(--theme-accent)'
                   }}
@@ -330,7 +330,7 @@ const Contact: React.FC = () => {
                     e.currentTarget.style.backgroundColor = 'var(--theme-accent)';
                   }}
                 >
-                  Book a Free Discovery Call
+                  Book Your Free Discovery Call
                 </Link>
               </motion.div>
             </motion.div>

@@ -65,19 +65,11 @@ const About: React.FC = () => {
               className="relative"
             >
               <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=700&fit=crop"
+                src="/luke.jpg"
                 alt="Luke Westbrook-Manhattan"
-                className="rounded-2xl shadow-2xl"
+                className="rounded-2xl shadow-2xl w-full h-auto object-cover"
+                style={{ maxHeight: '500px', objectFit: 'cover' }}
               />
-              <div 
-                className="absolute -bottom-6 -right-6 text-white p-6 rounded-xl shadow-lg"
-                style={{ backgroundColor: 'var(--theme-accent)' }}
-              >
-                <div className="text-center">
-                  <div className="text-3xl font-bold">3 Years</div>
-                  <div className="text-sm">Sober</div>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>
@@ -93,20 +85,20 @@ const About: React.FC = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">My Approach</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">My Approach</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               What you can expect from working with me:
             </p>
           </motion.div>
 
-          <div className="max-w-3xl mx-auto">
-            <div className="space-y-4 mb-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               {approachPoints.map((point, index) => (
                 <motion.div
                   key={index}
-                  className="flex items-start space-x-4"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  className="flex items-start space-x-4 bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
@@ -123,16 +115,16 @@ const About: React.FC = () => {
               ))}
             </div>
             <motion.div
-              className="text-center"
+              className="text-center py-8 bg-white rounded-xl shadow-md max-w-3xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
               viewport={{ once: true }}
             >
-              <p className="text-lg text-gray-700 italic">
+              <p className="text-xl text-gray-900 font-semibold mb-4">
                 My coaching is not clinical, therapeutic, or diagnostic.
               </p>
-              <p className="text-lg font-semibold text-gray-900 mt-2">
+              <p className="text-lg text-gray-700">
                 It's practical, grounded, and built to help you take action.
               </p>
             </motion.div>
@@ -150,8 +142,8 @@ const About: React.FC = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">Why I Do This</h2>
-            <div className="space-y-4 text-gray-700 leading-relaxed text-lg">
+            <h2 className="text-4xl font-bold text-gray-900 mb-8">Why I Do This</h2>
+            <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
               <p>
                 Because too many men suffer in silence.
               </p>
@@ -184,7 +176,7 @@ const About: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/book-call"
-                className="bg-white hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="bg-white hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ color: 'var(--theme-accent)' }}
               >
                 Book Your Free Discovery Call

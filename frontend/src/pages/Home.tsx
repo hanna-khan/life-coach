@@ -194,10 +194,26 @@ const Home: React.FC = () => {
   };
 
   const whoIHelp = [
-    "Feel stuck in old habits, addictions, or emotional patterns",
-    "Struggle with overthinking, people-pleasing, or lack of direction",
-    "Want to rebuild confidence and identity",
-    "Are ready to stop numbing, start feeling, and step into leadership of their own life"
+    {
+      title: "You feel stuck in old patterns",
+      experience: "You find yourself repeating habits, addictions, or emotional loops you can't seem to break.",
+      undertone: "You know something needs to change, but don't know where to start."
+    },
+    {
+      title: "You overthink and lose direction",
+      experience: "Your mind rarely switches off. You people-please, second-guess, and struggle to feel clear or grounded in your decisions.",
+      undertone: "You feel mentally exhausted and unsure of your next move."
+    },
+    {
+      title: "You want to rebuild yourself",
+      experience: "You've lost confidence in who you are or who you're becoming and want to reclaim your identity.",
+      undertone: "You know there's more in you."
+    },
+    {
+      title: "You're ready to lead your life",
+      experience: "You're done numbing, avoiding, or drifting. You want to feel, take ownership, and step into leadership of your own life.",
+      undertone: "You're ready for real change."
+    }
   ];
 
   const whyThisWorks = [
@@ -250,20 +266,20 @@ const Home: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="flex flex-col justify-center"
             >
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 lg:mb-5 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 sm:mb-7 lg:mb-8 leading-tight">
                 Break Old Patterns.
                 <span className="block text-yellow-300">Build a Life on Your Terms.</span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-4 sm:mb-5 lg:mb-6 leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-7 lg:mb-8 leading-relaxed">
                 Coaching for men who are done repeating the same cycles and ready to take ownership, gain clarity, and move forward with confidence.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
                   to="/book-call"
-                  className="bg-white hover:bg-gray-100 font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
+                  className="bg-white hover:bg-gray-100 font-semibold py-3 sm:py-3.5 px-6 sm:px-7 lg:py-4 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base shadow-lg"
                   style={{ color: 'var(--theme-accent)' }}
                 >
-                  Book Your Free Discovery Call Now
+                  Book Your Free Discovery Call
                 </Link>
                 <Link
                   to="/about"
@@ -317,44 +333,50 @@ const Home: React.FC = () => {
       {/* Who I Help Section */}
       <section className="section-padding bg-white">
         <div className="container-max">
-              <motion.div
-            className="text-center mb-16"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Who I Help</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Men who:
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">Who I Help</h2>
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+              Men who are functional on the outside, but privately stuck, overwhelmed, or disconnected from themselves.
             </p>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-x-8 lg:gap-y-10">
               {whoIHelp.map((item, index) => (
                 <motion.div
                   key={index}
-                  className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-colors duration-300"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                  whileHover={{ x: 5 }}
+                  className="bg-white border-2 border-gray-100 rounded-2xl p-8 shadow-md hover:shadow-xl transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -5, borderColor: 'var(--theme-accent)' }}
                 >
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md"
-                    style={{ background: `var(--theme-accent)` }}
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="text-lg text-gray-700 font-medium">{item}</p>
-              </motion.div>
-            ))}
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">{item.title}</h3>
+                  <p className="text-base text-gray-700 leading-relaxed mb-4">{item.experience}</p>
+                  <p className="text-sm text-gray-500 italic leading-relaxed">{item.undertone}</p>
+                </motion.div>
+              ))}
             </div>
           </div>
+
+          <motion.div
+            className="text-center mt-12 pt-8 border-t border-gray-200 max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-lg text-gray-600 italic">
+              If any of these feel familiar, this work is for you.
+            </p>
+          </motion.div>
         </div>
       </section>
 
@@ -362,25 +384,34 @@ const Home: React.FC = () => {
       <section className="section-padding bg-gradient-to-b from-white to-gray-50">
         <div className="container-max">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Why This Works</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">Why This Works</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
               I coach you from lived experience — not theory.
             </p>
             <p className="text-lg text-gray-700 max-w-3xl mx-auto">
               I've been through addiction, detachment, trauma responses, and rebuilding my life from the ground up. I understand the internal battles men face because I've lived them.
             </p>
-            <p className="text-lg font-semibold text-gray-900 mt-6 mb-8">
+          </motion.div>
+
+          <motion.div
+            className="text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-lg font-semibold text-gray-900">
               My coaching blends:
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto mb-12">
             {whyThisWorks.map((item, index) => (
               <motion.div
                 key={item.title}
@@ -397,14 +428,15 @@ const Home: React.FC = () => {
               </motion.div>
             ))}
           </div>
+          
           <motion.div
-            className="text-center mt-12"
+            className="text-center py-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-xl font-semibold text-gray-900 max-w-3xl mx-auto">
               No fluff. No vague empowerment talk. Just practical clarity and real momentum.
             </p>
           </motion.div>
@@ -415,7 +447,7 @@ const Home: React.FC = () => {
       <section className="section-padding bg-white">
         <div className="container-max">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -424,31 +456,29 @@ const Home: React.FC = () => {
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">What You Get</h2>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto mb-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
               {whatYouGet.map((item, index) => (
                 <motion.div
                   key={index}
-                  className="flex items-start space-x-4 p-5 rounded-xl bg-gradient-to-br from-white to-white border hover:shadow-lg transition-all duration-300"
-                  style={{ 
-                    backgroundColor: 'var(--theme-background)',
-                    borderColor: 'rgba(var(--theme-accent-rgb, 196, 98, 45), 0.2)'
-                  }}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  className="bg-white border-2 border-gray-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  whileHover={{ x: 5 }}
+                  whileHover={{ y: -3, borderColor: 'var(--theme-accent)' }}
                 >
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md"
-                    style={{ background: `var(--theme-accent)` }}
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                  <div className="flex items-start space-x-4">
+                    <div 
+                      className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md"
+                      style={{ background: `var(--theme-accent)` }}
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <p className="text-lg text-gray-700 font-medium pt-1">{item}</p>
                   </div>
-                  <p className="text-lg text-gray-700 font-medium">{item}</p>
                 </motion.div>
               ))}
             </div>
@@ -742,10 +772,10 @@ const Home: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/book-call"
-                className="bg-white hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="bg-white hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
                 style={{ color: 'var(--theme-accent)' }}
               >
-                Book Your Free Discovery Call Now
+                Book Your Free Discovery Call
               </Link>
               <Link
                 to="/contact"
