@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
     { name: 'Resources', path: '/resources' },
     { name: 'Book Call', path: '/book-call' },
     { name: 'Contact', path: '/contact' },
-    {name: 'Admin', path: '/admin'}
+    // {name: 'Admin', path: '/admin'}
   ];
 
   // Add Admin link in developer mode
