@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
+const path = require('path');
 
 // Check if running in developer mode
 const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
@@ -54,6 +55,9 @@ if (!IS_DEVELOPER) {
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded videos statically
+app.use('/uploads/videos', express.static(path.join(__dirname, 'uploads/videos')));
 
 // MongoDB connection - always connect for database operations
 const connectDB = async () => {

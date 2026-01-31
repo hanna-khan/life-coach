@@ -2,13 +2,16 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Testimonial = require('../models/Testimonial');
 const { auth, adminAuth } = require('../middleware/auth');
+const upload = require('../middleware/videoUpload');
 
 const router = express.Router();
 
 // @route   POST /api/testimonials
 // @desc    Create new testimonial
 // @access  Public
-router.post('/', [
+
+// POST /api/testimonials (with optional video upload)
+router.post('/', upload.single('video'), [
   body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters'),
   body('role').optional().trim().isLength({ max: 200 }).withMessage('Role/location cannot be more than 200 characters'),
   body('content').trim().isLength({ min: 20, max: 1000 }).withMessage('Experience must be between 20 and 1000 characters')
@@ -16,16 +19,27 @@ router.post('/', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // If multer error, add it to errors
+      if (req.fileValidationError) {
+        errors.errors.push({ msg: req.fileValidationError });
+      }
       return res.status(400).json({ 
         success: false,
         errors: errors.array() 
       });
     }
 
+    let videoUrl = '';
+    if (req.file) {
+      // Store relative path for frontend access
+      videoUrl = `/uploads/videos/${req.file.filename}`;
+    }
+
     const testimonial = await Testimonial.create({
       name: req.body.name,
       role: req.body.role || '',
       content: req.body.content,
+      videoUrl,
       status: 'pending'
     });
 

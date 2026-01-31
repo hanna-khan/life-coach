@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import VideoUpload from '../components/UI/VideoUpload.tsx';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -248,8 +249,24 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Embedded Video Section */}
+      <section className="w-full flex justify-center bg-black py-8">
+        <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden shadow-2xl border-4 border-white">
+          {/* Replace the src below with your desired video URL or YouTube embed */}
+          <iframe
+            width="100%"
+            height="100%"
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+            title="Welcome Video"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="w-full h-full"
+          ></iframe>
+        </div>
+      </section>
       {/* Hero Section */}
-      <section className="hero-bg h-screen w-full flex items-center justify-center relative overflow-hidden">
+      <section className="hero-bg min-h-screen w-full flex items-center justify-center relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -257,42 +274,32 @@ const Home: React.FC = () => {
           }} />
         </div>
 
-        <div className="container-max relative z-10 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 xl:gap-12 items-center h-full">
+        <div className="container-max relative z-10 w-full px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
             {/* Left Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex flex-col justify-center"
+              className="flex flex-col justify-center space-y-6"
             >
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 sm:mb-7 lg:mb-8 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                 Break Old Patterns.
-                <span className="block text-yellow-300">Build a Life on Your Terms.</span>
+                <span className="block text-yellow-300 mt-2">Build a Life on Your Terms.</span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-7 lg:mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl text-blue-100 leading-relaxed max-w-xl">
                 Coaching for men who are done repeating the same cycles and ready to take ownership, gain clarity, and move forward with confidence.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <Link
                   to="/book-call"
-                  className="bg-white hover:bg-gray-100 font-semibold py-3 sm:py-3.5 px-6 sm:px-7 lg:py-4 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base shadow-lg"
-                  style={{ color: 'var(--theme-accent)' }}
+                  className="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-base sm:text-lg shadow-xl"
                 >
                   Book Your Free Discovery Call
                 </Link>
                 <Link
                   to="/about"
-                  className="border-2 border-white text-white hover:bg-white font-semibold py-2.5 sm:py-3 px-5 sm:px-6 lg:py-3.5 lg:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base"
-                  style={{ 
-                    '--hover-color': 'var(--theme-accent)'
-                  } as React.CSSProperties}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = 'var(--theme-accent)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'white';
-                  }}
+                  className="border-2 border-white text-white hover:bg-white hover:text-gray-900 font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-base sm:text-lg"
                 >
                   Learn More
                 </Link>
@@ -304,7 +311,7 @@ const Home: React.FC = () => {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative flex items-center justify-center h-full"
+              className="relative hidden lg:flex items-center justify-center"
             >
               <div className="relative w-full max-w-md xl:max-w-xl">
                 <img
@@ -320,12 +327,12 @@ const Home: React.FC = () => {
 
         {/* Scroll Indicator */}
         <motion.div
-          className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-20"
-          animate={{ y: [0, 8, 0] }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+          animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <div className="w-5 h-8 sm:w-6 sm:h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-2 sm:h-3 bg-white rounded-full mt-1.5 sm:mt-2"></div>
+          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
           </div>
         </motion.div>
       </section>
@@ -720,6 +727,17 @@ const Home: React.FC = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       {testimonialForm.content.length}/1000 characters (minimum 20)
                     </p>
+                  </div>
+
+                  {/* Video Upload for Testimonial */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Upload a Video Testimonial (optional)
+                    </label>
+                    <VideoUpload onUpload={(file) => {
+                      // TODO: Handle video file upload logic here
+                      toast('Video selected: ' + file.name);
+                    }} />
                   </div>
                   <button
                     type="submit"

@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const testimonialSchema = new mongoose.Schema({
+    videoUrl: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Video URL cannot be more than 500 characters']
+    },
   name: {
     type: String,
     required: [true, 'Please provide your name'],
