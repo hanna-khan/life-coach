@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
           >
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <img 
-                src={getLogoPath(currentTheme)} 
+                src={'./logonobg.png'} 
                 alt="Life Coach Logo" 
                 className="w-auto object-contain"
                 style={{ 
@@ -98,7 +98,7 @@ const Footer: React.FC = () => {
                 </svg>
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/lukewestbrookmanhattan/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-300"
