@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Testimonial = require('../models/Testimonial');
 const { auth, adminAuth } = require('../middleware/auth');
-const upload = require('../middleware/videoUpload');
+const { upload } = require('../config/cloudinary');
 
 const router = express.Router();
 
@@ -31,8 +31,8 @@ router.post('/', upload.single('video'), [
 
     let videoUrl = '';
     if (req.file) {
-      // Store relative path for frontend access
-      videoUrl = `/uploads/videos/${req.file.filename}`;
+      // Cloudinary URL from uploaded file
+      videoUrl = req.file.path;
     }
 
     const testimonial = await Testimonial.create({
@@ -40,12 +40,12 @@ router.post('/', upload.single('video'), [
       role: req.body.role || '',
       content: req.body.content,
       videoUrl,
-      status: 'pending'
+      status: 'approved'
     });
 
     res.status(201).json({
       success: true,
-      message: 'Thank you for sharing your experience! It will be reviewed and may be featured on our website.',
+      message: 'Thank you for sharing your experience! It has been published on our website.',
       testimonial
     });
   } catch (error) {
@@ -63,10 +63,10 @@ router.post('/', upload.single('video'), [
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    // Get all testimonials (approved, pending, etc.) - sorted by createdAt
-    const testimonials = await Testimonial.find({})
-      .sort({ createdAt: -1 })
-      .select('name role content isFeatured createdAt status');
+    // Get approved testimonials only for public view, sorted by whether they have video (video first)
+    const testimonials = await Testimonial.find({ status: 'approved' })
+      .sort({ videoUrl: -1, createdAt: -1 }) // Video testimonials first, then by date
+      .select('name role content isFeatured createdAt status videoUrl');
 
     res.json({
       success: true,

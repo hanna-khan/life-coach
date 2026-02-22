@@ -26,6 +26,11 @@ STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
+# Cloudinary Configuration (for video uploads)
+CLOUDINARY_CLOUD_NAME=dh2cnzua2
+CLOUDINARY_API_KEY=122982425492631
+CLOUDINARY_API_SECRET=cLoVc3n_K7GYEkWH6cBozI1H054
+
 # Server
 PORT=5000
 NODE_ENV=development

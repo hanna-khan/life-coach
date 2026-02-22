@@ -56,6 +56,7 @@ const Home: React.FC = () => {
   });
   const [submittingTestimonial, setSubmittingTestimonial] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   // Helper function to get initials from name
   const getInitials = (name: string): string => {
@@ -143,15 +144,27 @@ const Home: React.FC = () => {
 
     try {
       setSubmittingTestimonial(true);
-      const response = await axios.post('/api/testimonials', {
-        name: testimonialForm.name,
-        role: testimonialForm.role,
-        content: testimonialForm.content
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('name', testimonialForm.name);
+      formData.append('role', testimonialForm.role);
+      formData.append('content', testimonialForm.content);
+      
+      if (videoFile) {
+        formData.append('video', videoFile);
+      }
+
+      const response = await axios.post('/api/testimonials', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
       if (response.data.success) {
         toast.success(response.data.message || 'Thank you for sharing your experience!');
         setTestimonialForm({ name: '', role: '', content: '' });
+        setVideoFile(null);
         // Refresh testimonials after submission
         await fetchTestimonials();
       }
@@ -247,24 +260,49 @@ const Home: React.FC = () => {
     "A coach who actually gets it — without judgment"
   ];
 
+  // Get featured video testimonial for hero section
+  const featuredVideoTestimonial = testimonials.find(t => t.videoUrl && t.isFeatured) || 
+                                    testimonials.find(t => t.videoUrl);
+
   return (
     <div className="min-h-screen">
-      {/* Embedded Video Section */}
-      <section className="w-full flex justify-center bg-black py-8">
-        <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden shadow-2xl border-4 border-white">
-          {/* Replace the src below with your desired video URL or YouTube embed */}
-          <iframe
-            width="100%"
-            height="100%"
-            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-            title="Welcome Video"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            className="w-full h-full"
-          ></iframe>
-        </div>
-      </section>
+      {/* Featured Video Testimonial Section */}
+      {featuredVideoTestimonial && featuredVideoTestimonial.videoUrl && (
+        <section className="w-full flex justify-center bg-gradient-to-b from-gray-900 to-black py-12">
+          <div className="w-full max-w-4xl px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="space-y-4"
+            >
+              <h2 className="text-3xl lg:text-4xl font-bold text-white text-center mb-2">
+                Client Success Story
+              </h2>
+              <p className="text-gray-300 text-center mb-6">
+                Hear from men who've experienced real transformation
+              </p>
+              <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10">
+                <video
+                  src={featuredVideoTestimonial.videoUrl}
+                  controls
+                  className="w-full h-full object-cover bg-black"
+                  preload="metadata"
+                  poster={featuredVideoTestimonial.videoUrl + '.jpg'} // Cloudinary can generate thumbnails
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className="text-center pt-4">
+                <p className="text-white font-semibold text-lg">{featuredVideoTestimonial.name}</p>
+                {featuredVideoTestimonial.role && (
+                  <p className="text-gray-400 text-sm">{featuredVideoTestimonial.role}</p>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
       {/* Hero Section */}
       <section className="hero-bg min-h-screen w-full flex items-center justify-center relative overflow-hidden">
         {/* Background Pattern */}
@@ -509,8 +547,56 @@ const Home: React.FC = () => {
             </p>
           </motion.div>
 
-          {/* Testimonials Slider */}
+          {/* Video Testimonials Section - Display First */}
+          {testimonials.some(t => t.videoUrl) && (
+            <div className="mb-16">
+              <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-8 text-center">Video Testimonials</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+                {testimonials
+                  .filter(t => t.videoUrl)
+                  .slice(0, 4)
+                  .map((testimonial, index) => (
+                    <motion.div
+                      key={testimonial._id || testimonial.name}
+                      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <div className="aspect-video bg-gray-900">
+                        <video
+                          src={testimonial.videoUrl}
+                          controls
+                          className="w-full h-full object-cover"
+                          preload="metadata"
+                        />
+                      </div>
+                      <div className="p-6">
+                        <div className="flex items-center mb-3">
+                          <div 
+                            className={`w-12 h-12 rounded-full mr-4 flex items-center justify-center text-white font-semibold ${getAvatarColor(testimonial.name)}`}
+                          >
+                            {getInitials(testimonial.name)}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                            <p className="text-sm text-gray-600">{testimonial.role || ''}</p>
+                          </div>
+                        </div>
+                        {testimonial.content && (
+                          <p className="text-gray-700 leading-relaxed text-sm line-clamp-3">"{testimonial.content}"</p>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Text Testimonials Slider */}
           <div className="relative">
+            <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-8 text-center">Client Reviews</h3>
             {/* Slider Container */}
             <div className="overflow-hidden">
               <motion.div
@@ -529,7 +615,7 @@ const Home: React.FC = () => {
                       .slice(slideIndex * itemsPerView, slideIndex * itemsPerView + itemsPerView)
                       .map((testimonial, index) => (
               <motion.div
-                key={testimonial.name}
+                key={testimonial._id || testimonial.name}
                           className="card p-6 lg:p-8 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -734,10 +820,7 @@ const Home: React.FC = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Upload a Video Testimonial (optional)
                     </label>
-                    <VideoUpload onUpload={(file) => {
-                      // TODO: Handle video file upload logic here
-                      toast('Video selected: ' + file.name);
-                    }} />
+                    <VideoUpload onUpload={(file) => setVideoFile(file)} />
                   </div>
                   <button
                     type="submit"

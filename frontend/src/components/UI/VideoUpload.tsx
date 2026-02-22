@@ -1,49 +1,62 @@
 import React, { useState } from 'react';
 
 interface VideoUploadProps {
-  onUpload: (file: File) => void;
+  onUpload: (file: File | null) => void;
 }
 
 const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
+    
     if (file) {
       setPreviewUrl(URL.createObjectURL(file));
+      onUpload(file); // Immediately notify parent of file selection
     } else {
       setPreviewUrl(null);
+      onUpload(null);
     }
   };
 
-  const handleUpload = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedFile) {
-      onUpload(selectedFile);
-    }
+  const handleRemove = () => {
+    setPreviewUrl(null);
+    onUpload(null);
   };
 
   return (
-    <form onSubmit={handleUpload} className="space-y-4">
+    <div className="space-y-4">
       <input
         type="file"
-        accept="video/*"
+        accept="video/mp4,video/webm,video/ogg,video/quicktime"
         onChange={handleFileChange}
-        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-theme-accent file:text-white hover:file:bg-theme-accent-hover"
+        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:text-white hover:file:opacity-90 transition-all"
+        style={{ 
+          '--file-bg': 'var(--theme-accent)'
+        } as React.CSSProperties}
       />
       {previewUrl && (
-        <video src={previewUrl} controls className="w-full max-h-64 rounded-lg shadow" />
+        <div className="relative">
+          <video 
+            src={previewUrl} 
+            controls 
+            className="w-full max-h-64 rounded-lg shadow-lg" 
+          />
+          <button
+            type="button"
+            onClick={handleRemove}
+            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       )}
-      <button
-        type="submit"
-        disabled={!selectedFile}
-        className="bg-theme-primary text-white px-6 py-2 rounded-lg font-semibold disabled:opacity-50"
-      >
-        Upload Video
-      </button>
-    </form>
+      <p className="text-xs text-gray-500">
+        Supported formats: MP4, WebM, OGG, MOV (max 100MB)
+      </p>
+    </div>
   );
 };
 
