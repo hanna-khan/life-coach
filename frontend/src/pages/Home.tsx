@@ -57,6 +57,7 @@ const Home: React.FC = () => {
   const [submittingTestimonial, setSubmittingTestimonial] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [currentHeroVideoIndex, setCurrentHeroVideoIndex] = useState(0);
 
   // Helper function to get initials from name
   const getInitials = (name: string): string => {
@@ -177,6 +178,11 @@ const Home: React.FC = () => {
     }
   };
 
+  // Fetch testimonials on component mount
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -260,14 +266,31 @@ const Home: React.FC = () => {
     "A coach who actually gets it — without judgment"
   ];
 
-  // Get featured video testimonial for hero section
-  const featuredVideoTestimonial = testimonials.find(t => t.videoUrl && t.isFeatured) || 
-                                    testimonials.find(t => t.videoUrl);
+  // Get all video testimonials for hero section
+  const heroVideoTestimonials = testimonials.filter(t => t.videoUrl);
+
+  // Auto-advance hero video slider
+  useEffect(() => {
+    if (heroVideoTestimonials.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentHeroVideoIndex((prev) => (prev + 1) % heroVideoTestimonials.length);
+      }, 10000); // Change video every 10 seconds
+      return () => clearInterval(interval);
+    }
+  }, [heroVideoTestimonials.length]);
+
+  const nextHeroVideo = () => {
+    setCurrentHeroVideoIndex((prev) => (prev + 1) % heroVideoTestimonials.length);
+  };
+
+  const prevHeroVideo = () => {
+    setCurrentHeroVideoIndex((prev) => (prev - 1 + heroVideoTestimonials.length) % heroVideoTestimonials.length);
+  };
 
   return (
     <div className="min-h-screen">
-      {/* Featured Video Testimonial Section */}
-      {featuredVideoTestimonial && featuredVideoTestimonial.videoUrl && (
+      {/* Featured Video Testimonial Section with Slider */}
+      {heroVideoTestimonials.length > 0 && (
         <section className="w-full flex justify-center bg-gradient-to-b from-gray-900 to-black py-12">
           <div className="w-full max-w-4xl px-4">
             <motion.div
@@ -277,26 +300,77 @@ const Home: React.FC = () => {
               className="space-y-4"
             >
               <h2 className="text-3xl lg:text-4xl font-bold text-white text-center mb-2">
-                Client Success Story
+                Client Success {heroVideoTestimonials.length > 1 ? 'Stories' : 'Story'}
               </h2>
               <p className="text-gray-300 text-center mb-6">
                 Hear from men who've experienced real transformation
               </p>
-              <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10">
-                <video
-                  src={featuredVideoTestimonial.videoUrl}
-                  controls
-                  className="w-full h-full object-cover bg-black"
-                  preload="metadata"
-                  poster={featuredVideoTestimonial.videoUrl + '.jpg'} // Cloudinary can generate thumbnails
-                >
-                  Your browser does not support the video tag.
-                </video>
+              
+              <div className="relative">
+                {/* Video Player */}
+                <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10">
+                  <video
+                    key={heroVideoTestimonials[currentHeroVideoIndex]._id || currentHeroVideoIndex}
+                    src={heroVideoTestimonials[currentHeroVideoIndex].videoUrl}
+                    controls
+                    className="w-full h-full object-cover bg-black"
+                    preload="metadata"
+                    poster={heroVideoTestimonials[currentHeroVideoIndex].videoUrl + '.jpg'}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+
+                {/* Navigation Arrows - Only show if multiple videos */}
+                {heroVideoTestimonials.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevHeroVideo}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
+                      aria-label="Previous video"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={nextHeroVideo}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
+                      aria-label="Next video"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </>
+                )}
               </div>
-              <div className="text-center pt-4">
-                <p className="text-white font-semibold text-lg">{featuredVideoTestimonial.name}</p>
-                {featuredVideoTestimonial.role && (
-                  <p className="text-gray-400 text-sm">{featuredVideoTestimonial.role}</p>
+
+              {/* Video Info and Dots */}
+              <div className="text-center pt-4 space-y-3">
+                <div>
+                  <p className="text-white font-semibold text-lg">{heroVideoTestimonials[currentHeroVideoIndex].name}</p>
+                  {heroVideoTestimonials[currentHeroVideoIndex].role && (
+                    <p className="text-gray-400 text-sm">{heroVideoTestimonials[currentHeroVideoIndex].role}</p>
+                  )}
+                </div>
+
+                {/* Dots Navigation - Only show if multiple videos */}
+                {heroVideoTestimonials.length > 1 && (
+                  <div className="flex justify-center gap-2">
+                    {heroVideoTestimonials.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentHeroVideoIndex(index)}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          index === currentHeroVideoIndex 
+                            ? 'w-8 bg-yellow-400' 
+                            : 'w-2 bg-gray-600 hover:bg-gray-500'
+                        }`}
+                        aria-label={`Go to video ${index + 1}`}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             </motion.div>
