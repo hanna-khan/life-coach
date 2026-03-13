@@ -5,9 +5,10 @@ const adminAuth = async (req, res, next) => {
   try {
     const IS_DEVELOPER = process.env.IS_DEVELOPER === 'true';
     
-    // Check for token first
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
+    // Check for token (x-auth-token or Authorization header)
+    let token = req.header('x-auth-token');
+    if (!token) token = req.header('Authorization')?.replace('Bearer ', '');
+
     if (token) {
       // Token exists - verify it
       if (!process.env.JWT_SECRET) {
@@ -44,17 +45,12 @@ const adminAuth = async (req, res, next) => {
         }
 
         req.admin = admin;
+        req.user = { id: admin._id, _id: admin._id, role: 'admin', name: admin.name, email: admin.email };
         return next();
       } catch (tokenError) {
-        // Token verification failed
         if (IS_DEVELOPER) {
-          // In developer mode, allow access on token error
-          req.admin = {
-            _id: 'dev-admin-id',
-            id: 'dev-admin-id',
-            name: 'Developer Admin',
-            email: 'admin@lifecoach.com'
-          };
+          req.admin = { _id: 'dev-admin-id', id: 'dev-admin-id', name: 'Developer Admin', email: 'admin@lifecoach.com' };
+          req.user = { id: 'dev-admin-id', _id: 'dev-admin-id', role: 'admin', name: req.admin.name, email: req.admin.email };
           return next();
         }
         
@@ -70,13 +66,8 @@ const adminAuth = async (req, res, next) => {
     
     // No token provided
     if (IS_DEVELOPER) {
-      // In developer mode, allow access with mock admin when no token
-      req.admin = {
-        _id: 'dev-admin-id',
-        id: 'dev-admin-id',
-        name: 'Developer Admin',
-        email: 'admin@lifecoach.com'
-      };
+      req.admin = { _id: 'dev-admin-id', id: 'dev-admin-id', name: 'Developer Admin', email: 'admin@lifecoach.com' };
+      req.user = { id: 'dev-admin-id', _id: 'dev-admin-id', role: 'admin', name: req.admin.name, email: req.admin.email };
       return next();
     }
     
@@ -87,15 +78,10 @@ const adminAuth = async (req, res, next) => {
     
     // In developer mode, allow access even on error
     if (process.env.IS_DEVELOPER === 'true') {
-      req.admin = {
-        _id: 'dev-admin-id',
-        id: 'dev-admin-id',
-        name: 'Developer Admin',
-        email: 'admin@lifecoach.com'
-      };
+      req.admin = { _id: 'dev-admin-id', id: 'dev-admin-id', name: 'Developer Admin', email: 'admin@lifecoach.com' };
+      req.user = { id: 'dev-admin-id', _id: 'dev-admin-id', role: 'admin', name: req.admin.name, email: req.admin.email };
       return next();
     }
-    
     return res.status(401).json({ message: 'Authentication failed' });
   }
 };

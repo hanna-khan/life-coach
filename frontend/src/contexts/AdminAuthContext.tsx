@@ -31,21 +31,43 @@ interface AdminAuthProviderProps {
   children: ReactNode;
 }
 
+const getStoredToken = () => localStorage.getItem('adminToken');
+
 export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
   const [admin, setAdmin] = useState<Admin | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('adminToken'));
+  const [token, setToken] = useState<string | null>(getStoredToken);
   const [loading, setLoading] = useState(true);
 
-  // Set up axios defaults
+  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+  // Set baseURL and token on axios immediately (sync) so first requests have the token
   useEffect(() => {
-    axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axios.defaults.baseURL = baseURL;
+    const t = token || getStoredToken();
+    if (t) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${t}`;
     } else {
       delete axios.defaults.headers.common['Authorization'];
     }
-  }, [token]);
+  }, [token, baseURL]);
+
+  // Ensure every request to admin/API has the token (in case defaults weren't applied yet)
+  useEffect(() => {
+    const interceptor = axios.interceptors.request.use((config) => {
+      const url = typeof config.url === 'string' ? config.url : '';
+      const isAdminApi = url.includes('/api/admin') || url.includes('/api/bookings') || url.includes('/api/blogs/admin') || url.includes('/api/pricing/admin') || url.includes('/api/contact') || url.includes('/api/testimonials/admin') || url.includes('/api/payments/stats');
+      if (isAdminApi) {
+        const adminToken = getStoredToken();
+        if (adminToken) {
+          config.headers = config.headers || {};
+          config.headers['Authorization'] = `Bearer ${adminToken}`;
+          config.headers['x-auth-token'] = adminToken;
+        }
+      }
+      return config;
+    });
+    return () => axios.interceptors.request.eject(interceptor);
+  }, []);
 
   // Check if admin is authenticated on mount
   useEffect(() => {
@@ -59,10 +81,12 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
             localStorage.removeItem('adminToken');
             setToken(null);
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Admin auth check failed:', error);
-          localStorage.removeItem('adminToken');
-          setToken(null);
+          if (error.response?.status === 401) {
+            localStorage.removeItem('adminToken');
+            setToken(null);
+          }
         }
       }
       setLoading(false);

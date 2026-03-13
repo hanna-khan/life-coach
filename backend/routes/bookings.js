@@ -3,7 +3,7 @@ const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const Pricing = require('../models/Pricing');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const availabilityService = require('../services/availabilityService');
 
 const router = express.Router();
@@ -124,7 +124,7 @@ router.post('/', [
 // @route   GET /api/bookings
 // @desc    Get all bookings (admin only)
 // @access  Private (Admin)
-router.get('/', auth, adminAuth, async (req, res) => {
+router.get('/', adminAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -160,7 +160,7 @@ router.get('/', auth, adminAuth, async (req, res) => {
 // @route   GET /api/bookings/:id
 // @desc    Get single booking
 // @access  Private (Admin)
-router.get('/:id', auth, adminAuth, async (req, res) => {
+router.get('/:id', adminAuth, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
 
@@ -181,7 +181,7 @@ router.get('/:id', auth, adminAuth, async (req, res) => {
 // @route   PUT /api/bookings/:id
 // @desc    Update booking details
 // @access  Private (Admin)
-router.put('/:id', auth, adminAuth, [
+router.put('/:id', adminAuth, [
   body('clientName').optional().trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('clientEmail').optional().isEmail().normalizeEmail().withMessage('Please provide a valid email'),
   body('clientPhone').optional().trim().isLength({ min: 10 }).withMessage('Please provide a valid phone number'),
@@ -223,7 +223,7 @@ router.put('/:id', auth, adminAuth, [
 // @route   PUT /api/bookings/:id/status
 // @desc    Update booking status
 // @access  Private (Admin)
-router.put('/:id/status', auth, adminAuth, [
+router.put('/:id/status', adminAuth, [
   body('status').isIn(['pending', 'confirmed', 'completed', 'cancelled']).withMessage('Invalid status'),
   body('meetingLink').optional().isURL().withMessage('Please provide a valid meeting link')
 ], async (req, res) => {
@@ -261,7 +261,7 @@ router.put('/:id/status', auth, adminAuth, [
 // @route   DELETE /api/bookings/:id
 // @desc    Delete booking
 // @access  Private (Admin)
-router.delete('/:id', auth, adminAuth, async (req, res) => {
+router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const booking = await Booking.findByIdAndDelete(req.params.id);
 
@@ -351,7 +351,7 @@ router.get('/available-slots/:date', async (req, res) => {
 // @route   POST /api/bookings/:id/complete-session
 // @desc    Mark current session as complete and trigger next session email
 // @access  Private (Admin)
-router.post('/:id/complete-session', auth, adminAuth, async (req, res) => {
+router.post('/:id/complete-session', adminAuth, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
 

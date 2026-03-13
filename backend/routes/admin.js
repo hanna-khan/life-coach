@@ -1,5 +1,5 @@
 const express = require('express');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Booking = require('../models/Booking');
@@ -11,7 +11,7 @@ const router = express.Router();
 // @route   GET /api/admin/dashboard
 // @desc    Get admin dashboard statistics
 // @access  Private (Admin)
-router.get('/dashboard', auth, adminAuth, async (req, res) => {
+router.get('/dashboard', adminAuth, async (req, res) => {
   try {
     // Get various statistics
     const [
@@ -179,7 +179,7 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
 // @route   GET /api/admin/users
 // @desc    Get all users
 // @access  Private (Admin)
-router.get('/users', auth, adminAuth, async (req, res) => {
+router.get('/users', adminAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -210,7 +210,7 @@ router.get('/users', auth, adminAuth, async (req, res) => {
 // @route   PUT /api/admin/users/:id/role
 // @desc    Update user role
 // @access  Private (Admin)
-router.put('/users/:id/role', auth, adminAuth, async (req, res) => {
+router.put('/users/:id/role', adminAuth, async (req, res) => {
   try {
     const { role } = req.body;
 
@@ -241,7 +241,7 @@ router.put('/users/:id/role', auth, adminAuth, async (req, res) => {
 // @route   DELETE /api/admin/users/:id
 // @desc    Delete user
 // @access  Private (Admin)
-router.delete('/users/:id', auth, adminAuth, async (req, res) => {
+router.delete('/users/:id', adminAuth, async (req, res) => {
   try {
     // Prevent admin from deleting themselves
     if (req.params.id === req.user.id) {
@@ -267,7 +267,7 @@ router.delete('/users/:id', auth, adminAuth, async (req, res) => {
 // @route   GET /api/admin/analytics
 // @desc    Get analytics data
 // @access  Private (Admin)
-router.get('/analytics', auth, adminAuth, async (req, res) => {
+router.get('/analytics', adminAuth, async (req, res) => {
   try {
     // Get total counts first
     const [totalBlogs, totalBookings, totalContacts] = await Promise.all([
@@ -436,7 +436,7 @@ router.get('/analytics', auth, adminAuth, async (req, res) => {
 // @route   POST /api/admin/seed-data
 // @desc    Seed initial data for development
 // @access  Private (Admin)
-router.post('/seed-data', auth, adminAuth, async (req, res) => {
+router.post('/seed-data', adminAuth, async (req, res) => {
   try {
     // Only allow in development
     if (process.env.NODE_ENV === 'production') {
@@ -490,7 +490,7 @@ router.post('/seed-data', auth, adminAuth, async (req, res) => {
 // @route   GET /api/admin/theme
 // @desc    Get current theme
 // @access  Private (Admin)
-router.get('/theme', auth, adminAuth, async (req, res) => {
+router.get('/theme', adminAuth, async (req, res) => {
   try {
     const theme = await Theme.getTheme();
     res.json(theme);
@@ -503,7 +503,7 @@ router.get('/theme', auth, adminAuth, async (req, res) => {
 // @route   PUT /api/admin/theme
 // @desc    Update theme
 // @access  Private (Admin)
-router.put('/theme', auth, adminAuth, async (req, res) => {
+router.put('/theme', adminAuth, async (req, res) => {
   try {
     const { selectedTheme } = req.body;
     

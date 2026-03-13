@@ -4,7 +4,7 @@ const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Booking = require('../models/Booking');
 const Contact = require('../models/Contact');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 // Mock data for developer mode
 const mockBlogs = [
@@ -123,7 +123,7 @@ router.get('/contact', (req, res) => {
   });
 });
 
-router.get('/dashboard', auth, adminAuth, async (req, res) => {
+router.get('/dashboard', adminAuth, async (req, res) => {
   try {
     // Get various statistics from database
     const [
@@ -290,7 +290,7 @@ router.get('/dashboard', auth, adminAuth, async (req, res) => {
 
 // @route   GET /api/admin/analytics
 // @desc    Get analytics data from database
-router.get('/analytics', auth, adminAuth, async (req, res) => {
+router.get('/analytics', adminAuth, async (req, res) => {
   try {
     // Get monthly revenue for last 6 months
     const sixMonthsAgo = new Date();
@@ -405,7 +405,7 @@ const Theme = require('../models/Theme');
 // @route   GET /api/admin/theme
 // @desc    Get current theme
 // @access  Private (Admin)
-router.get('/theme', auth, adminAuth, async (req, res) => {
+router.get('/theme', adminAuth, async (req, res) => {
   try {
     const theme = await Theme.getTheme();
     res.json(theme);
@@ -418,7 +418,7 @@ router.get('/theme', auth, adminAuth, async (req, res) => {
 // @route   PUT /api/admin/theme
 // @desc    Update theme
 // @access  Private (Admin)
-router.put('/theme', auth, adminAuth, async (req, res) => {
+router.put('/theme', adminAuth, async (req, res) => {
   try {
     const { selectedTheme } = req.body;
     

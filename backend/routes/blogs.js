@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Blog = require('../models/Blog');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
@@ -114,7 +114,7 @@ const getTextLength = (html) => {
 // @route   POST /api/blogs
 // @desc    Create new blog
 // @access  Private (Admin)
-router.post('/', auth, adminAuth, [
+router.post('/', adminAuth, [
   body('title').trim().isLength({ min: 5 }).withMessage('Title must be at least 5 characters'),
   body('excerpt').trim().isLength({ min: 10 }).withMessage('Excerpt must be at least 10 characters'),
   body('content').custom((value) => {
@@ -144,41 +144,31 @@ router.post('/', auth, adminAuth, [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Handle author field - ensure we have a valid ObjectId
+    // Handle author field - Blog author refs User; admin may be AdminUser so resolve to User
     const mongoose = require('mongoose');
+    const User = require('../models/User');
     let authorId = req.user.id;
-    
-    // Check if mongoose is connected
+
     if (mongoose.connection.readyState !== 1) {
       throw new Error('MongoDB is not connected. Please check your database connection.');
     }
-    
-    // If using mock user ID, try to find or create a default admin user
-    if (authorId === 'dev-user-id' || !mongoose.Types.ObjectId.isValid(authorId)) {
-      const User = require('../models/User');
+
+    const isValidUser = authorId && mongoose.Types.ObjectId.isValid(authorId) && authorId !== 'dev-user-id' && authorId !== 'dev-admin-id';
+    const existingUser = isValidUser ? await User.findById(authorId) : null;
+    if (authorId === 'dev-user-id' || authorId === 'dev-admin-id' || !mongoose.Types.ObjectId.isValid(authorId) || !existingUser) {
       try {
-        // Try to find an admin user first
         let adminUser = await User.findOne({ role: 'admin' }).limit(1);
-        
         if (!adminUser) {
-          // Create a default admin user if none exists
-          console.log('Creating default admin user...');
           adminUser = await User.create({
             name: 'Admin User',
             email: 'admin@lifecoach.com',
-            password: 'temp123456', // Temporary password - should be changed
+            password: 'temp123456',
             role: 'admin'
           });
-          console.log('Default admin user created:', adminUser._id);
-        } else {
-          console.log('Using existing admin user:', adminUser._id);
         }
         authorId = adminUser._id;
       } catch (userError) {
-        console.error('Error finding/creating admin user:', userError);
-        console.error('User error details:', userError.message);
-        console.error('User error stack:', userError.stack);
-        // If we can't create/find user, we can't proceed
+        console.error('Error resolving blog author:', userError);
         throw new Error(`Failed to set blog author: ${userError.message}`);
       }
     }
@@ -239,7 +229,7 @@ router.post('/', auth, adminAuth, [
 // @route   PUT /api/blogs/:id
 // @desc    Update blog
 // @access  Private (Admin)
-router.put('/:id', auth, adminAuth, [
+router.put('/:id', adminAuth, [
   body('title').optional().trim().isLength({ min: 5 }).withMessage('Title must be at least 5 characters'),
   body('excerpt').optional().trim().isLength({ min: 10 }).withMessage('Excerpt must be at least 10 characters'),
   body('content').optional().custom((value) => {
@@ -290,7 +280,7 @@ router.put('/:id', auth, adminAuth, [
 // @route   DELETE /api/blogs/:id
 // @desc    Delete blog
 // @access  Private (Admin)
-router.delete('/:id', auth, adminAuth, async (req, res) => {
+router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const blog = await Blog.findByIdAndDelete(req.params.id);
 
@@ -311,7 +301,7 @@ router.delete('/:id', auth, adminAuth, async (req, res) => {
 // @route   GET /api/blogs/admin/all
 // @desc    Get all blogs for admin
 // @access  Private (Admin)
-router.get('/admin/all', auth, adminAuth, async (req, res) => {
+router.get('/admin/all', adminAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;

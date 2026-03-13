@@ -5,7 +5,8 @@ import toast from 'react-hot-toast';
 import { useTheme, themes, ThemeOption } from '../../contexts/ThemeContext.tsx';
 import { fadeInUp, staggerContainer } from '../../utils/animations.ts';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+const API_URL = API_BASE + (API_BASE.endsWith('/api') ? '' : '/api');
 
 const ThemeSettings: React.FC = () => {
   const { currentTheme, setTheme } = useTheme();
@@ -104,7 +105,7 @@ const ThemeSettings: React.FC = () => {
       setLoading(true);
       const token = localStorage.getItem('adminToken');
       const response = await axios.get(`${API_URL}/admin/theme`, {
-        headers: { 'x-auth-token': token }
+        ...(token && { headers: { 'x-auth-token': token } })
       });
       const backendTheme = response.data.selectedTheme;
       setSelectedTheme(backendTheme);
@@ -125,7 +126,7 @@ const ThemeSettings: React.FC = () => {
       await axios.put(
         `${API_URL}/admin/theme`,
         { selectedTheme },
-        { headers: { 'x-auth-token': token } }
+        { ...(token && { headers: { 'x-auth-token': token } }) }
       );
       
       // Update the saved theme tracker

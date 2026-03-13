@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Pricing = require('../models/Pricing');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 // @route   GET /api/pricing/admin/all
 // @desc    Get all pricing packages (admin)
 // @access  Private (Admin)
-router.get('/admin/all', auth, adminAuth, async (req, res) => {
+router.get('/admin/all', adminAuth, async (req, res) => {
   try {
     const packages = await Pricing.find()
       .sort({ createdAt: -1 });
@@ -44,7 +44,7 @@ router.get('/admin/all', auth, adminAuth, async (req, res) => {
 // @route   POST /api/pricing
 // @desc    Create new pricing package
 // @access  Private (Admin)
-router.post('/', auth, adminAuth, [
+router.post('/', adminAuth, [
   body('name').trim().isLength({ min: 3 }).withMessage('Package name must be at least 3 characters'),
   body('description').trim().isLength({ min: 10 }).withMessage('Description must be at least 10 characters'),
   body('price').isNumeric().withMessage('Price must be a number'),
@@ -81,7 +81,7 @@ router.post('/', auth, adminAuth, [
 // @route   PUT /api/pricing/:id
 // @desc    Update pricing package
 // @access  Private (Admin)
-router.put('/:id', auth, adminAuth, [
+router.put('/:id', adminAuth, [
   body('name').optional().trim().isLength({ min: 3 }).withMessage('Package name must be at least 3 characters'),
   body('description').optional().trim().isLength({ min: 10 }).withMessage('Description must be at least 10 characters'),
   body('price').optional().isNumeric().withMessage('Price must be a number'),
@@ -124,7 +124,7 @@ router.put('/:id', auth, adminAuth, [
 // @route   DELETE /api/pricing/:id
 // @desc    Delete pricing package
 // @access  Private (Admin)
-router.delete('/:id', auth, adminAuth, async (req, res) => {
+router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const pricingPackage = await Pricing.findByIdAndDelete(req.params.id);
 

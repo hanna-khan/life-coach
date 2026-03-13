@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Contact = require('../models/Contact');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const nodemailer = require('nodemailer');
 
 const router = express.Router();
@@ -268,7 +268,7 @@ router.post('/', [
 // @route   GET /api/contact
 // @desc    Get all contact messages (admin only)
 // @access  Private (Admin)
-router.get('/', auth, adminAuth, async (req, res) => {
+router.get('/', adminAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -304,7 +304,7 @@ router.get('/', auth, adminAuth, async (req, res) => {
 // @route   GET /api/contact/:id
 // @desc    Get single contact message
 // @access  Private (Admin)
-router.get('/:id', auth, adminAuth, async (req, res) => {
+router.get('/:id', adminAuth, async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
 
@@ -332,7 +332,7 @@ router.get('/:id', auth, adminAuth, async (req, res) => {
 // @route   PUT /api/contact/:id/status
 // @desc    Update contact message status
 // @access  Private (Admin)
-router.put('/:id/status', auth, adminAuth, [
+router.put('/:id/status', adminAuth, [
   body('status').isIn(['new', 'read', 'replied', 'archived']).withMessage('Invalid status')
 ], async (req, res) => {
   try {
@@ -370,7 +370,7 @@ router.put('/:id/status', auth, adminAuth, [
 // @route   POST /api/contact/:id/reply
 // @desc    Reply to contact message
 // @access  Private (Admin)
-router.post('/:id/reply', auth, adminAuth, [
+router.post('/:id/reply', adminAuth, [
   body('replyMessage').trim().isLength({ min: 10 }).withMessage('Reply message must be at least 10 characters')
 ], async (req, res) => {
   try {

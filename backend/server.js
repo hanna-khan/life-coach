@@ -161,12 +161,11 @@ app.get('/api/theme', async (req, res) => {
   }
 });
 
+// Admin routes: same middleware (adminAuth) in both dev and production
 if (IS_DEVELOPER) {
-  // In developer mode, use mock routes for some endpoints
-  console.log('🔧 Developer mode: Using mock API routes for some endpoints');
+  console.log('🔧 Developer mode: Using dev API routes for /api/admin');
   app.use('/api/admin', require('./routes/dev'));
 } else {
-  // Production routes
   app.use('/api/admin', require('./routes/admin'));
 }
 

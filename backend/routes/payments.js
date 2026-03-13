@@ -1,6 +1,6 @@
 const express = require('express');
 const Booking = require('../models/Booking');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const emailService = require('../services/emailService');
 const calendlyService = require('../services/calendlyService');
 
@@ -344,7 +344,7 @@ async function handleFailedPayment(paymentIntent) {
 // @route   GET /api/payments/stats
 // @desc    Get payment statistics (admin only)
 // @access  Private (Admin)
-router.get('/stats', auth, adminAuth, async (req, res) => {
+router.get('/stats', adminAuth, async (req, res) => {
   try {
     const totalBookings = await Booking.countDocuments();
     const paidBookings = await Booking.countDocuments({ paymentStatus: 'paid' });

@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Testimonial = require('../models/Testimonial');
-const { auth, adminAuth } = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const { upload } = require('../config/cloudinary');
 
 const router = express.Router();
@@ -84,7 +84,7 @@ router.get('/', async (req, res) => {
 // @route   GET /api/testimonials/admin
 // @desc    Get all testimonials (admin only)
 // @access  Private (Admin)
-router.get('/admin', auth, adminAuth, async (req, res) => {
+router.get('/admin', adminAuth, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -123,7 +123,7 @@ router.get('/admin', auth, adminAuth, async (req, res) => {
 // @route   PUT /api/testimonials/:id/status
 // @desc    Update testimonial status (admin only)
 // @access  Private (Admin)
-router.put('/:id/status', auth, adminAuth, [
+router.put('/:id/status', adminAuth, [
   body('status').isIn(['pending', 'approved', 'rejected']).withMessage('Invalid status'),
   body('isFeatured').optional().isBoolean().withMessage('isFeatured must be a boolean')
 ], async (req, res) => {
@@ -167,7 +167,7 @@ router.put('/:id/status', auth, adminAuth, [
 // @route   DELETE /api/testimonials/:id
 // @desc    Delete testimonial (admin only)
 // @access  Private (Admin)
-router.delete('/:id', auth, adminAuth, async (req, res) => {
+router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const testimonial = await Testimonial.findByIdAndDelete(req.params.id);
 
