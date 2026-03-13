@@ -343,35 +343,10 @@ const BookCall: React.FC = () => {
                   </div>
 
                   <div className="text-center relative z-10">
-                    {/* Debug button state */}
-                    {submitting && (
-                      <div className="mb-2 text-xs text-red-600">
-                        Button is currently disabled (submitting = true)
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            setSubmitting(false);
-                            toast.success('Button reset!');
-                          }}
-                          className="ml-2 px-2 py-1 bg-red-500 text-white rounded text-xs"
-                        >
-                          Reset Button
-                        </button>
-                      </div>
-                    )}
-                    
                     <button
                       type="submit"
                       disabled={submitting}
-                      onClick={(e) => {
-                        console.log('Button clicked directly!', submitting);
-                        if (submitting) {
-                          e.preventDefault();
-                          console.log('Prevented because submitting is true');
-                        }
-                      }}
                       className="btn-primary text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity relative z-10"
-                      style={{ pointerEvents: 'auto' }}
                     >
                       {submitting ? (
                         <span className="flex items-center justify-center">

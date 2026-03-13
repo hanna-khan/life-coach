@@ -15,6 +15,16 @@ if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('s
 
 const router = express.Router();
 
+// Base URL for Stripe redirects (success/cancel). In production, never use localhost.
+function getRedirectBaseUrl() {
+  const url = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (isProduction && (url.includes('localhost') || url.includes('127.0.0.1'))) {
+    return 'https://lukewestbrookmanhattan.com';
+  }
+  return url.replace(/\/$/, ''); // strip trailing slash
+}
+
 // IMPORTANT: GET routes should be defined before POST routes to avoid conflicts
 // @route   GET /api/payments/session/:sessionId
 // @desc    Get session details and verify payment
@@ -194,8 +204,8 @@ router.post('/create-session', async (req, res) => {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/booking/cancel`,
+      success_url: `${getRedirectBaseUrl()}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${getRedirectBaseUrl()}/booking/cancel`,
       metadata: {
         bookingId: booking._id.toString(),
       },

@@ -19,6 +19,7 @@ if (!IS_DEVELOPER) {
 // CORS configuration
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
+  'https://lukewestbrookmanhattan.com',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:3001',
