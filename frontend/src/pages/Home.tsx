@@ -57,6 +57,7 @@ const Home: React.FC = () => {
   const [submittingTestimonial, setSubmittingTestimonial] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [testimonialFormKey, setTestimonialFormKey] = useState(0);
   const [currentHeroVideoIndex, setCurrentHeroVideoIndex] = useState(0);
 
   // Helper function to get initials from name
@@ -166,7 +167,7 @@ const Home: React.FC = () => {
         toast.success(response.data.message || 'Thank you for sharing your experience!');
         setTestimonialForm({ name: '', role: '', content: '' });
         setVideoFile(null);
-        // Refresh testimonials after submission
+        setTestimonialFormKey((k) => k + 1); // Reset video upload (file name + preview)
         await fetchTestimonials();
       }
     } catch (error: any) {
@@ -894,7 +895,7 @@ const Home: React.FC = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Upload a Video Testimonial (optional)
                     </label>
-                    <VideoUpload onUpload={(file) => setVideoFile(file)} />
+                    <VideoUpload key={testimonialFormKey} onUpload={(file) => setVideoFile(file)} />
                   </div>
                   <button
                     type="submit"

@@ -30,10 +30,10 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload }) => {
         type="file"
         accept="video/mp4,video/webm,video/ogg,video/quicktime"
         onChange={handleFileChange}
-        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:text-white hover:file:opacity-90 transition-all"
-        style={{ 
-          '--file-bg': 'var(--theme-accent)'
-        } as React.CSSProperties}
+        className="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2.5 file:px-5 file:rounded-lg file:border-0 file:text-sm file:font-semibold
+          file:text-white file:cursor-pointer file:shadow-md
+          file:bg-[var(--theme-accent)] hover:file:opacity-90 file:transition-opacity"
       />
       {previewUrl && (
         <div className="relative">
