@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import VideoUpload from '../components/UI/VideoUpload.tsx';
+import { getApiBaseUrl } from '../config/api';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -85,13 +86,13 @@ const Home: React.FC = () => {
     setImageErrors(prev => new Set(prev).add(name));
   };
 
-  // Fetch testimonials from API and combine with static ones
+  // Fetch testimonials from API and combine with static ones (base URL from env: REACT_APP_API_URL)
   const fetchTestimonials = useCallback(async () => {
-    const baseURL = axios.defaults.baseURL || '';
-    const fullUrl = baseURL ? `${baseURL.replace(/\/$/, '')}/api/testimonials` : '/api/testimonials';
+    const baseURL = getApiBaseUrl();
+    const fullUrl = `${baseURL.replace(/\/$/, '')}/api/testimonials`;
     console.log('[Home] testimonials request | baseURL:', baseURL, '| full URL:', fullUrl);
     try {
-      const response = await axios.get('/api/testimonials');
+      const response = await axios.get(fullUrl);
       
       console.log('API Response:', response.data);
       
@@ -160,7 +161,8 @@ const Home: React.FC = () => {
         formData.append('video', videoFile);
       }
 
-      const response = await axios.post('/api/testimonials', formData, {
+      const testimonialsUrl = `${getApiBaseUrl().replace(/\/$/, '')}/api/testimonials`;
+      const response = await axios.post(testimonialsUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
