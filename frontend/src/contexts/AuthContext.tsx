@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { getApiBaseUrl } from '../config/api.ts';
 
 interface User {
   id: string;
@@ -44,8 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Set up axios defaults
   useEffect(() => {
-    // Always set base URL to backend API
-    axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    axios.defaults.baseURL = getApiBaseUrl();
     
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;

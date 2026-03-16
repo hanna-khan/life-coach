@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { getApiBaseUrl } from '../config/api.ts';
 
 interface Admin {
   id: string;
@@ -38,7 +39,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const [token, setToken] = useState<string | null>(getStoredToken);
   const [loading, setLoading] = useState(true);
 
-  const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const baseURL = getApiBaseUrl();
 
   // Set baseURL and token on axios immediately (sync) so first requests have the token
   useEffect(() => {

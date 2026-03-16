@@ -17,9 +17,9 @@ import AnimatedContainer from '../../components/Animation/AnimatedContainer.tsx'
 import { fadeInUp, scaleIn, chartAnimation } from '../../utils/animations.ts';
 import LoadingSpinner from '../../components/Animation/LoadingSpinner.tsx';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '../../config/api.ts';
 
-const API_BASE = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace(/\/$/, '');
-const API_URL = API_BASE + (API_BASE.endsWith('/api') ? '' : '/api');
+const API_URL = getApiUrl();
 
 ChartJS.register(
   CategoryScale,

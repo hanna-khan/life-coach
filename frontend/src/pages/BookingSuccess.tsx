@@ -3,9 +3,9 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { getApiBaseUrl } from '../config/api.ts';
 
-// Ensure axios baseURL is set
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = getApiBaseUrl();
 if (!axios.defaults.baseURL) {
   axios.defaults.baseURL = API_BASE_URL;
 }

@@ -4,9 +4,9 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useTheme, themes, ThemeOption } from '../../contexts/ThemeContext.tsx';
 import { fadeInUp, staggerContainer } from '../../utils/animations.ts';
+import { getApiUrl } from '../../config/api.ts';
 
-const API_BASE = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace(/\/$/, '');
-const API_URL = API_BASE + (API_BASE.endsWith('/api') ? '' : '/api');
+const API_URL = getApiUrl();
 
 const ThemeSettings: React.FC = () => {
   const { currentTheme, setTheme } = useTheme();
