@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import VideoUpload from '../components/UI/VideoUpload.tsx';
-import { getApiBaseUrl } from '../config/api';
+import { getApiBaseUrl } from '../config/api.ts';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
