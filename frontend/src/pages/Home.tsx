@@ -87,6 +87,9 @@ const Home: React.FC = () => {
 
   // Fetch testimonials from API and combine with static ones
   const fetchTestimonials = useCallback(async () => {
+    const baseURL = axios.defaults.baseURL || '';
+    const fullUrl = baseURL ? `${baseURL.replace(/\/$/, '')}/api/testimonials` : '/api/testimonials';
+    console.log('[Home] testimonials request | baseURL:', baseURL, '| full URL:', fullUrl);
     try {
       const response = await axios.get('/api/testimonials');
       

@@ -186,8 +186,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Fetch theme from backend on mount
   useEffect(() => {
     const fetchTheme = async () => {
+      const themeUrl = `${API_URL}/theme`;
+      console.log('[ThemeContext] Fetching theme from', themeUrl);
       try {
-        const response = await axios.get(`${API_URL}/theme`);
+        const response = await axios.get(themeUrl);
         const fetchedTheme = response.data.selectedTheme;
         if (fetchedTheme && ['option1', 'option2', 'option3', 'option4', 'option5', 'option6', 'option7', 'option8', 'option9', 'option10', 'option11', 'option12', 'original'].includes(fetchedTheme)) {
           setCurrentThemeState(fetchedTheme);

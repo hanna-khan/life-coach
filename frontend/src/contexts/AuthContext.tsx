@@ -45,8 +45,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Set up axios defaults
   useEffect(() => {
-    axios.defaults.baseURL = getApiBaseUrl();
-    
+    const baseURL = getApiBaseUrl();
+    axios.defaults.baseURL = baseURL;
+    console.log('[AuthContext] axios.defaults.baseURL set to', baseURL, '| hostname:', typeof window !== 'undefined' ? window.location.hostname : 'n/a');
+
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {

@@ -44,6 +44,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   // Set baseURL and token on axios immediately (sync) so first requests have the token
   useEffect(() => {
     axios.defaults.baseURL = baseURL;
+    console.log('[AdminAuthContext] axios.defaults.baseURL set to', baseURL);
     const t = token || getStoredToken();
     if (t) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${t}`;
