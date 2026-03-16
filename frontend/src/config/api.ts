@@ -11,7 +11,7 @@ function debugLog(msg: string, data: Record<string, unknown>) {
 }
 
 export function getApiBaseUrl(): string {
-  return 'https://api.lukewestbrookmanhattan.com/';
+  return 'https://api.lukewestbrookmanhattan.com';
   // const env = process.env.REACT_APP_API_URL;
   // if (env) {
   //   const base = env.replace(/\/$/, '');
