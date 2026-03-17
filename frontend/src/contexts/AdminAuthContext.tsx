@@ -54,10 +54,19 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   }, [token, baseURL]);
 
   // Ensure every request to admin/API has the token (in case defaults weren't applied yet)
+  // and handle 401/expired token globally with a clear message
   useEffect(() => {
-    const interceptor = axios.interceptors.request.use((config) => {
+    const requestInterceptor = axios.interceptors.request.use((config) => {
       const url = typeof config.url === 'string' ? config.url : '';
-      const isAdminApi = url.includes('/api/admin') || url.includes('/api/bookings') || url.includes('/api/blogs/admin') || url.includes('/api/pricing/admin') || url.includes('/api/contact') || url.includes('/api/testimonials/admin') || url.includes('/api/payments/stats');
+      const isAdminApi =
+        url.includes('/api/admin') ||
+        url.includes('/api/bookings') ||
+        url.includes('/api/blogs/admin') ||
+        url.includes('/api/pricing/admin') ||
+        url.includes('/api/contact') ||
+        url.includes('/api/testimonials/admin') ||
+        url.includes('/api/payments/stats');
+
       if (isAdminApi) {
         const adminToken = getStoredToken();
         if (adminToken) {
@@ -68,7 +77,40 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       }
       return config;
     });
-    return () => axios.interceptors.request.eject(interceptor);
+
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        const status = error.response?.status;
+        const url = error.config?.url as string | undefined;
+        const isAdminApi =
+          typeof url === 'string' &&
+          (url.includes('/api/admin') ||
+            url.includes('/api/admin-auth') ||
+            url.includes('/api/bookings') ||
+            url.includes('/api/blogs/admin') ||
+            url.includes('/api/pricing/admin') ||
+            url.includes('/api/contact') ||
+            url.includes('/api/testimonials/admin') ||
+            url.includes('/api/payments/stats'));
+
+        if (isAdminApi && status === 401) {
+          // Auto-logout on expired/invalid admin token
+          localStorage.removeItem('adminToken');
+          setToken(null);
+          setAdmin(null);
+          delete axios.defaults.headers.common['Authorization'];
+          toast.error('Admin session expired. Please log in again.');
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
   }, []);
 
   // Check if admin is authenticated on mount
