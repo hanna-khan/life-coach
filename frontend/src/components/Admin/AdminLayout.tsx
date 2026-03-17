@@ -1,11 +1,19 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from '../Admin/Sidebar.tsx';
 import { useState } from 'react';
+import { useAdminAuth } from '../../contexts/AdminAuthContext.tsx';
 
 const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { logout } = useAdminAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin-login', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,8 +29,13 @@ const AdminLayout: React.FC = () => {
             </svg>
           </button>
           <h1 className="text-lg font-semibold text-gray-900">Admin Panel</h1>
-          <div className="w-8"></div>
         </div>
+          <button
+            onClick={handleLogout}
+            className="text-sm text-gray-600 hover:text-red-600 px-3 py-1 rounded-md hover:bg-gray-100"
+          >
+            Log
+          </button>
       </div>
 
       {/* Sidebar */}

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fadeInLeft, scaleIn, staggerContainer } from '../../utils/animations.ts';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
 import { getLogoPath } from '../../utils/themeHelpers.ts';
+import { useAdminAuth } from '../../contexts/AdminAuthContext.tsx';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onCollapseChange }) 
   const { currentTheme } = useTheme();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { logout } = useAdminAuth();
+  const navigate = useNavigate();
 
   const handleCollapse = () => {
     const newCollapsed = !isCollapsed;
@@ -199,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onCollapseChange }) 
               variants={fadeInLeft}
               custom={menuItems.length}
             >
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-gray-50 rounded-lg p-4 flex flex-col items-center space-y-3">
                 <div className="flex items-center space-x-3">
                   <motion.div 
                     className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center"
@@ -213,6 +216,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onCollapseChange }) 
                     <p className="text-gray-500 text-xs">admin@lifecoach.com</p>
                   </div>
                 </div>
+                <button
+                  onClick={() => {
+                    logout();
+                    navigate('/admin-login', { replace: true });
+                  }}
+                  className="w-full text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-center transition-colors"
+                >
+                  Logout
+                </button>
               </div>
             </motion.div>
           )}
