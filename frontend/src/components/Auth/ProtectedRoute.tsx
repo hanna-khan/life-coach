@@ -11,14 +11,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   const { isAuthenticated, loading } = useAdminAuth();
   const location = useLocation();
 
-  // Check if running in developer mode
-  const IS_DEVELOPER = process.env.REACT_APP_IS_DEVELOPER === 'true';
-
-  // In developer mode, always allow access
-  if (IS_DEVELOPER) {
-    return <>{children}</>;
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

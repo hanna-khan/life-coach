@@ -40,9 +40,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  // Check if running in developer mode
-  const IS_DEVELOPER = process.env.REACT_APP_IS_DEVELOPER === 'true';
-
   // Set up axios defaults
   useEffect(() => {
     const baseURL = getApiBaseUrl();
@@ -59,19 +56,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
-      if (IS_DEVELOPER) {
-        // In developer mode, automatically set admin user
-        setUser({
-          id: 'dev-user-id',
-          name: 'Developer User',
-          email: 'dev@lifecoach.com',
-          role: 'admin'
-        });
-        setToken('dev-token');
-        setLoading(false);
-        return;
-      }
-
       if (token) {
         try {
           const response = await axios.get('/api/auth/me');
@@ -93,23 +77,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     checkAuth();
-  }, [token, IS_DEVELOPER]);
+  }, [token]);
 
   const login = async (email: string, password: string) => {
     try {
-      if (IS_DEVELOPER) {
-        // In developer mode, always succeed
-        setUser({
-          id: 'dev-user-id',
-          name: 'Developer User',
-          email: 'dev@lifecoach.com',
-          role: 'admin'
-        });
-        setToken('dev-token');
-        toast.success('Developer mode: Login successful!');
-        return;
-      }
-
       const response = await axios.post('/api/auth/login', { email, password });
       const { token: newToken, user: userData } = response.data;
       
@@ -131,19 +102,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      if (IS_DEVELOPER) {
-        // In developer mode, always succeed
-        setUser({
-          id: 'dev-user-id',
-          name: 'Developer User',
-          email: 'dev@lifecoach.com',
-          role: 'admin'
-        });
-        setToken('dev-token');
-        toast.success('Developer mode: Registration successful!');
-        return;
-      }
-
       const response = await axios.post('/api/auth/register', { name, email, password });
       const { token: newToken, user: userData } = response.data;
       
