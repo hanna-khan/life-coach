@@ -142,7 +142,21 @@ const AdminBlogs: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Client-side required field validation with clear messages
+    if (!formData.title.trim()) {
+      toast.error('Title is required');
+      return;
+    }
+    if (!formData.excerpt.trim()) {
+      toast.error('Excerpt is required');
+      return;
+    }
+    if (!formData.content || formData.content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length < 50) {
+      toast.error('Content is required and should be at least 50 characters (excluding formatting).');
+      return;
+    }
+
     // Validate image
     const finalImageUrl = imagePreview || formData.featuredImage;
     if (!finalImageUrl) {
@@ -485,7 +499,9 @@ const AdminBlogs: React.FC = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
               {/* Featured Image Upload - Above Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Featured Image <span className="text-red-500">*</span>
+                </label>
                 
                 {/* File Upload */}
                 <div>
@@ -504,7 +520,6 @@ const AdminBlogs: React.FC = () => {
                       className="hidden"
                       accept="image/*"
                       onChange={handleImageUpload}
-                      required={!imagePreview}
                     />
                   </label>
                 </div>
@@ -541,7 +556,9 @@ const AdminBlogs: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={formData.title}
@@ -552,7 +569,9 @@ const AdminBlogs: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Excerpt <span className="text-red-500">*</span>
+                </label>
                 <textarea
                   value={formData.excerpt}
                   onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
@@ -563,7 +582,9 @@ const AdminBlogs: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Content <span className="text-red-500">*</span>
+                </label>
                 <RichTextEditor
                   value={formData.content}
                   onChange={(value) => setFormData({ ...formData, content: value })}
@@ -574,7 +595,9 @@ const AdminBlogs: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
