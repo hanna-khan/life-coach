@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import RichTextEditor from '../../components/Editor/RichTextEditor.tsx';
+import { compressImageFile, MAX_IMAGE_SIZE_BYTES, MAX_SIZE_BEFORE_COMPRESS } from '../../utils/imageCompress.ts';
 
 interface Blog {
   _id: string;
@@ -97,29 +98,45 @@ const AdminBlogs: React.FC = () => {
     fetchBlogs();
   }, []);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-      }
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB');
-        return;
-      }
-      
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setImagePreview(base64String);
-        setFormData({ ...formData, featuredImage: base64String });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file (JPG, PNG, etc.)');
+      return;
     }
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      toast.error('Image is too large. Maximum size is 5MB. Please choose a smaller image or compress it.');
+      return;
+    }
+
+    setImageFile(file);
+
+    // Compress if large so request stays under server/hosting limits and we avoid 403
+    if (file.size > MAX_SIZE_BEFORE_COMPRESS) {
+      const loadingToast = toast.loading('Compressing image for upload...');
+      try {
+        const dataUrl = await compressImageFile(file);
+        setImagePreview(dataUrl);
+        setFormData((prev) => ({ ...prev, featuredImage: dataUrl }));
+        toast.dismiss(loadingToast);
+        toast.success('Image compressed and ready to upload.');
+      } catch (err) {
+        toast.dismiss(loadingToast);
+        toast.error('Could not process image. Try a smaller file (under 5MB).');
+        setImageFile(null);
+      }
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setImagePreview(base64String);
+      setFormData((prev) => ({ ...prev, featuredImage: base64String }));
+    };
+    reader.readAsDataURL(file);
   };
 
 
@@ -166,8 +183,13 @@ const AdminBlogs: React.FC = () => {
       resetForm();
     } catch (error: any) {
       console.error('Error saving blog:', error);
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.errors?.[0]?.msg || 
+      const status = error.response?.status;
+      if (status === 403 || status === 413) {
+        toast.error('Image or content is too large. Please use an image under 5MB, or try a smaller image — it will be compressed automatically.');
+        return;
+      }
+      const errorMessage = error.response?.data?.message ||
+                          error.response?.data?.errors?.[0]?.msg ||
                           'Failed to save blog';
       toast.error(errorMessage);
     } finally {
@@ -475,7 +497,7 @@ const AdminBlogs: React.FC = () => {
                       <p className="mb-2 text-sm text-gray-500">
                         <span className="font-semibold">Click to upload</span> or drag and drop
                       </p>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB. Large images are compressed automatically.</p>
                     </div>
                     <input
                       type="file"
