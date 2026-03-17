@@ -2,6 +2,12 @@
  * API base URL: sirf frontend .env se — REACT_APP_API_URL.
  * Fallback: localhost:5000 (dev).
  */
+
+// Minimal declaration so TypeScript knows about process.env in the browser build
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
 let _debugLogged = false;
 function debugLog(msg: string, data: Record<string, unknown>) {
   if (!_debugLogged) {
