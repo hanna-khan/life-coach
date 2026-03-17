@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 interface PricingPackage {
   _id: string;
@@ -78,7 +79,33 @@ const AdminPricing: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Client-side required validation with clear messages
+    if (!formData.name.trim()) {
+      toast.error('Package name is required');
+      return;
+    }
+    if (!formData.description.trim()) {
+      toast.error('Description is required');
+      return;
+    }
+    if (!formData.price || formData.price <= 0) {
+      toast.error('Price must be greater than 0');
+      return;
+    }
+    if (!formData.duration || formData.duration <= 0) {
+      toast.error('Duration must be greater than 0 minutes');
+      return;
+    }
+    if (!formData.sessions || formData.sessions <= 0) {
+      toast.error('Number of sessions must be at least 1');
+      return;
+    }
+    if (!formData.features.trim()) {
+      toast.error('Please add at least one feature');
+      return;
+    }
+
     try {
       setSubmitting(true);
       
@@ -368,7 +395,9 @@ const AdminPricing: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Package Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Package Name <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={formData.name}
@@ -379,7 +408,9 @@ const AdminPricing: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description <span className="text-red-500">*</span>
+                </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -391,7 +422,9 @@ const AdminPricing: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Price ($) <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="number"
                     value={formData.price}
@@ -402,7 +435,9 @@ const AdminPricing: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Duration (minutes) <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="number"
                     value={formData.duration}
@@ -415,7 +450,9 @@ const AdminPricing: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Frequency <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={formData.frequency}
                     onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'one-time' | 'after-3-mins' | '1-day' | 'weekly' | 'biweekly' | 'monthly' })}
@@ -432,7 +469,9 @@ const AdminPricing: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Number of Sessions</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Number of Sessions <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="number"
                     min="1"
@@ -445,7 +484,9 @@ const AdminPricing: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Features (one per line)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Features (one per line) <span className="text-red-500">*</span>
+                </label>
                 <textarea
                   value={formData.features}
                   onChange={(e) => setFormData({ ...formData, features: e.target.value })}
