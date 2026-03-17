@@ -58,11 +58,12 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use((config) => {
       const url = typeof config.url === 'string' ? config.url : '';
+      // Include /api/blogs and /api/pricing for create/update/delete — backend uses adminAuth
       const isAdminApi =
         url.includes('/api/admin') ||
         url.includes('/api/bookings') ||
-        url.includes('/api/blogs/admin') ||
-        url.includes('/api/pricing/admin') ||
+        url.includes('/api/blogs') ||
+        url.includes('/api/pricing') ||
         url.includes('/api/contact') ||
         url.includes('/api/testimonials/admin') ||
         url.includes('/api/payments/stats');
@@ -88,8 +89,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           (url.includes('/api/admin') ||
             url.includes('/api/admin-auth') ||
             url.includes('/api/bookings') ||
-            url.includes('/api/blogs/admin') ||
-            url.includes('/api/pricing/admin') ||
+            url.includes('/api/blogs') ||
+            url.includes('/api/pricing') ||
             url.includes('/api/contact') ||
             url.includes('/api/testimonials/admin') ||
             url.includes('/api/payments/stats'));
