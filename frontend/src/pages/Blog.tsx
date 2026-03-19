@@ -221,36 +221,7 @@ const Blog: React.FC = () => {
         </div>
       </section>
 
-      {/* Newsletter Signup */}
-      <section className="section-padding bg-theme-accent">
-        <div className="container-max text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Get The Manhattan Manual
-            </h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-              Weekly insights on breaking old patterns and building authentic masculinity. 
-              No fluff, no BS - just real talk for men ready to change.
-            </p>
-            <div className="max-w-md mx-auto flex gap-4">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2"
-                style={{ '--tw-ring-offset-color': 'var(--theme-accent)' } as React.CSSProperties}
-              />
-              <button className="bg-white hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition-all duration-300" style={{ color: 'var(--theme-accent)' }}>
-                Subscribe
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+    
     </div>
   );
 };

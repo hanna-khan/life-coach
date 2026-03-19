@@ -102,7 +102,9 @@ const BlogPost: React.FC = () => {
               (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1200x600?text=Blog+Image';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
+          {/* Dark overlay for readability - stronger shadow */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80"></div>
+          <div className="absolute inset-0 bg-black/30"></div>
         </div>
 
         {/* Content Overlay */}
@@ -137,13 +139,13 @@ const BlogPost: React.FC = () => {
                 </span>
               </div>
 
-              {/* Title */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              {/* Title - white with shadow so it's visible on any image */}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white drop-shadow-lg" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8), 0 4px 20px rgba(0,0,0,0.6)' }}>
                 {blog.title}
               </h1>
 
               {/* Excerpt */}
-              <p className="text-xl md:text-2xl text-white/90 mb-6 leading-relaxed max-w-3xl">
+              <p className="text-xl md:text-2xl text-white mb-6 leading-relaxed max-w-3xl drop-shadow-md" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.7)' }}>
                 {blog.excerpt}
               </p>
 

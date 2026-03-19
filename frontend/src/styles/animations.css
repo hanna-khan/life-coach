@@ -195,6 +195,11 @@ html {
   }
 }
 
+/* Footer: no shine/lighting animation */
+.footer-no-shine .section-padding::before {
+  display: none !important;
+}
+
 /* Enhanced chart animations */
 .chart-container {
   transition: all var(--animation-duration-normal) var(--animation-easing-smooth);
