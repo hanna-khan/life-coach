@@ -125,7 +125,19 @@ const BookCall: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Booking error:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to create booking';
+
+      // Prefer backend validation messages (e.g. message too long) over generic 400 error
+      const apiData = error?.response?.data;
+      let errorMessage = 'Failed to create booking';
+
+      if (apiData?.errors && Array.isArray(apiData.errors) && apiData.errors.length > 0) {
+        errorMessage = apiData.errors[0].msg || errorMessage;
+      } else if (typeof apiData?.message === 'string') {
+        errorMessage = apiData.message;
+      } else if (typeof error.message === 'string') {
+        errorMessage = error.message;
+      }
+
       toast.error(errorMessage);
       setSubmitting(false);
     }
