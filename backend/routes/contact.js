@@ -80,15 +80,25 @@ router.post('/', [
         // Use ADMIN_EMAIL if set, otherwise use EMAIL_USER
         const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
         
+        const fromName = process.env.EMAIL_FROM_NAME || 'LWM Coaching';
         console.log(`📧 Sending contact form email to: ${adminEmail}`);
-        console.log(`   From: ${process.env.EMAIL_USER}`);
-        console.log(`   User email (Reply-To): ${email}`);
-        
+        console.log(`   From: ${fromName} <${process.env.EMAIL_USER}>`);
+        console.log(`   Reply-To: ${email}`);
+
+        const plainTextBody = `New contact form submission\n\nName: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}\n\n---\nReply to this email to respond to ${name}.`;
+
         const mailOptions = {
-          from: `"Life Coach Website" <${process.env.EMAIL_USER}>`,
-          to: adminEmail, // Send to admin
-          replyTo: email, // User's email for easy reply
-          subject: `New Contact Form: ${subject}`,
+          from: `"${fromName}" <${process.env.EMAIL_USER}>`,
+          to: adminEmail,
+          replyTo: `"${name}" <${email}>`,
+          subject: `[Website] ${subject}`,
+          text: plainTextBody,
+          headers: {
+            'X-Priority': '3',
+            'X-Mailer': 'LWM-Coaching-Contact-Form',
+            'List-Unsubscribe': '<mailto:' + process.env.EMAIL_USER + '>',
+            'Auto-Submitted': 'auto-generated'
+          },
           html: `
             <!DOCTYPE html>
             <html>
@@ -172,11 +182,18 @@ router.post('/', [
         await transporter.sendMail(mailOptions);
         console.log(`✅ Contact form email sent to admin: ${adminEmail}`);
 
-        // Send confirmation email to user
+        // Send confirmation email to user (with plain text to help inbox placement)
+        const confirmPlain = `Hi ${name},\n\nThank you for reaching out. We've received your message and will get back to you soon.\n\nBest,\n${fromName}`;
         const confirmationMailOptions = {
-          from: `"Life Coach" <${process.env.EMAIL_USER}>`,
+          from: `"${fromName}" <${process.env.EMAIL_USER}>`,
           to: email,
-          subject: 'Thank you for contacting us!',
+          replyTo: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+          subject: 'We received your message – ' + fromName,
+          text: confirmPlain,
+          headers: {
+            'X-Priority': '3',
+            'X-Mailer': 'LWM-Coaching-Contact-Form'
+          },
           html: `
             <!DOCTYPE html>
             <html>
@@ -231,9 +248,9 @@ router.post('/', [
                       <tr>
                         <td style="background-color: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                           <p style="margin: 0 0 10px 0; color: #111827; font-size: 16px; font-weight: 600;">Best regards,</p>
-                          <p style="margin: 0; color: #1e40af; font-size: 16px; font-weight: 700;">Life Coach Team</p>
+                          <p style="margin: 0; color: #1e40af; font-size: 16px; font-weight: 700;">${fromName}</p>
                           <p style="margin: 15px 0 0 0; color: #6b7280; font-size: 12px;">
-                            This is an automated confirmation email. Please do not reply to this message.
+                            This is an automated confirmation. You can reply to this email if you have follow-up questions.
                           </p>
                         </td>
                       </tr>
@@ -384,13 +401,20 @@ router.post('/:id/reply', adminAuth, [
       return res.status(404).json({ message: 'Contact message not found' });
     }
 
-    // Send reply email
+    // Send reply email (with plain text for better deliverability)
     const transporter = createTransporter();
-    
+    if (!transporter) {
+      return res.status(503).json({ message: 'Email not configured' });
+    }
+    const fromName = process.env.EMAIL_FROM_NAME || 'LWM Coaching';
+    const replyPlain = `Hi ${contact.name},\n\nThank you for contacting us. Here's our reply:\n\n${req.body.replyMessage}\n\nIf you have any further questions, please reply to this email.\n\nBest regards,\n${fromName}`;
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"${fromName}" <${process.env.EMAIL_USER}>`,
       to: contact.email,
+      replyTo: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
       subject: `Re: ${contact.subject}`,
+      text: replyPlain,
+      headers: { 'X-Priority': '3', 'X-Mailer': 'LWM-Coaching-Contact-Form' },
       html: `
         <h2>Reply to your message</h2>
         <p>Hi ${contact.name},</p>
@@ -398,9 +422,9 @@ router.post('/:id/reply', adminAuth, [
         <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007bff; margin: 20px 0;">
           ${req.body.replyMessage.replace(/\n/g, '<br>')}
         </div>
-        <p>If you have any further questions, please don't hesitate to contact us.</p>
+        <p>If you have any further questions, please reply to this email.</p>
         <hr>
-        <p>Best regards,<br>Life Coach Team</p>
+        <p>Best regards,<br>${fromName}</p>
       `
     };
 
