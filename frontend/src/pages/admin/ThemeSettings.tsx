@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -96,11 +96,7 @@ const ThemeSettings: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    fetchCurrentTheme();
-  }, []);
-
-  const fetchCurrentTheme = async () => {
+  const fetchCurrentTheme = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('adminToken');
@@ -117,7 +113,11 @@ const ThemeSettings: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setTheme]);
+
+  useEffect(() => {
+    fetchCurrentTheme();
+  }, [fetchCurrentTheme]);
 
   const handleSaveTheme = async () => {
     try {

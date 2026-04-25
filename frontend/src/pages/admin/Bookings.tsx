@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { useAdminAuth } from '../../contexts/AdminAuthContext.tsx';
 
 interface Booking {
   _id: string;
@@ -27,7 +26,6 @@ interface Booking {
 }
 
 const AdminBookings: React.FC = () => {
-  const { token } = useAdminAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
