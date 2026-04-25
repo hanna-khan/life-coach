@@ -66,6 +66,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onCollapseChange }) 
       )
     },
     {
+      name: 'Subscribers',
+      path: '/admin/subscribers',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14a7 7 0 00-7 7m14 0a7 7 0 00-7-7m7 7h3m-3-4h3m-3-4h3" />
+        </svg>
+      )
+    },
+    {
       name: 'Theme Settings',
       path: '/admin/theme-settings',
       icon: (

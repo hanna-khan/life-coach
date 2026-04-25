@@ -107,6 +107,7 @@ app.get('/', (req, res) => {
       blogs: '/api/blogs',
       bookings: '/api/bookings',
       contact: '/api/contact',
+      subscribers: '/api/subscribers',
       payments: '/api/payments',
       pricing: '/api/pricing',
       admin: '/api/admin'
@@ -148,6 +149,9 @@ app.use('/api/testimonials', require('./routes/testimonials'));
 
 // Contact route - always available (needs database and email)
 app.use('/api/contact', require('./routes/contact'));
+
+// Subscriber route - always available (needs database)
+app.use('/api/subscribers', require('./routes/subscribers'));
 
 // Public theme route (no auth required)
 const Theme = require('./models/Theme');

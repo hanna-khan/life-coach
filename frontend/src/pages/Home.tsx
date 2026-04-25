@@ -60,6 +60,11 @@ const Home: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [testimonialFormKey, setTestimonialFormKey] = useState(0);
   const [currentHeroVideoIndex, setCurrentHeroVideoIndex] = useState(0);
+  const [newsletterForm, setNewsletterForm] = useState({
+    name: '',
+    email: ''
+  });
+  const [subscribing, setSubscribing] = useState(false);
 
   // Helper function to get initials from name
   const getInitials = (name: string): string => {
@@ -181,6 +186,44 @@ const Home: React.FC = () => {
       toast.error(errorMessage);
     } finally {
       setSubmittingTestimonial(false);
+    }
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const name = newsletterForm.name.trim();
+    const email = newsletterForm.email.trim();
+
+    if (name.length < 2) {
+      toast.error('Please enter your name');
+      return;
+    }
+
+    if (!email) {
+      toast.error('Please enter your email');
+      return;
+    }
+
+    try {
+      setSubscribing(true);
+      const response = await axios.post(
+        `${getApiBaseUrl().replace(/\/$/, '')}/api/subscribers`,
+        { name, email, source: 'home-newsletter' }
+      );
+
+      if (response.data.success) {
+        toast.success(response.data.message || 'Subscribed successfully.');
+        setNewsletterForm({ name: '', email: '' });
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0]?.msg ||
+        'Failed to subscribe. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setSubscribing(false);
     }
   };
 
@@ -932,6 +975,71 @@ const Home: React.FC = () => {
               </div>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="section-padding bg-white border-t border-gray-100">
+        <div className="container-max">
+          <motion.div
+            className="max-w-4xl mx-auto text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Join the Newsletter
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Get coaching insights, mindset tools, and updates straight to your inbox.
+            </p>
+          </motion.div>
+
+          <motion.form
+            onSubmit={handleNewsletterSubmit}
+            className="max-w-3xl mx-auto bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input
+                type="text"
+                value={newsletterForm.name}
+                onChange={(e) => setNewsletterForm((prev) => ({ ...prev, name: e.target.value }))}
+                placeholder="Your name"
+                className="md:col-span-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2"
+                style={{ '--tw-ring-color': 'var(--theme-accent)' } as React.CSSProperties}
+                required
+                minLength={2}
+              />
+              <input
+                type="email"
+                value={newsletterForm.email}
+                onChange={(e) => setNewsletterForm((prev) => ({ ...prev, email: e.target.value }))}
+                placeholder="you@example.com"
+                className="md:col-span-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2"
+                style={{ '--tw-ring-color': 'var(--theme-accent)' } as React.CSSProperties}
+                required
+              />
+              <button
+                type="submit"
+                disabled={subscribing}
+                className="md:col-span-1 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ background: 'var(--theme-primary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--theme-primary-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--theme-primary)';
+                }}
+              >
+                {subscribing ? 'Subscribing...' : 'Subscribe'}
+              </button>
+            </div>
+          </motion.form>
         </div>
       </section>
 

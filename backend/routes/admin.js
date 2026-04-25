@@ -5,6 +5,7 @@ const Blog = require('../models/Blog');
 const Booking = require('../models/Booking');
 const Contact = require('../models/Contact');
 const Theme = require('../models/Theme');
+const Subscriber = require('../models/Subscriber');
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.get('/dashboard', adminAuth, async (req, res) => {
       totalBlogs,
       totalBookings,
       totalContacts,
+      totalSubscribers,
       publishedBlogs,
       draftBlogs,
       pendingBookings,
@@ -30,6 +32,7 @@ router.get('/dashboard', adminAuth, async (req, res) => {
       Blog.countDocuments(),
       Booking.countDocuments(),
       Contact.countDocuments(),
+      Subscriber.countDocuments(),
       Blog.countDocuments({ status: 'published' }),
       Blog.countDocuments({ status: 'draft' }),
       Booking.countDocuments({ status: 'pending' }),
@@ -151,6 +154,7 @@ router.get('/dashboard', adminAuth, async (req, res) => {
           totalBlogs, // From Blog table
           totalBookings, // From Booking table
           totalContacts,
+          totalSubscribers,
           publishedBlogs, // From Blog table
           draftBlogs, // From Blog table
           pendingBookings, // From Booking table
