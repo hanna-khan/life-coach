@@ -272,27 +272,7 @@ const AdminDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Total Subscribers Card */}
-          <motion.div
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-            variants={scaleIn}
-            whileHover="hover"
-            custom={2}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Total Subscribers</p>
-                <h3 className="text-3xl font-bold text-gray-900">{stats.totalSubscribers}</h3>
-                <p className="text-sm text-gray-500 mt-2">Newsletter email list</p>
-              </div>
-              <div className="bg-indigo-100 p-3 rounded-lg">
-                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14a7 7 0 00-7 7m14 0a7 7 0 00-7-7m7 7h3m-3-4h3m-3-4h3" />
-                </svg>
-              </div>
-            </div>
-          </motion.div>
+         
 
           {/* Total Bookings Card */}
           <motion.div 
