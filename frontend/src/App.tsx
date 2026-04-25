@@ -26,6 +26,7 @@ import AdminBlogs from './pages/admin/Blogs.tsx';
 import AdminBookings from './pages/admin/Bookings.tsx';
 import AdminContacts from './pages/admin/Contacts.tsx';
 import AdminSubscribers from './pages/admin/Subscribers.tsx';
+import AdminTestimonials from './pages/admin/Testimonials.tsx';
 import AdminThemeSettings from './pages/admin/ThemeSettings.tsx';
 import BookingSuccess from './pages/BookingSuccess.tsx';
 import BookingCancel from './pages/BookingCancel.tsx';
@@ -156,6 +157,11 @@ function App() {
                 <Route path="subscribers" element={
                   <PageTransition>
                     <AdminSubscribers />
+                  </PageTransition>
+                } />
+                <Route path="testimonials" element={
+                  <PageTransition>
+                    <AdminTestimonials />
                   </PageTransition>
                 } />
                 <Route path="theme-settings" element={
