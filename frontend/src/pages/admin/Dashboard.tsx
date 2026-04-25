@@ -224,7 +224,7 @@ const AdminDashboard: React.FC = () => {
         </motion.div>
 
         {/* Stats Cards */}
-        <AnimatedContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <AnimatedContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Revenue Card */}
           <motion.div 
             className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
